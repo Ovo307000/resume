@@ -1,0 +1,150 @@
+{
+  "basics": {
+    "name": "赵东安",
+    "label": "Java 后端开发工程师",
+    "email": "solowzl@outlook.com",
+    "phone": "19154085798",
+    "github": "https://github.com/Ovo307000",
+    "githubUsername": "Ovo307000",
+    "wechat": "za1-37",
+    "summary": "Java 后端工程师，熟练掌握常用设计模式，拥有丰富的项目经验，致力于构建高性能、高可用的稳定系统，提升企业业务效率，并积极拥抱新技术。"
+  },
+  "education": [
+    {
+      "institution": "安徽工贸学院",
+      "area": "软件技术",
+      "startDate": "2020-10-01",
+      "endDate": "2023-06-30",
+      "displayDate": {
+        "en": "Oct 2020 - Jun 2023",
+        "zh": "2020年10月 - 2023年6月"
+      },
+      "description": {
+        "zh": "专注于软件技术专业学习，掌握软件开发基础理论与实践技能，特别是在Java后端开发方面打下了坚实基础。",
+        "en": "Focused on software technology major, mastering foundational theories and practical skills in software development, especially building a solid foundation in Java backend development."
+      },
+      "activities": [
+        {
+          "zh": "参与校内Java编程竞赛，获得二等奖",
+          "en": "Participated in campus Java programming competition and won second prize"
+        },
+        {
+          "zh": "协助老师开发教学管理系统，负责后端API开发",
+          "en": "Assisted teachers in developing a teaching management system, responsible for backend API development"
+        },
+        {
+          "zh": "担任软件技术专业学习小组组长，组织代码分享会",
+          "en": "Served as the leader of the software technology study group, organizing code sharing sessions"
+        }
+      ],
+      "achievements": [
+        {
+          "zh": "连续两年获得学校奖学金",
+          "en": "Received school scholarships for two consecutive years"
+        },
+        {
+          "zh": "获得优秀毕业生称号",
+          "en": "Awarded Outstanding Graduate title"
+        }
+      ],
+      "skills": [
+        {
+          "zh": "系统掌握Java SE和Java EE技术栈",
+          "en": "Systematically mastered Java SE and Java EE technology stack"
+        },
+        {
+          "zh": "学习并实践了MySQL数据库设计与优化",
+          "en": "Studied and practiced MySQL database design and optimization"
+        },
+        {
+          "zh": "了解软件开发生命周期和团队协作流程",
+          "en": "Familiarized with software development lifecycle and team collaboration processes"
+        }
+      ]
+    },
+    {
+      "institution": "安徽财经大学",
+      "area": "计算机科学与技术",
+      "startDate": "2024-03-01",
+      "endDate": "至今",
+      "isOngoing": true,
+      "displayDate": {
+        "en": "Mar 2024 - Ongoing",
+        "zh": "2024年3月 - 至今"
+      },
+      "description": {
+        "zh": "通过专升本考试进入本科学习，深入探索计算机科学与技术领域，拓展知识广度的同时增强专业深度。",
+        "en": "Entered undergraduate study through the specialized-to-bachelor exam, exploring the computer science and technology field in depth while expanding knowledge breadth and enhancing professional depth."
+      },
+      "activities": [
+        {
+          "zh": "加入学校计算机协会，参与技术分享活动",
+          "en": "Joined the university computer association, participating in technical sharing activities"
+        },
+        {
+          "zh": "参加校企合作项目，实践企业级开发流程",
+          "en": "Participated in school-enterprise cooperation projects, practicing enterprise-level development processes"
+        }
+      ],
+      "currentFocus": [
+        {
+          "zh": "计算机网络与分布式系统理论",
+          "en": "Computer networking and distributed systems theory"
+        },
+        {
+          "zh": "算法分析与高级数据结构",
+          "en": "Algorithm analysis and advanced data structures"
+        },
+        {
+          "zh": "云原生技术与微服务架构",
+          "en": "Cloud-native technologies and microservice architecture"
+        }
+      ],
+      "goals": [
+        {
+          "zh": "掌握更多理论知识，提升系统设计能力",
+          "en": "Master more theoretical knowledge and improve system design capabilities"
+        },
+        {
+          "zh": "参与科研项目，培养学术思维",
+          "en": "Participate in research projects to cultivate academic thinking"
+        },
+        {
+          "zh": "拓展技术视野，为未来职业发展打下基础",
+          "en": "Expand technical horizons to lay a foundation for future career development"
+        }
+      ]
+    }
+  ],
+  "skills": {
+    "programmingLanguages": ["JAVA", "C#", "C", "Python", "TypeScript"],
+    "frameworks": ["Spring", "Spring JPA", "Spring MVC", "Spring Boot", "RESTAPI", "Maven", "Gradle", "React.js", "Vue.js", "TailWind CSS"],
+    "tools": ["MySql", "PostgreSql", "MongoDB", "Redis", "Git", "Linux", "Docker", "Stable Diffusion"],
+    "overview": {
+      "java": "Java 基础：熟悉Java编程语言，熟悉面向对象编程思想（OOP），包括封装、继承、多态等特性，并能灵活运用到实际项目开发中。熟悉Java常用集合框架（Collection、List、Set、Map），能够根据不同的业务场景选择合适的数据结构，提高程序性能。熟悉多线程和异步编程，了解线程池、锁机制等相关知识，能够解决并发环境下的数据安全问题。Spring 框架：深入理解Spring框架的核心概念，包括IoC（控制反转）和AOP（面向切面编程），能够灵活运用其特性进行模块化设计和解耦。熟练使用Spring MVC构建高效的RESTful API，具备良好的API设计能力，能够根据需求设计清晰、易用的接口。熟悉Spring Data JPA和MyBatis等ORM框架，能够根据项目需求选择合适的框架进行数据访问，提高开发效率。",
+      "others": "Linux：熟悉Linux常用命令，能够进行服务器日常维护和故障排查，并能编写Shell脚本进行自动化部署和监控。熟悉Nginx和Tomcat的配置和优化。Git：熟练使用Git进行版本控制，熟悉Gitflow工作流，能够高效地进行代码管理和团队协作。Docker:熟悉Docker的基本概念和常用命令，能够编写Dockerfile和使用Docker Compose构建和管理容器化应用。"
+    }
+  },
+  "projects": [
+    {
+      "name": "Sky-Take-Out",
+      "nameZh": "苍穹外卖",
+      "url": "https://github.com/Ovo307000/sky-take-out",
+      "description": "A food delivery platform for restaurants with both management system and mini-program application.",
+      "descriptionZh": "专为餐饮企业定制的软件产品，包括系统管理后台和小程序端应用。",
+      "longDescription": "本项目（苍穹外卖）是专门为餐饮企业（餐厅、饭店）定制的一款软件产品，包括系统管理后台和小程序端应用两部分。其中系统管理后台主要提供给餐饮企业内部员工使用，可以对餐厅的分类、菜品、套餐、订单、员工等进行管理维护，对餐厅的各类数据进行统计，同时也可进行来单语音播报功能。小程序端主要提供给消费者使用，可以在线浏览菜品、添加购物车、下单、支付、催单等。",
+      "technologies": ["Spring Boot", "SpringMVC", "Redis", "MySQL", "Docker", "Nginx", "WebSocket", "阿里云OSS"],
+      "imageUrl": "https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80"
+    },
+    {
+      "name": "Lease",
+      "nameZh": "尚庭公寓",
+      "url": "https://github.com/Ovo307000/lease",
+      "description": "An apartment rental platform project with mobile client and backend management system.",
+      "descriptionZh": "公寓租赁平台项目，包含移动端和后台管理系统。",
+      "longDescription": "尚庭公寓是一个公寓租赁平台项目，包含移动端和后台管理系统，其中移动端面向广大用户，提供找房、看房预约、租约管理等功能，后台管理系统面向管理员，提供公寓（房源）管理、租赁管理、用户管理等功能。",
+      "technologies": ["Spring Boot", "SpringMVC", "MyBatis/Plus", "Redis", "MySQL", "MinIO", "Nginx", "WebSocket", "Docker"],
+      "imageUrl": "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80"
+    }
+  ]
+}

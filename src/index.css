@@ -1,0 +1,95 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-white text-gray-800 dark:bg-dark-bg dark:text-gray-200 transition-colors duration-300;
+    font-family: 'Inter', sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-bold;
+  }
+}
+
+@layer components {
+  .rgb-border {
+    position: relative;
+    border-radius: 0.5rem;
+    overflow: hidden;
+  }
+
+  .rgb-border::before {
+    content: "";
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    z-index: -1;
+    background: linear-gradient(45deg,
+      rgb(239, 68, 68),
+      rgb(16, 185, 129),
+      rgb(59, 130, 246));
+    background-size: 400% 400%;
+    animation: gradient 8s ease infinite;
+    border-radius: 0.75rem;
+  }
+
+  .hover-lift {
+    @apply transition-transform duration-300 ease-in-out;
+  }
+
+  .hover-lift:hover {
+    @apply transform -translate-y-1;
+  }
+
+  .section {
+    @apply py-16 animate-fade-in;
+  }
+
+  .card {
+    @apply bg-white dark:bg-dark-card shadow-lg rounded-lg p-6 hover-lift dark:shadow-gray-900/30;
+  }
+
+  .btn {
+    @apply px-6 py-2 rounded-md font-medium transition-all duration-300;
+  }
+
+  .btn-primary {
+    @apply bg-primary text-white hover:bg-primary-dark;
+  }
+
+  .btn-outline {
+    @apply border border-gray-300 dark:border-gray-700 hover:border-primary hover:text-primary dark:hover:border-primary;
+  }
+
+  .light-shimmer {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .light-shimmer::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: linear-gradient(
+      to right,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.2) 50%,
+      rgba(255, 255, 255, 0) 100%
+    );
+    transform: translateX(-100%);
+    animation: shimmer 2.5s infinite;
+  }
+
+  @keyframes shimmer {
+    100% {
+      transform: translateX(100%);
+    }
+  }
+}

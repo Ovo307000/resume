@@ -1,0 +1,90 @@
+{
+  "common": {
+    "language": "语言",
+    "darkMode": "暗黑模式",
+    "lightMode": "明亮模式"
+  },
+  "header": {
+    "home": "首页",
+    "about": "关于我",
+    "skills": "技能",
+    "projects": "项目",
+    "education": "教育",
+    "contact": "联系方式",
+    "menu": "菜单",
+    "homeDescription": "我的个人简历主页",
+    "aboutDescription": "了解我的背景和经历",
+    "skillsDescription": "我的技术技能和专长",
+    "projectsDescription": "我参与开发的项目展示",
+    "educationDescription": "我的教育背景和学习经历",
+    "contactDescription": "与我取得联系的方式"
+  },
+  "navigation": {
+    "home": "首页",
+    "about": "关于我",
+    "skills": "技能",
+    "education": "教育",
+    "experience": "经验",
+    "contact": "联系方式",
+    "language": "切换语言"
+  },
+  "hero": {
+    "greeting": "你好，我是",
+    "title": "Java 后端开发工程师",
+    "summary": "Java 后端工程师，熟练掌握常用设计模式，拥有丰富的项目经验，致力于构建高性能、高可用的稳定系统，提升企业业务效率，并积极拥抱新技术。",
+    "contactMe": "联系我"
+  },
+  "about": {
+    "title": "关于我",
+    "description": "Java 后端工程师，熟练掌握常用设计模式，拥有丰富的项目经验，致力于构建高性能、高可用的稳定系统，提升企业业务效率，并积极拥抱新技术。"
+  },
+  "education": {
+    "title": "教育经历",
+    "college1": {
+      "name": "安徽工贸学院",
+      "degree": "软件技术",
+      "date": "2020年10月 - 2023年6月"
+    },
+    "college2": {
+      "name": "安徽财经大学",
+      "degree": "计算机科学与技术",
+      "date": "2024年3月 - 至今"
+    }
+  },
+  "skills": {
+    "title": "技能与专长",
+    "programmingLanguages": "编程语言",
+    "devFrameworks": "开发框架",
+    "devTools": "开发工具与环境",
+    "overview": "技能概览"
+  },
+  "projects": {
+    "title": "项目经验",
+    "viewCode": "查看代码",
+    "sky": {
+      "title": "苍穹外卖",
+      "description": "专为餐饮企业定制的软件产品，包括系统管理后台和小程序端应用。"
+    },
+    "lease": {
+      "title": "尚庭公寓",
+      "description": "公寓租赁平台项目，包含移动端和后台管理系统。"
+    }
+  },
+  "contact": {
+    "title": "联系方式",
+    "email": "邮箱",
+    "phone": "电话",
+    "github": "Github",
+    "wechat": "微信",
+    "getInTouch": "与我联系"
+  },
+  "footer": {
+    "tagline": "致力于构建高性能、高可用的稳定系统",
+    "quickLinks": "快速导航",
+    "connect": "联系我",
+    "contactEmail": "邮箱",
+    "contactPhone": "电话",
+    "madeWith": "用",
+    "using": "和"
+  }
+}
