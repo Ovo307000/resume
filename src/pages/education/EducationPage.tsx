@@ -170,14 +170,36 @@ const EducationPage: React.FC<EducationPageProps> = ({ data }) => {
           </GlassyBlobBackground>
 
           {/* 教育经历时间线 */}
-          <Timeline position="alternate">
+          <Timeline
+            position="alternate"
+            sx={{
+              [`& .MuiTimelineItem-root`]: {
+                minHeight: '120px',
+              },
+              [`& .MuiTimelineOppositeContent-root`]: {
+                padding: 2,
+                marginTop: 0,
+                maxWidth: { xs: '180px', md: '220px' },
+                width: { xs: '180px', md: '220px' },
+              },
+              [`& .MuiTimelineContent-root`]: {
+                padding: '8px 16px',
+              },
+              [`& .MuiTimelineDot-root`]: {
+                margin: '12px 0',
+              }
+            }}
+          >
             {data.map((education, index) => (
               <TimelineItem key={index}>
                 <TimelineOppositeContent
                   sx={{
                     m: 'auto 0',
-                    alignSelf: 'center',
-                    flex: { xs: 0.2, md: 0.3 }
+                    alignSelf: 'flex-start',
+                    pt: 2,
+                    pr: { xs: 2, md: index % 2 === 0 ? 2 : 0 },
+                    pl: { xs: 2, md: index % 2 === 0 ? 0 : 2 },
+                    textAlign: { xs: 'left', md: index % 2 === 0 ? 'right' : 'left' }
                   }}
                 >
                   <Typography
@@ -185,7 +207,6 @@ const EducationPage: React.FC<EducationPageProps> = ({ data }) => {
                     color="text.secondary"
                     sx={{
                       fontWeight: 'medium',
-                      textAlign: { xs: 'left', md: 'right' }
                     }}
                   >
                     {language === 'zh' ? education.displayDate.zh : education.displayDate.en}
@@ -193,27 +214,21 @@ const EducationPage: React.FC<EducationPageProps> = ({ data }) => {
                 </TimelineOppositeContent>
 
                 <TimelineSeparator>
-                  <TimelineConnector />
-
                   <TimelineDot
-                    color="primary"
-                    variant="outlined"
                     sx={{
-                      my: 1,
-                      borderWidth: 2,
-                      p: 1
+                      bgcolor: index % 2 === 0 ? 'primary.main' : 'secondary.main',
+                      boxShadow: 3
                     }}
                   >
                     <FiBook size={20} />
                   </TimelineDot>
-
-                  <TimelineConnector />
+                  {index < data.length - 1 && <TimelineConnector />}
                 </TimelineSeparator>
 
                 <TimelineContent
                   sx={{
-                    py: '12px',
-                    px: 2
+                    py: 2,
+                    px: { xs: 2, md: 3 }
                   }}
                 >
                   <GlassyBlobBackground
@@ -329,7 +344,7 @@ const EducationPage: React.FC<EducationPageProps> = ({ data }) => {
                       )}
 
                       {/* 详细信息区域 */}
-                      <Collapse in={expandedItems[index]} timeout="auto">
+                      <Collapse in={expandedItems[index]} timeout="auto" unmountOnExit>
                         <Grid container spacing={2} sx={{ mt: 1 }}>
                           {/* 活动列表 */}
                           {education.activities && education.activities.length > 0 && (

@@ -25,6 +25,9 @@ import ThemeToggle from '../ui/theme/ThemeToggle';
 import LanguageSelector from '../ui/language/LanguageSelector';
 import Logo from '../ui/Logo';
 
+// 从JSON数据导入导航项
+import resumeData from '../../data/resumeData.json';
+
 interface NavRoute {
   path: string;
   label: string;
@@ -73,7 +76,7 @@ const NavLink: React.FC<{ route: NavRoute; active: boolean }> = ({ route, active
           <motion.div
             layoutId="navbar-indicator"
             initial={{ opacity: 0, width: 0 }}
-            animate={{ opacity: 1, width: '50%' }}
+            animate={{ opacity: 1, width: '100%' }}
             exit={{ opacity: 0, width: 0 }}
             transition={{
               type: 'spring',
@@ -83,12 +86,12 @@ const NavLink: React.FC<{ route: NavRoute; active: boolean }> = ({ route, active
             }}
             style={{
               position: 'absolute',
-              bottom: '5px',
-              left: '50%',
+              bottom: '8px',
+              left: '0',
               height: '3px',
               borderRadius: '2px',
               backgroundColor: muiTheme.palette.primary.main,
-              transform: 'translateX(-50%)',
+              width: '100%'
             }}
           />
         )}
@@ -168,12 +171,30 @@ const Navbar: React.FC = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { theme } = useTheme();
   const muiTheme = useMuiTheme();
+  const [scrolled, setScrolled] = useState(false);
 
   // 使用MUI的useScrollTrigger检测滚动
   const scrollTrigger = useScrollTrigger({
     disableHysteresis: true,
     threshold: 50,
   });
+
+  // 监听滚动事件
+  useEffect(() => {
+    const handleScroll = () => {
+      const offset = window.scrollY;
+      if (offset > 50) {
+        setScrolled(true);
+      } else {
+        setScrolled(false);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
 
   // 构建导航路由
   const routes: NavRoute[] = [
@@ -202,82 +223,102 @@ const Navbar: React.FC = () => {
 
   return (
     <>
-      <AppBar
-        position="fixed"
-        color="transparent"
-        elevation={scrollTrigger ? 2 : 0}
-        sx={{
-          backgroundColor: scrollTrigger
-            ? theme === 'dark'
-              ? alpha(muiTheme.palette.background.paper, 0.8)
-              : alpha(muiTheme.palette.background.default, 0.8)
-            : 'transparent',
-          backdropFilter: 'blur(10px)',
-          borderBottom: scrollTrigger
-            ? `1px solid ${alpha(
-                theme === 'dark'
-                  ? muiTheme.palette.divider
-                  : muiTheme.palette.divider,
-                0.1
-              )}`
-            : 'none',
-          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+      <motion.div
+        initial={{ y: -100, opacity: 0 }}
+        animate={{
+          y: 0,
+          opacity: 1,
+          transition: { duration: 0.5, ease: "easeOut" }
+        }}
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 1100
         }}
       >
-        <Container maxWidth="lg">
-          <Toolbar disableGutters sx={{ py: scrollTrigger ? 1 : 1.5 }}>
-            {/* Logo */}
-            <Box sx={{ flexGrow: 0, mr: 2 }}>
-              <Logo />
-            </Box>
-
-            {/* 桌面导航 */}
-            <Box
-              sx={{
-                flexGrow: 1,
-                display: { xs: 'none', md: 'flex' },
-                justifyContent: 'center',
-              }}
-            >
-              {routes.map((route) => (
-                <NavLink
-                  key={route.path}
-                  route={route}
-                  active={isActive(route.path)}
-                />
-              ))}
-            </Box>
-
-            {/* 导航右侧功能区 */}
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <ThemeToggle />
-
-              <Box sx={{ ml: 2, display: { xs: 'none', md: 'block' } }}>
-                <LanguageSelector />
+        <AppBar
+          position="static"
+          color="transparent"
+          elevation={scrolled ? 2 : 0}
+          sx={{
+            backgroundColor: scrolled
+              ? theme === 'dark'
+                ? alpha(muiTheme.palette.background.paper, 0.9)
+                : alpha(muiTheme.palette.background.default, 0.9)
+              : 'transparent',
+            backdropFilter: 'blur(10px)',
+            borderBottom: scrolled
+              ? `1px solid ${alpha(
+                  theme === 'dark'
+                    ? muiTheme.palette.divider
+                    : muiTheme.palette.divider,
+                  0.1
+                )}`
+              : 'none',
+            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+            boxShadow: scrolled ? '0 4px 20px rgba(0,0,0,0.08)' : 'none',
+          }}
+        >
+          <Container maxWidth="lg">
+            <Toolbar disableGutters sx={{
+              py: scrolled ? 1 : 1.5,
+              transition: 'all 0.3s ease'
+            }}>
+              {/* Logo */}
+              <Box sx={{ flexGrow: 0, mr: 2 }}>
+                <Logo />
               </Box>
 
-              {/* 移动端菜单按钮 */}
-              <Box sx={{ display: { xs: 'flex', md: 'none' }, ml: 1 }}>
-                <IconButton
-                  aria-label="Open navigation menu"
-                  onClick={handleDrawerToggle}
-                  size="large"
-                  edge="end"
-                  sx={{
-                    color: 'text.primary',
-                    border: theme === 'dark'
-                      ? '1px solid rgba(255,255,255,0.1)'
-                      : '1px solid rgba(0,0,0,0.05)',
-                    borderRadius: '12px',
-                  }}
-                >
-                  <FiMenu />
-                </IconButton>
+              {/* 桌面导航 */}
+              <Box
+                sx={{
+                  flexGrow: 1,
+                  display: { xs: 'none', md: 'flex' },
+                  justifyContent: 'center',
+                }}
+              >
+                {routes.map((route) => (
+                  <NavLink
+                    key={route.path}
+                    route={route}
+                    active={isActive(route.path)}
+                  />
+                ))}
               </Box>
-            </Box>
-          </Toolbar>
-        </Container>
-      </AppBar>
+
+              {/* 导航右侧功能区 */}
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <ThemeToggle />
+
+                <Box sx={{ ml: 2, display: { xs: 'none', md: 'block' } }}>
+                  <LanguageSelector />
+                </Box>
+
+                {/* 移动端菜单按钮 */}
+                <Box sx={{ display: { xs: 'flex', md: 'none' }, ml: 1 }}>
+                  <IconButton
+                    aria-label="Open navigation menu"
+                    onClick={handleDrawerToggle}
+                    size="large"
+                    edge="end"
+                    sx={{
+                      color: 'text.primary',
+                      border: theme === 'dark'
+                        ? '1px solid rgba(255,255,255,0.1)'
+                        : '1px solid rgba(0,0,0,0.05)',
+                      borderRadius: '12px',
+                    }}
+                  >
+                    <FiMenu />
+                  </IconButton>
+                </Box>
+              </Box>
+            </Toolbar>
+          </Container>
+        </AppBar>
+      </motion.div>
 
       {/* 移动端侧边菜单 */}
       <Drawer
@@ -332,7 +373,7 @@ const Navbar: React.FC = () => {
       </Drawer>
 
       {/* 占位符，避免内容被导航栏覆盖 */}
-      <Toolbar sx={{ mb: 6 }} />
+      <Toolbar sx={{ mb: 2 }} />
     </>
   );
 };

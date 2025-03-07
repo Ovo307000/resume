@@ -1,6 +1,6 @@
 import React from 'react';
 import { ListItem, ListItemButton, ListItemText, ListItemIcon, alpha, useTheme as useMuiTheme } from '@mui/material';
-import { NavLink as RouterNavLink } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useTheme } from '../../../contexts/ThemeContext';
 
@@ -28,25 +28,30 @@ const MobileNavLink: React.FC<MobileNavLinkProps> = ({
   const muiTheme = useMuiTheme();
   const { theme } = useTheme();
 
+  // 自定义按钮组件用于避免React Router的警告
+  const CustomButton = React.forwardRef<HTMLAnchorElement, any>((props, ref) => (
+    <Link to={path || ''} ref={ref} {...props} />
+  ));
+
   return (
     <ListItem disablePadding>
       <ListItemButton
-        component={path ? RouterNavLink : 'button'}
-        to={path}
+        component={path ? CustomButton : 'button'}
         onClick={onClick}
         sx={{
           position: 'relative',
           py: 1.5,
           borderRadius: 1,
-          color: isActive ? color : 'inherit',
+          color: isActive ? color : 'text.primary',
           fontWeight: isActive ? 'bold' : 'normal',
-          bgcolor: isActive ? alpha(color, theme === 'dark' ? 0.1 : 0.05) : 'transparent',
+          bgcolor: isActive ? alpha(muiTheme.palette.primary.main, theme === 'dark' ? 0.1 : 0.05) : 'transparent',
           '&:hover': {
-            color: color,
-            bgcolor: alpha(color, theme === 'dark' ? 0.08 : 0.03)
+            color: theme === 'dark' ? 'primary.light' : 'primary.main',
+            bgcolor: alpha(muiTheme.palette.primary.main, theme === 'dark' ? 0.08 : 0.03)
           },
           transition: 'all 0.2s ease',
-          mb: 1
+          mb: 1,
+          overflow: 'hidden'
         }}
       >
         {icon && (
@@ -81,7 +86,7 @@ const MobileNavLink: React.FC<MobileNavLinkProps> = ({
               bottom: 8,
               width: 4,
               borderRadius: 2,
-              backgroundColor: color
+              backgroundColor: typeof color === 'string' ? color : muiTheme.palette.primary.main
             }}
           />
         )}

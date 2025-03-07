@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import Header from './Header';
 import Footer from './Footer';
 import { Box } from '@mui/material';
 import { motion } from 'framer-motion';
 import { useTheme } from '../../contexts/ThemeContext';
 import BackToTopButton from '../ui/navigation/BackToTopButton';
+import Navbar from '../navigation/Navbar';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -128,7 +128,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         backdropFilter: 'blur(100px)',
         backgroundColor: 'transparent'
       }}>
-        <Header />
+        <Navbar />
         <Box component="main" sx={{ flexGrow: 1 }}>
           {children}
         </Box>

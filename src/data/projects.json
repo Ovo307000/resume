@@ -1,0 +1,24 @@
+[
+  {
+    "name": "Sky Take-Out",
+    "nameZh": "苍穹外卖",
+    "url": "https://github.com/ZhaoDong2013/sky-take-out",
+    "description": "A comprehensive food delivery platform with management system and mini-program application.",
+    "descriptionZh": "专为餐饮企业定制的软件产品，包括系统管理后台和小程序端应用。主要功能有营业统计、订单管理、菜品管理、套餐管理、后台启动和运营控制。",
+    "longDescription": "The platform includes features such as business statistics, order management, dish management, combo management, backend startup, and operational control.",
+    "technologies": ["Java", "Spring Boot", "MySQL", "Redis", "Spring JPA", "Swagger", "JWT", "WebSocket", "RESTful API", "Nginx"],
+    "imageUrl": "https://img.php.cn/upload/image/550/982/756/1684488126246446.png",
+    "showAllTechnologies": false
+  },
+  {
+    "name": "Apartment Lease System",
+    "nameZh": "尚庭公寓管理系统",
+    "url": "https://github.com/ZhaoDong2013/lease",
+    "description": "An apartment rental platform with mobile client and admin management system.",
+    "descriptionZh": "公寓租赁平台项目，包含移动端和后台管理系统。主要功能有公寓展示、租赁管理、维修申请、用户账号管理和支付系统集成。",
+    "longDescription": "The system includes features for apartment display, lease management, maintenance requests, user account management, and payment system integration.",
+    "technologies": ["Spring Boot", "MyBatis", "Spring Security", "MySQL", "Redis", "Vue.js", "Element UI", "Alipay API", "JWT", "RESTful API"],
+    "imageUrl": "https://st.360buyimg.com/img/jfs/t19900/341/1848316057/14821/82c04044/5b3c3bbbN26c90e9a.jpg",
+    "showAllTechnologies": false
+  }
+]

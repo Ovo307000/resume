@@ -134,7 +134,7 @@
       "descriptionZh": "专为餐饮企业定制的软件产品，包括系统管理后台和小程序端应用。",
       "longDescription": "本项目（苍穹外卖）是专门为餐饮企业（餐厅、饭店）定制的一款软件产品，包括系统管理后台和小程序端应用两部分。其中系统管理后台主要提供给餐饮企业内部员工使用，可以对餐厅的分类、菜品、套餐、订单、员工等进行管理维护，对餐厅的各类数据进行统计，同时也可进行来单语音播报功能。小程序端主要提供给消费者使用，可以在线浏览菜品、添加购物车、下单、支付、催单等。",
       "technologies": ["Spring Boot", "SpringMVC", "Redis", "MySQL", "Docker", "Nginx", "WebSocket", "阿里云OSS"],
-      "imageUrl": "https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80"
+      "imageUrl": "https://img.php.cn/upload/image/550/982/756/1684488126246446.png"
     },
     {
       "name": "Lease",
@@ -144,7 +144,7 @@
       "descriptionZh": "公寓租赁平台项目，包含移动端和后台管理系统。",
       "longDescription": "尚庭公寓是一个公寓租赁平台项目，包含移动端和后台管理系统，其中移动端面向广大用户，提供找房、看房预约、租约管理等功能，后台管理系统面向管理员，提供公寓（房源）管理、租赁管理、用户管理等功能。",
       "technologies": ["Spring Boot", "SpringMVC", "MyBatis/Plus", "Redis", "MySQL", "MinIO", "Nginx", "WebSocket", "Docker"],
-      "imageUrl": "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80"
+      "imageUrl": "https://st.360buyimg.com/img/jfs/t19900/341/1848316057/14821/82c04044/5b3c3bbbN26c90e9a.jpg"
     }
   ]
 }

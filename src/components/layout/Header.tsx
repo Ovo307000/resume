@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   AppBar,
@@ -38,7 +38,7 @@ const Header: React.FC = () => {
   const [activeNavItem, setActiveNavItem] = useState('/');
   const [isMenuHovered, setIsMenuHovered] = useState(false);
   const [activeHoverKey, setActiveHoverKey] = useState('');
-  const navTabsRef = useRef<HTMLDivElement>(null);
+  const navRef = useRef<HTMLDivElement>(null);
   const indicatorRef = useRef<HTMLDivElement>(null);
   const [isSticky, setIsSticky] = useState(false);
 
@@ -66,32 +66,35 @@ const Header: React.FC = () => {
     };
   }, []);
 
+  // 当路径变化时更新activeNavItem
   useEffect(() => {
     const path = location.pathname;
     setActiveNavItem(path);
 
-    if (navTabsRef.current && indicatorRef.current) {
-      // 在下一个渲染帧计算位置
+    // 在路径变化时更新指示器位置
+    if (navRef.current && indicatorRef.current) {
       setTimeout(() => {
-        const index = navLinks.findIndex(link => link.path === path);
-        updateIndicatorPosition(index);
-      }, 0);
+        updateIndicatorPosition();
+      }, 50);
     }
   }, [location.pathname]);
 
-  // 当窗口尺寸变化时更新标签指示器位置
+  // 监听窗口尺寸变化，更新指示器位置
   useEffect(() => {
-    if (navTabsRef.current && indicatorRef.current) {
-      const index = navLinks.findIndex(link => link.path === activeNavItem);
-      updateIndicatorPosition(index);
-    }
-  }, [activeNavItem, isMobile]);
+    const handleResize = () => {
+      if (navRef.current && indicatorRef.current) {
+        updateIndicatorPosition();
+      }
+    };
 
-  const getIsActive = (path: string, exact = false) => {
-    if (exact) {
-      return location.pathname === path;
-    }
-    return location.pathname.startsWith(path);
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [activeNavItem, isMenuHovered, activeHoverKey]);
+
+  const getIsActive = (path: string) => {
+    return location.pathname === path;
   };
 
   const handleCloseMobileMenu = () => {
@@ -101,16 +104,14 @@ const Header: React.FC = () => {
   const handleMouseEnter = (key: string) => {
     if (!isMobile) {
       setActiveHoverKey(key);
-      const index = navLinks.findIndex(link => link.key === key);
-      updateIndicatorPosition(index);
+      updateIndicatorPosition();
     }
   };
 
   const handleMouseLeave = () => {
     if (!isMobile) {
       setActiveHoverKey('');
-      const index = navLinks.findIndex(link => link.path === activeNavItem);
-      updateIndicatorPosition(index);
+      updateIndicatorPosition();
     }
   };
 
@@ -124,6 +125,7 @@ const Header: React.FC = () => {
     if (!isMobile) {
       setIsMenuHovered(false);
       setActiveHoverKey('');
+      updateIndicatorPosition();
     }
   };
 
@@ -132,57 +134,41 @@ const Header: React.FC = () => {
     handleCloseMobileMenu();
   };
 
-  // 标签指示器位置更新
-  useLayoutEffect(() => {
-    if (navTabsRef.current && indicatorRef.current) {
-      const index = navLinks.findIndex(link => link.path === activeNavItem);
-      updateIndicatorPosition(index);
+  // 更新导航指示器位置
+  const updateIndicatorPosition = () => {
+    if (!navRef.current || !indicatorRef.current) return;
 
-      // 监听窗口尺寸变化
-      const handleResize = () => {
-        setTimeout(() => {
-          const activeIndex = navLinks.findIndex(link =>
-            activeHoverKey ? link.key === activeHoverKey : link.path === activeNavItem
-          );
-          updateIndicatorPosition(activeIndex);
-        }, 0);
-      };
-
-      window.addEventListener('resize', handleResize);
-      return () => {
-        window.removeEventListener('resize', handleResize);
-      };
-    }
-  }, [activeNavItem, activeHoverKey]);
-
-  const updateIndicatorPosition = (idx: number) => {
-    if (!navTabsRef.current || !indicatorRef.current) return;
-
-    const navTabs = navTabsRef.current;
+    const navElement = navRef.current;
     const indicator = indicatorRef.current;
 
-    if (idx === -1 || !navTabs.children[idx]) {
+    // 找到当前活动的导航项
+    const activeKey = activeHoverKey || activeNavItem;
+    const activeIndex = navLinks.findIndex(link =>
+      activeHoverKey ? link.key === activeKey : link.path === activeKey);
+
+    if (activeIndex === -1 || !navElement.children[activeIndex]) {
       // 隐藏指示器
       indicator.style.opacity = '0';
       return;
     }
 
-    const activeTab = navTabs.children[idx] as HTMLElement;
-    const tabRect = activeTab.getBoundingClientRect();
-    const navRect = navTabs.getBoundingClientRect();
+    const activeElement = navElement.children[activeIndex] as HTMLElement;
+    const activeRect = activeElement.getBoundingClientRect();
+    const navRect = navElement.getBoundingClientRect();
 
-    // 计算相对于导航容器的位置
-    const left = tabRect.left - navRect.left;
-
-    // 获取当前活动选项卡的颜色
-    const link = navLinks[idx];
+    // 获取当前导航项的颜色
+    const link = navLinks[activeIndex];
     const color = getTabColor(link.key);
 
-    // 使用动画更新指示器位置和颜色
+    // 计算指示器位置和宽度
+    const left = activeRect.left - navRect.left;
+    const width = activeRect.width;
+
+    // 应用指示器样式为底部线条
     indicator.style.opacity = '1';
     indicator.style.transform = `translateX(${left}px)`;
-    indicator.style.width = `${tabRect.width}px`;
-    indicator.style.background = `linear-gradient(90deg, ${color}, ${lightenColor(color, 30)})`;
+    indicator.style.width = `${width}px`;
+    indicator.style.backgroundColor = color;
   };
 
   // 获取标签颜色
@@ -199,137 +185,140 @@ const Header: React.FC = () => {
     return colorMap[key] || '#4338CA';
   };
 
-  // 辅助函数：让颜色变亮
-  const lightenColor = (hex: string, percent: number) => {
-    // 将十六进制颜色转换为RGB
-    const r = parseInt(hex.substring(1, 3), 16);
-    const g = parseInt(hex.substring(3, 5), 16);
-    const b = parseInt(hex.substring(5, 7), 16);
-
-    // 增加RGB值
-    const amount = Math.floor(255 * (percent / 100));
-    const newR = Math.min(r + amount, 255);
-    const newG = Math.min(g + amount, 255);
-    const newB = Math.min(b + amount, 255);
-
-    // 转换回十六进制
-    const rHex = newR.toString(16).padStart(2, '0');
-    const gHex = newG.toString(16).padStart(2, '0');
-    const bHex = newB.toString(16).padStart(2, '0');
-
-    return `#${rHex}${gHex}${bHex}`;
+  // 药丸形状的玻璃效果
+  const pillGlassStyle = {
+    borderRadius: isSticky ? '16px' : '30px',
+    maxWidth: isSticky ? 'calc(100% - 40px)' : 'calc(100% - 80px)',
+    margin: '0 auto',
+    bgcolor: alpha(
+      theme === 'dark' ? muiTheme.palette.background.paper : muiTheme.palette.background.default,
+      isSticky ? 0.85 : 0.75
+    ),
+    backdropFilter: 'blur(10px)',
+    boxShadow: isSticky
+      ? theme === 'dark'
+        ? '0 4px 20px rgba(0, 0, 0, 0.5)'
+        : '0 4px 20px rgba(0, 0, 0, 0.1)'
+      : 'none',
+    transition: 'all 0.3s ease',
+    border: `1px solid ${alpha(
+      theme === 'dark' ? muiTheme.palette.common.white : muiTheme.palette.common.black,
+      0.05
+    )}`,
+    transform: isSticky ? 'translateY(10px)' : 'translateY(20px)',
+    position: 'relative'
   };
 
   return (
-    <AppBar
-      position="sticky"
-      elevation={0}
-      sx={{
-        backgroundColor: alpha(
-          theme === 'dark'
-            ? muiTheme.palette.background.default
-            : muiTheme.palette.background.paper,
-          isSticky ? (theme === 'dark' ? 0.8 : 0.9) : 0
-        ),
-        backdropFilter: isSticky ? 'blur(10px)' : 'none',
-        boxShadow: isSticky
-          ? (theme === 'dark'
-              ? '0 4px 20px rgba(0, 0, 0, 0.3)'
-              : '0 4px 20px rgba(0, 0, 0, 0.1)')
-          : 'none',
-        transition: 'all 0.3s ease-in-out',
-        zIndex: 1000,
-        top: 0,
-      }}
-    >
-      <Container maxWidth="lg">
-        <Toolbar disableGutters sx={{ justifyContent: 'space-between' }}>
-          {/* Logo */}
-          <Logo />
+    <>
+      <AppBar
+        position="sticky"
+        color="transparent"
+        elevation={0}
+        sx={{
+          bgcolor: 'transparent',
+          transition: 'all 0.3s ease',
+          backdropFilter: 'none',
+          py: isSticky ? 0.5 : 1,
+          borderBottom: 'none',
+          zIndex: 1100,
+          top: 0,
+        }}
+      >
+        <Container maxWidth="xl" disableGutters>
+          <Box sx={pillGlassStyle}>
+            <Toolbar sx={{ px: { xs: 2, md: 4 }, py: 0.5, position: 'relative' }}>
+              {/* Logo */}
+              <Box sx={{ flexGrow: 0 }}>
+                <Logo />
+              </Box>
 
-          {/* PC端导航 */}
-          {!isMobile && (
-            <>
-              <Box
-                ref={navTabsRef}
-                sx={{
-                  display: 'flex',
-                  position: 'relative',
-                  mx: 2,
-                  flex: 1,
-                  justifyContent: 'center'
-                }}
-                onMouseEnter={handleMenuEnter}
-                onMouseLeave={handleMenuLeave}
-              >
-                {navLinks.map((link) => (
-                  <Button
-                    key={link.key}
-                    startIcon={link.icon}
-                    onClick={() => handleNavigate(link.path)}
-                    onMouseEnter={() => handleMouseEnter(link.key)}
-                    onMouseLeave={handleMouseLeave}
+              {/* PC端导航 - 药丸样式 */}
+              {!isMobile && (
+                <>
+                  <Box
+                    ref={navRef}
                     sx={{
-                      color: getIsActive(link.path)
-                        ? (theme === 'dark' ? 'primary.light' : 'primary.main')
-                        : (theme === 'dark' ? 'text.primary' : 'text.secondary'),
-                      mx: 0.5,
-                      px: 2,
-                      py: 1,
-                      textTransform: 'none',
-                      fontWeight: getIsActive(link.path) ? 'bold' : 'medium',
-                      fontSize: '0.95rem',
-                      borderRadius: '10px',
-                      transition: 'all 0.2s ease',
-                      '&:hover': {
-                        backgroundColor: alpha(muiTheme.palette.primary.main, 0.08),
-                      }
+                      flexGrow: 1,
+                      display: 'flex',
+                      justifyContent: 'center',
+                      position: 'relative',
+                      height: '48px'
                     }}
+                    onMouseEnter={handleMenuEnter}
+                    onMouseLeave={handleMenuLeave}
                   >
-                    {t(`navigation.${link.label}`)}
-                  </Button>
-                ))}
+                    {navLinks.map((link) => (
+                      <Button
+                        key={link.key}
+                        startIcon={link.icon}
+                        onClick={() => handleNavigate(link.path)}
+                        onMouseEnter={() => handleMouseEnter(link.key)}
+                        onMouseLeave={handleMouseLeave}
+                        sx={{
+                          color: getIsActive(link.path)
+                            ? (theme === 'dark' ? 'primary.light' : 'primary.main')
+                            : (theme === 'dark' ? 'text.primary' : 'text.secondary'),
+                          px: 2,
+                          height: '100%',
+                          textTransform: 'none',
+                          fontWeight: getIsActive(link.path) ? 'bold' : 'medium',
+                          fontSize: '0.95rem',
+                          transition: 'all 0.2s ease',
+                          position: 'relative',
+                          zIndex: 2
+                        }}
+                      >
+                        {t(`navigation.${link.label}`)}
+                      </Button>
+                    ))}
 
-                {/* 标签指示器 */}
-                <Box
-                  ref={indicatorRef}
-                  sx={{
-                    position: 'absolute',
-                    bottom: '-2px',
-                    height: '3px',
-                    backgroundColor: 'primary.main',
-                    borderRadius: '3px',
-                    transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease',
-                    opacity: isMenuHovered || activeNavItem !== '/' ? 1 : 0,
-                    zIndex: 1
-                  }}
-                />
-              </Box>
+                    {/* 导航指示器 - 底部线条 */}
+                    <Box
+                      ref={indicatorRef}
+                      sx={{
+                        position: 'absolute',
+                        bottom: '0',
+                        height: '3px',
+                        backgroundColor: 'primary.main',
+                        borderRadius: '3px',
+                        opacity: 0,
+                        transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease',
+                        pointerEvents: 'none',
+                        zIndex: 1
+                      }}
+                    />
+                  </Box>
 
-              {/* 右侧操作区 */}
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <ThemeToggle />
-                <LanguageSelector />
-              </Box>
-            </>
-          )}
+                  {/* 右侧操作区 */}
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <ThemeToggle />
+                    <LanguageSelector />
+                  </Box>
+                </>
+              )}
 
-          {/* 移动端菜单按钮 */}
-          {isMobile && (
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <LanguageSelector />
-              <ThemeToggle />
-              <IconButton
-                color={theme === 'dark' ? 'inherit' : 'primary'}
-                onClick={() => setIsMobileMenuOpen(true)}
-                sx={{ ml: 1 }}
-              >
-                <FiMenu />
-              </IconButton>
-            </Box>
-          )}
-        </Toolbar>
-      </Container>
+              {/* 移动端菜单按钮 */}
+              {isMobile && (
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, ml: 'auto' }}>
+                  <LanguageSelector />
+                  <ThemeToggle />
+                  <IconButton
+                    color={theme === 'dark' ? 'inherit' : 'primary'}
+                    onClick={() => setIsMobileMenuOpen(true)}
+                    sx={{ ml: 1 }}
+                  >
+                    <FiMenu />
+                  </IconButton>
+                </Box>
+              )}
+            </Toolbar>
+          </Box>
+        </Container>
+      </AppBar>
+
+      {/* 占位空间，防止内容被固定导航栏遮挡 - 根据导航栏粘滞状态动态调整 */}
+      <Box sx={{ height: { xs: 60, md: isSticky ? 72 : 88 }, mb: 3 }} />
 
       {/* 移动导航抽屉 */}
       <Drawer
@@ -383,7 +372,7 @@ const Header: React.FC = () => {
           ))}
         </List>
       </Drawer>
-    </AppBar>
+    </>
   );
 };
 
