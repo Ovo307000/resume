@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Box, AppBar, Toolbar, Container, IconButton, useTheme as useMuiTheme } from '@mui/material';
 import { FiMenu } from 'react-icons/fi';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useTheme } from '../../../contexts/ThemeContext';
 import Logo from '../../ui/logo/Logo';
 import ThemeToggle from '../../ui/theme/ThemeToggle';
@@ -20,9 +20,6 @@ const MobileNavbar: React.FC<NavbarProps> = ({ routes, isActive }) => {
   const { theme } = useTheme();
   const muiTheme = useMuiTheme();
   const scrolled = useScrollDetection();
-
-  // 获取当前活跃的导航项
-  const activeRoute = routes.find(route => isActive(route.path));
 
   // 处理侧边菜单开关
   const handleDrawerToggle = () => {

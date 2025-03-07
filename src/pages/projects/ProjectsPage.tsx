@@ -30,7 +30,7 @@ interface Project {
   longDescription: string;
   technologies: string[];
   imageUrl: string;
-  showAllTechnologies: boolean;
+  showAllTechnologies?: boolean;
 }
 
 interface ProjectsPageProps {

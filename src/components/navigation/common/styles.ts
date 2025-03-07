@@ -52,26 +52,29 @@ export const getDesktopNavLinkStyles = (active: boolean) => ({
 /**
  * 获取移动端导航链接样式
  */
-export const getMobileNavLinkStyles = (active: boolean, theme: Theme, color: string) => ({
-  borderRadius: 2,
-  my: 0.5,
-  '&.Mui-selected': {
-    backgroundColor: alpha(color, 0.1),
-    color: color,
-    '&::after': {
-      content: '""',
-      position: 'absolute',
-      left: '10px',
-      top: '50%',
-      transform: 'translateY(-50%)',
-      width: '4px',
-      height: '60%',
-      backgroundColor: color,
-      borderRadius: '4px',
-      boxShadow: `0 0 8px ${color}`,
+export const getMobileNavLinkStyles = (color: any) => {
+  const validColor = typeof color === 'string' ? color : '#000000';
+  return {
+    borderRadius: 2,
+    my: 0.5,
+    '&.Mui-selected': {
+      backgroundColor: alpha(validColor, 0.1),
+      color: validColor,
+      '&::after': {
+        content: '""',
+        position: 'absolute',
+        left: '10px',
+        top: '50%',
+        transform: 'translateY(-50%)',
+        width: '4px',
+        height: '60%',
+        backgroundColor: validColor,
+        borderRadius: '4px',
+        boxShadow: `0 0 8px ${validColor}`,
+      }
+    },
+    '&:hover': {
+      backgroundColor: alpha(validColor, 0.05),
     }
-  },
-  '&:hover': {
-    backgroundColor: alpha(color, 0.05),
-  }
-});
+  };
+};
