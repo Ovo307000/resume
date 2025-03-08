@@ -1,10 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Box, Typography, IconButton, Tooltip } from '@mui/material';
+import { Box, Typography, Tooltip, Paper } from '@mui/material';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../contexts/ThemeContext';
-import { FiChevronDown, FiCheck } from 'react-icons/fi';
-import FlagIcon from './icons/FlagIcon';
+import { FiChevronDown, FiCheck, FiGlobe } from 'react-icons/fi';
+
+// 国旗表情符号映射
+const FLAG_EMOJIS: Record<string, string> = {
+  US: '🇺🇸',
+  CN: '🇨🇳',
+  JP: '🇯🇵'
+};
 
 interface Language {
   code: string;
@@ -107,26 +113,30 @@ const LanguageSelector: React.FC = () => {
     }
   };
 
-  // 语言选择器按钮样式
-  const getButtonStyle = () => {
-    // 日间模式下的样式优化
-    if (theme === 'light') {
-      return {
-        backgroundColor: 'rgba(240, 240, 245, 0.6)',
-        border: '1px solid rgba(0, 0, 0, 0.08)',
-        '&:hover': {
-          backgroundColor: 'rgba(230, 230, 240, 0.8)'
-        }
-      };
+  // 渲染国旗表情
+  const renderFlag = (countryCode: string, size: number = 20) => {
+    const emoji = FLAG_EMOJIS[countryCode];
+
+    if (!emoji) {
+      return <FiGlobe size={size * 0.8} />;
     }
 
-    // 暗黑模式下的样式
-    return {
-      backgroundColor: 'rgba(255, 255, 255, 0.06)',
-      '&:hover': {
-        backgroundColor: 'rgba(255, 255, 255, 0.1)'
-      }
-    };
+    return (
+      <Box
+        sx={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: `${size}px`,
+          lineHeight: 1,
+          filter: theme === 'light' ? 'drop-shadow(0 1px 2px rgba(0,0,0,0.1))' : 'none'
+        }}
+      >
+        <span role="img" aria-label={`${countryCode} flag`}>
+          {emoji}
+        </span>
+      </Box>
+    );
   };
 
   return (
@@ -143,56 +153,54 @@ const LanguageSelector: React.FC = () => {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            <IconButton
+            <Paper
               onClick={() => setIsOpen(!isOpen)}
-              aria-label={t('common.switchLang')}
-              size="medium"
-              color="inherit"
+              elevation={theme === 'light' ? 1 : 0}
               sx={{
                 display: 'flex',
                 alignItems: 'center',
                 borderRadius: '12px',
-                p: 1,
-                boxShadow: theme === 'light' ? '0 2px 8px rgba(0, 0, 0, 0.05)' : 'none',
-                ...getButtonStyle()
+                padding: '8px 12px',
+                cursor: 'pointer',
+                backgroundColor: theme === 'light'
+                  ? 'rgba(255, 255, 255, 0.8)'
+                  : 'rgba(255, 255, 255, 0.06)',
+                backdropFilter: 'blur(8px)',
+                border: theme === 'light'
+                  ? '1px solid rgba(0, 0, 0, 0.08)'
+                  : '1px solid rgba(255, 255, 255, 0.1)',
+                '&:hover': {
+                  backgroundColor: theme === 'light'
+                    ? 'rgba(255, 255, 255, 0.95)'
+                    : 'rgba(255, 255, 255, 0.1)',
+                },
+                transition: 'all 0.2s ease'
               }}
             >
-              <Box
+              <Box sx={{ mr: 1, display: 'flex', alignItems: 'center' }}>
+                {renderFlag(currentLanguage.countryCode, 22)}
+              </Box>
+
+              <Typography
+                variant="body2"
                 sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  mr: { xs: 0, sm: 0.5 }
+                  fontWeight: 500,
+                  mr: 0.5,
+                  color: theme === 'light' ? 'text.primary' : 'text.primary',
+                  display: { xs: 'none', sm: 'block' }
                 }}
               >
-                <FlagIcon
-                  countryCode={currentLanguage.countryCode}
-                  size={20}
-                />
-              </Box>
-              <Box
-                sx={{
-                  display: { xs: 'none', sm: 'flex' },
-                  alignItems: 'center',
-                  gap: 0.5
-                }}
+                {currentLanguage.name}
+              </Typography>
+
+              <motion.div
+                animate={{ rotate: isOpen ? 180 : 0 }}
+                transition={{ duration: 0.3 }}
+                style={{ display: 'flex', alignItems: 'center' }}
               >
-                <Typography
-                  variant="body2"
-                  sx={{
-                    fontWeight: 500,
-                    ml: 0.5
-                  }}
-                >
-                  {currentLanguage.code.toUpperCase()}
-                </Typography>
-                <motion.div
-                  animate={{ rotate: isOpen ? 180 : 0 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <FiChevronDown size={16} />
-                </motion.div>
-              </Box>
-            </IconButton>
+                <FiChevronDown size={16} />
+              </motion.div>
+            </Paper>
           </motion.div>
         </Box>
       </Tooltip>
@@ -214,8 +222,12 @@ const LanguageSelector: React.FC = () => {
               boxShadow: theme === 'dark'
                 ? '0 8px 20px rgba(0, 0, 0, 0.25)'
                 : '0 8px 20px rgba(0, 0, 0, 0.15)',
-              backgroundColor: theme === 'dark' ? 'rgba(30, 30, 46, 0.98)' : 'rgba(255, 255, 255, 0.95)',
-              border: `1px solid ${theme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)'}`,
+              backgroundColor: theme === 'dark'
+                ? 'rgba(30, 30, 46, 0.98)'
+                : 'rgba(255, 255, 255, 0.98)',
+              border: `1px solid ${theme === 'dark'
+                ? 'rgba(255, 255, 255, 0.1)'
+                : 'rgba(0, 0, 0, 0.08)'}`,
               backdropFilter: 'blur(12px)',
               zIndex: 1300
             }}
@@ -253,16 +265,18 @@ const LanguageSelector: React.FC = () => {
                     }}
                   >
                     <Box sx={{ mr: 1.5, display: 'flex', alignItems: 'center' }}>
-                      <FlagIcon
-                        countryCode={language.countryCode}
-                        size={20}
-                      />
+                      {renderFlag(language.countryCode, 20)}
                     </Box>
                     <Typography
                       variant="body2"
                       sx={{
                         flexGrow: 1,
-                        fontWeight: language.code === selectedLanguage ? 600 : 400
+                        fontWeight: language.code === selectedLanguage ? 600 : 400,
+                        color: theme === 'light'
+                          ? 'text.primary'
+                          : language.code === selectedLanguage
+                            ? 'white'
+                            : 'text.primary'
                       }}
                     >
                       {language.name}
