@@ -100,7 +100,7 @@
     "introduction": "我是一名热衷于创建用户友好且高效应用程序的软件开发者。凭借多年的行业经验，我对软件开发原则和最佳实践有着深刻的理解。",
     "philosophy": "我的理念",
     "philosophyText": "我坚信编写干净、可维护的代码并创造直观的用户体验。我不断学习新技术和方法来提升我的技能并提供更好的解决方案。",
-    "experience": "职业经验",
+    "experience": "职业经历",
     "education": "教育与培训",
     "interests": "兴趣爱好",
     "interestsText": "除了编程，我喜欢徒步旅行、阅读新技术相关的书籍，以及为开源项目做贡献。",
@@ -108,8 +108,19 @@
     "email": "电子邮件",
     "phone": "电话号码",
     "github": "GitHub",
+    "wechat": "微信",
     "traits": "个人特质",
-    "aboutMe": "关于我"
+    "achievements": "成就",
+    "aboutMe": "关于我",
+    "traits": {
+      "problem_solving": "问题解决能力",
+      "teamwork": "团队协作",
+      "continuous_learning": "持续学习",
+      "code_quality": "代码质量",
+      "adaptability": "适应能力",
+      "attention_to_detail": "注重细节"
+    },
+    "ongoing": "进行中"
   },
   "education": {
     "title": "教育经历",

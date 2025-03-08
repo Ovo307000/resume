@@ -203,7 +203,7 @@ const HomePage: React.FC<HomePageProps> = ({ data }) => {
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 4, gap: 2 }}>
                   <Box
                     component="a"
-                    href="/projects"
+                    href="/about"
                     sx={{
                       display: 'inline-flex',
                       alignItems: 'center',
@@ -223,7 +223,7 @@ const HomePage: React.FC<HomePageProps> = ({ data }) => {
                       }
                     }}
                   >
-                    {t('common.viewDetails', '查看项目')}
+                    {t('common.viewDetails', '查看详细')}
                     <FiArrowRight style={{ marginLeft: 8 }} />
                   </Box>
 

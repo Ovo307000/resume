@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Box, Typography, Tooltip, Paper } from '@mui/material';
+import { Box, Typography, Tooltip, IconButton } from '@mui/material';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../contexts/ThemeContext';
-import { FiChevronDown, FiCheck, FiGlobe } from 'react-icons/fi';
+import { FiCheck, FiGlobe } from 'react-icons/fi';
 
 // 国旗表情符号映射
 const FLAG_EMOJIS: Record<string, string> = {
@@ -148,61 +148,28 @@ const LanguageSelector: React.FC = () => {
       }}
     >
       <Tooltip title={t('common.switchLang')} arrow>
-        <Box>
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <Paper
-              onClick={() => setIsOpen(!isOpen)}
-              elevation={theme === 'light' ? 1 : 0}
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                borderRadius: '12px',
-                padding: '8px 12px',
-                cursor: 'pointer',
-                backgroundColor: theme === 'light'
-                  ? 'rgba(255, 255, 255, 0.8)'
-                  : 'rgba(255, 255, 255, 0.06)',
-                backdropFilter: 'blur(8px)',
-                border: theme === 'light'
-                  ? '1px solid rgba(0, 0, 0, 0.08)'
-                  : '1px solid rgba(255, 255, 255, 0.1)',
-                '&:hover': {
-                  backgroundColor: theme === 'light'
-                    ? 'rgba(255, 255, 255, 0.95)'
-                    : 'rgba(255, 255, 255, 0.1)',
-                },
-                transition: 'all 0.2s ease'
-              }}
-            >
-              <Box sx={{ mr: 1, display: 'flex', alignItems: 'center' }}>
-                {renderFlag(currentLanguage.countryCode, 22)}
-              </Box>
-
-              <Typography
-                variant="body2"
-                sx={{
-                  fontWeight: 500,
-                  mr: 0.5,
-                  color: theme === 'light' ? 'text.primary' : 'text.primary',
-                  display: { xs: 'none', sm: 'block' }
-                }}
-              >
-                {currentLanguage.name}
-              </Typography>
-
-              <motion.div
-                animate={{ rotate: isOpen ? 180 : 0 }}
-                transition={{ duration: 0.3 }}
-                style={{ display: 'flex', alignItems: 'center' }}
-              >
-                <FiChevronDown size={16} />
-              </motion.div>
-            </Paper>
-          </motion.div>
-        </Box>
+        <IconButton
+          onClick={() => setIsOpen(!isOpen)}
+          color="inherit"
+          size="small"
+          sx={{
+            opacity: 0.7,
+            borderRadius: '50%',
+            p: 1,
+            transition: 'all 0.2s',
+            backgroundColor: 'transparent',
+            '&:hover': {
+              opacity: 1,
+              backgroundColor: theme === 'dark'
+                ? 'rgba(255, 255, 255, 0.1)'
+                : 'rgba(0, 0, 0, 0.05)'
+            }
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            {renderFlag(currentLanguage.countryCode, 20)}
+          </Box>
+        </IconButton>
       </Tooltip>
 
       <AnimatePresence>
@@ -223,12 +190,12 @@ const LanguageSelector: React.FC = () => {
                 ? '0 8px 20px rgba(0, 0, 0, 0.25)'
                 : '0 8px 20px rgba(0, 0, 0, 0.15)',
               backgroundColor: theme === 'dark'
-                ? 'rgba(30, 30, 46, 0.98)'
-                : 'rgba(255, 255, 255, 0.98)',
+                ? 'rgba(30, 30, 46, 0.9)'
+                : 'rgba(255, 255, 255, 0.9)',
               border: `1px solid ${theme === 'dark'
                 ? 'rgba(255, 255, 255, 0.1)'
                 : 'rgba(0, 0, 0, 0.08)'}`,
-              backdropFilter: 'blur(12px)',
+              backdropFilter: 'blur(8px)',
               zIndex: 1300
             }}
           >
