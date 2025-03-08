@@ -14,10 +14,12 @@ import {
   Link as MuiLink,
   Tabs,
   Tab,
-  Divider
+  Divider,
+  alpha,
+  useTheme as useMuiTheme
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { FiExternalLink, FiGithub, FiCode, FiLayers, FiBriefcase, FiFilter } from 'react-icons/fi';
+import { FiExternalLink, FiGithub, FiCode, FiLayers, FiBriefcase, FiFilter, FiServer } from 'react-icons/fi';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useLanguage } from '../../hooks/useLanguage';
 import GlassPanel from '../../components/ui/glass/GlassPanel';
@@ -54,6 +56,7 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({ data }) => {
   const [projects, setProjects] = useState(data.map(project => ({ ...project, showAllTechnologies: false })));
   const [filter, setFilter] = useState('all');
   const [filteredProjects, setFilteredProjects] = useState(projects);
+  const muiTheme = useMuiTheme();
 
   // 过滤项目
   useEffect(() => {
@@ -102,13 +105,16 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({ data }) => {
     }
   };
 
-  // 项目类别
-  const categories = [
-    { value: 'all', label: t('projects.filters.all', '全部'), icon: <FiLayers size={18} /> },
-    { value: 'web', label: t('projects.filters.web', '网页'), icon: <FiCode size={18} /> },
-    { value: 'mobile', label: t('projects.filters.mobile', '移动'), icon: <FiBriefcase size={18} /> },
-    { value: 'other', label: t('projects.filters.other', '其他'), icon: <FiFilter size={18} /> }
-  ];
+  // 获取类别图标
+  const getCategoryIcon = (index: number) => {
+    const icons = [
+      <FiLayers key="all" size={20} />, // 全部项目
+      <FiCode key="web" size={20} />, // Web项目
+      <FiBriefcase key="mobile" size={20} />, // 移动项目
+      <FiServer key="other" size={20} /> // 其他项目
+    ];
+    return icons[index];
+  };
 
   // 根据技术栈生成颜色
   const getTechColor = (tech: string, index: number) => {
@@ -164,56 +170,74 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({ data }) => {
               mb: 6
             }}
           >
-            <Tabs
-              value={filter}
-              onChange={(_, newValue) => setFilter(newValue)}
-              variant="scrollable"
-              scrollButtons="auto"
+            <Box
               sx={{
-                mb: 4,
-                '& .MuiTab-root': {
-                  minWidth: 100,
-                  fontWeight: 500,
-                  textTransform: 'none',
-                  borderRadius: '50px',
-                  mx: 0.5,
-                  transition: 'all 0.2s',
-                  '&:hover': {
-                    backgroundColor: theme === 'dark'
-                      ? 'rgba(255, 255, 255, 0.1)'
-                      : 'rgba(0, 0, 0, 0.05)',
-                    color: 'primary.main'
-                  }
-                },
-                '& .Mui-selected': {
-                  color: 'primary.main',
-                  fontWeight: 600
-                },
-                '& .MuiTabs-indicator': {
-                  display: 'none'
-                }
+                width: { xs: '100%', sm: 'auto' },
+                px: 1,
+                py: 1,
+                borderRadius: '50px',
+                backdropFilter: 'blur(10px)',
+                backgroundColor: alpha(
+                  theme === 'dark' ? muiTheme.palette.background.paper : muiTheme.palette.background.paper,
+                  theme === 'dark' ? 0.2 : 0.3
+                ),
+                border: `1px solid ${alpha(
+                  theme === 'dark' ? muiTheme.palette.common.white : muiTheme.palette.common.black,
+                  0.05
+                )}`,
               }}
             >
-              {categories.map((category) => (
+              <Tabs
+                value={filter}
+                onChange={(_, newValue) => setFilter(newValue)}
+                variant="fullWidth"
+                indicatorColor="primary"
+                textColor="primary"
+                sx={{
+                  '& .MuiTab-root': {
+                    borderRadius: '50px',
+                    minHeight: '48px',
+                    transition: 'all 0.3s ease',
+                    '&.Mui-selected': {
+                      background: alpha(muiTheme.palette.primary.main, 0.1),
+                      color: theme === 'dark' ? muiTheme.palette.primary.light : muiTheme.palette.primary.main,
+                    },
+                  },
+                  '& .MuiTabs-indicator': {
+                    display: 'none', // 隐藏默认指示器，使用自定义背景代替
+                  },
+                }}
+              >
                 <Tab
-                  key={category.value}
-                  value={category.value}
-                  label={
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      {category.icon}
-                      {category.label}
-                    </Box>
-                  }
-                  sx={{
-                    backgroundColor: filter === category.value
-                      ? theme === 'dark'
-                        ? 'rgba(255, 255, 255, 0.1)'
-                        : 'rgba(0, 0, 0, 0.05)'
-                      : 'transparent'
-                  }}
+                  icon={getCategoryIcon(0)}
+                  label={t('projects.filters.all', '全部')}
+                  iconPosition="start"
+                  sx={{ textTransform: 'none' }}
+                  value="all"
                 />
-              ))}
-            </Tabs>
+                <Tab
+                  icon={getCategoryIcon(1)}
+                  label={t('projects.filters.web', '网页')}
+                  iconPosition="start"
+                  sx={{ textTransform: 'none' }}
+                  value="web"
+                />
+                <Tab
+                  icon={getCategoryIcon(2)}
+                  label={t('projects.filters.mobile', '移动')}
+                  iconPosition="start"
+                  sx={{ textTransform: 'none' }}
+                  value="mobile"
+                />
+                <Tab
+                  icon={getCategoryIcon(3)}
+                  label={t('projects.filters.other', '其他')}
+                  iconPosition="start"
+                  sx={{ textTransform: 'none' }}
+                  value="other"
+                />
+              </Tabs>
+            </Box>
           </Box>
 
           {/* 项目列表 */}
@@ -306,7 +330,7 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({ data }) => {
                             <FiCode size={14} />
                             {t('projects.technologies')}
                           </Typography>
-                          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 2 }}>
+                          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.8 }}>
                             {(project.showAllTechnologies
                               ? project.technologies
                               : project.technologies.slice(0, 4)
@@ -317,7 +341,15 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({ data }) => {
                                 size="small"
                                 color={getTechColor(tech, idx) as any}
                                 variant="outlined"
-                                sx={{ borderRadius: '8px', fontSize: '0.7rem' }}
+                                sx={{
+                                  borderRadius: '8px',
+                                  fontSize: '0.7rem',
+                                  height: { xs: '22px', md: '24px' },
+                                  '& .MuiChip-label': {
+                                    fontSize: { xs: '0.7rem', md: '0.75rem' },
+                                    px: 1
+                                  }
+                                }}
                               />
                             ))}
                             {project.technologies.length > 4 && !project.showAllTechnologies && (
@@ -326,7 +358,16 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({ data }) => {
                                 size="small"
                                 variant="outlined"
                                 onClick={() => toggleTechnologies(index)}
-                                sx={{ borderRadius: '8px', fontSize: '0.7rem', cursor: 'pointer' }}
+                                sx={{
+                                  borderRadius: '8px',
+                                  fontSize: '0.7rem',
+                                  cursor: 'pointer',
+                                  height: { xs: '22px', md: '24px' },
+                                  '& .MuiChip-label': {
+                                    fontSize: { xs: '0.7rem', md: '0.75rem' },
+                                    px: 1
+                                  }
+                                }}
                               />
                             )}
                           </Box>

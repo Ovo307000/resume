@@ -26,6 +26,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { FiBook, FiBriefcase, FiAward, FiTarget, FiActivity, FiCheckCircle, FiChevronDown, FiChevronUp } from 'react-icons/fi';
 import { useLanguage } from '../../hooks/useLanguage';
+import { useTheme } from '../../contexts/ThemeContext';
 import GlassPanel from '../../components/ui/glass/GlassPanel';
 import PageTransition from '../../components/ui/transitions/PageTransition';
 
@@ -60,6 +61,7 @@ interface EducationPageProps {
 const EducationPage: React.FC<EducationPageProps> = ({ data }) => {
   const { t } = useTranslation();
   const { language } = useLanguage();
+  const { theme } = useTheme();
   const [expandedItems, setExpandedItems] = useState<Record<number, boolean>>({});
 
   const toggleExpand = (index: number) => {
@@ -160,80 +162,118 @@ const EducationPage: React.FC<EducationPageProps> = ({ data }) => {
 
           {hasDetails && (
             <>
-              <Button
-                variant="text"
-                color="primary"
-                onClick={() => toggleExpand(index)}
-                endIcon={isExpanded ? <FiChevronUp /> : <FiChevronDown />}
-                sx={{ mb: 1, textTransform: 'none' }}
+              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                <Button
+                  variant="text"
+                  color="primary"
+                  onClick={() => toggleExpand(index)}
+                  endIcon={
+                    <motion.div
+                      animate={{ rotate: isExpanded ? 180 : 0 }}
+                      transition={{ duration: 0.3, ease: "easeInOut" }}
+                    >
+                      <FiChevronDown />
+                    </motion.div>
+                  }
+                  sx={{
+                    mb: 1,
+                    textTransform: 'none',
+                    fontWeight: 'medium',
+                    borderRadius: '8px',
+                    px: 2,
+                    py: 0.5,
+                    '&:hover': {
+                      backgroundColor: theme === 'dark'
+                        ? 'rgba(255, 255, 255, 0.1)'
+                        : 'rgba(0, 0, 0, 0.05)'
+                    }
+                  }}
+                >
+                  {isExpanded ? t('common.showLess', '收起') : t('common.showMore', '查看更多')}
+                </Button>
+              </motion.div>
+
+              <Collapse
+                in={isExpanded}
+                timeout={{
+                  enter: 500,
+                  exit: 300
+                }}
+                sx={{
+                  '& .MuiCollapse-wrapperInner': {
+                    mt: 2
+                  }
+                }}
               >
-                {isExpanded ? t('common.showLess', '收起') : t('common.showMore', '查看更多')}
-              </Button>
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={isExpanded ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+                  transition={{ duration: 0.5, delay: 0.1 }}
+                >
+                  <Box sx={{ mt: 2 }}>
+                    <Grid container spacing={3}>
+                      {education.activities && (
+                        <Grid item xs={12} md={6}>
+                          <Typography variant="subtitle2" fontWeight="bold" color="primary" gutterBottom>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                              <FiActivity />
+                              {t('education.activities', '相关活动')}
+                            </Box>
+                          </Typography>
+                          {renderListItems(education.activities, <FiCheckCircle color="#6366F1" size={16} />, 0.1)}
+                        </Grid>
+                      )}
 
-              <Collapse in={isExpanded} timeout={300}>
-                <Box sx={{ mt: 2 }}>
-                  <Grid container spacing={3}>
-                    {education.activities && (
-                      <Grid item xs={12} md={6}>
-                        <Typography variant="subtitle2" fontWeight="bold" color="primary" gutterBottom>
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <FiActivity />
-                            {t('education.activities', '相关活动')}
-                          </Box>
-                        </Typography>
-                        {renderListItems(education.activities, <FiCheckCircle color="#6366F1" size={16} />, 0.1)}
-                      </Grid>
-                    )}
+                      {education.achievements && (
+                        <Grid item xs={12} md={6}>
+                          <Typography variant="subtitle2" fontWeight="bold" color="primary" gutterBottom>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                              <FiAward />
+                              {t('education.achievements', '成就')}
+                            </Box>
+                          </Typography>
+                          {renderListItems(education.achievements, <FiAward color="#10B981" size={16} />, 0.2)}
+                        </Grid>
+                      )}
 
-                    {education.achievements && (
-                      <Grid item xs={12} md={6}>
-                        <Typography variant="subtitle2" fontWeight="bold" color="primary" gutterBottom>
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <FiAward />
-                            {t('education.achievements', '成就')}
-                          </Box>
-                        </Typography>
-                        {renderListItems(education.achievements, <FiAward color="#10B981" size={16} />, 0.2)}
-                      </Grid>
-                    )}
+                      {education.skills && (
+                        <Grid item xs={12} md={6}>
+                          <Typography variant="subtitle2" fontWeight="bold" color="primary" gutterBottom>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                              <FiBook />
+                              {t('education.skills', '获得技能')}
+                            </Box>
+                          </Typography>
+                          {renderListItems(education.skills, <FiCheckCircle color="#8B5CF6" size={16} />, 0.3)}
+                        </Grid>
+                      )}
 
-                    {education.skills && (
-                      <Grid item xs={12} md={6}>
-                        <Typography variant="subtitle2" fontWeight="bold" color="primary" gutterBottom>
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <FiBook />
-                            {t('education.skills', '获得技能')}
-                          </Box>
-                        </Typography>
-                        {renderListItems(education.skills, <FiCheckCircle color="#8B5CF6" size={16} />, 0.3)}
-                      </Grid>
-                    )}
+                      {education.currentFocus && (
+                        <Grid item xs={12} md={6}>
+                          <Typography variant="subtitle2" fontWeight="bold" color="primary" gutterBottom>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                              <FiBriefcase />
+                              {t('education.currentFocus', '当前专注')}
+                            </Box>
+                          </Typography>
+                          {renderListItems(education.currentFocus, <FiActivity color="#F59E0B" size={16} />, 0.4)}
+                        </Grid>
+                      )}
 
-                    {education.currentFocus && (
-                      <Grid item xs={12} md={6}>
-                        <Typography variant="subtitle2" fontWeight="bold" color="primary" gutterBottom>
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <FiBriefcase />
-                            {t('education.currentFocus', '当前专注')}
-                          </Box>
-                        </Typography>
-                        {renderListItems(education.currentFocus, <FiActivity color="#F59E0B" size={16} />, 0.4)}
-                      </Grid>
-                    )}
-
-                    {education.goals && (
-                      <Grid item xs={12} md={6}>
-                        <Typography variant="subtitle2" fontWeight="bold" color="primary" gutterBottom>
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <FiTarget />
-                            {t('education.goals', '学习目标')}
-                          </Box>
-                        </Typography>
-                        {renderListItems(education.goals, <FiTarget color="#EC4899" size={16} />, 0.5)}
-                      </Grid>
-                    )}
-                  </Grid>
-                </Box>
+                      {education.goals && (
+                        <Grid item xs={12} md={6}>
+                          <Typography variant="subtitle2" fontWeight="bold" color="primary" gutterBottom>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                              <FiTarget />
+                              {t('education.goals', '学习目标')}
+                            </Box>
+                          </Typography>
+                          {renderListItems(education.goals, <FiTarget color="#EC4899" size={16} />, 0.5)}
+                        </Grid>
+                      )}
+                    </Grid>
+                  </Box>
+                </motion.div>
               </Collapse>
             </>
           )}

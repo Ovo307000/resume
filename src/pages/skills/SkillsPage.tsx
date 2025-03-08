@@ -13,13 +13,16 @@ import {
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { FiCode, FiSettings, FiServer, FiLayers } from 'react-icons/fi';
-import { DiJava, DiJavascript1, DiMysql, DiPostgresql, DiMongodb, DiReact, DiDocker, DiGit, DiRedis } from 'react-icons/di';
-import { SiTypescript, SiSpring, SiVuedotjs, SiTailwindcss, SiGradle, SiLinux } from 'react-icons/si';
+import { DiJava, DiJavascript1, DiPython, DiMysql, DiPostgresql, DiMongodb, DiReact, DiDocker, DiGit, DiRedis } from 'react-icons/di';
+import { SiTypescript, SiSpring, SiVuedotjs, SiTailwindcss, SiGradle, SiLinux, SiC, SiCplusplus, SiGo, SiRust } from 'react-icons/si';
 import { useTheme } from '../../contexts/ThemeContext';
 import GlassyBlobBackground from '../../components/ui/backgrounds/GlassyBlobBackground';
 import RainbowProgressBar from '../../components/ui/progress/RainbowProgressBar';
 import CustomChip from '../../components/ui/common/CustomChip';
 import PageTitle from '../../components/ui/common/PageTitle';
+import GlassPanel from '../../components/ui/glass/GlassPanel';
+import PageTransition from '../../components/ui/transitions/PageTransition';
+import SkillCard from '../../components/ui/SkillCard';
 
 interface Skill {
   name: string;
@@ -75,12 +78,17 @@ const SkillsPage: React.FC<SkillsPageProps> = ({ data }) => {
 
   // 获取技能图标
   const getSkillIcon = (name: string) => {
-    const iconSize = 20;
+    const iconSize = 24;
     const iconMap: Record<string, React.ReactNode> = {
       'JAVA': <DiJava size={iconSize} />,
       'Java': <DiJava size={iconSize} />,
       'JavaScript': <DiJavascript1 size={iconSize} />,
       'TypeScript': <SiTypescript size={iconSize} />,
+      'Python': <DiPython size={iconSize} />,
+      'C': <SiC size={iconSize} />,
+      'C++': <SiCplusplus size={iconSize} />,
+      'Go': <SiGo size={iconSize} />,
+      'Rust': <SiRust size={iconSize} />,
       'Spring': <SiSpring size={iconSize} />,
       'Spring Boot': <SiSpring size={iconSize} />,
       'Spring MVC': <SiSpring size={iconSize} />,
@@ -206,19 +214,45 @@ const SkillsPage: React.FC<SkillsPageProps> = ({ data }) => {
 
   // 获取当前显示的技能
   const getActiveSkills = () => {
-    const categories = ['language', 'framework', 'tool'];
-    return activeTab === 3 ? skills : filterSkillsByCategory(categories[activeTab]);
+    if (activeTab === 0) {
+      // Overview选项卡展示所有技能
+      return skills;
+    } else {
+      // 其他选项卡按类别过滤
+      const categories = ['language', 'framework', 'tool'];
+      return filterSkillsByCategory(categories[activeTab - 1]);
+    }
   };
 
   // 获取类别图标
   const getCategoryIcon = (index: number) => {
     const icons = [
+      <FiServer key="overview" size={20} />, // Overview图标
       <FiCode key="code" size={20} />,
       <FiLayers key="layers" size={20} />,
-      <FiSettings key="settings" size={20} />,
-      <FiServer key="server" size={20} />
+      <FiSettings key="settings" size={20} />
     ];
     return icons[index];
+  };
+
+  // 使用新的SkillCard组件渲染技能列表
+  const renderSkills = (skills: Skill[]) => {
+    return (
+      <Grid container spacing={2}>
+        {skills.map((skill, index) => (
+          <Grid item xs={12} sm={6} key={skill.name}>
+            <SkillCard
+              name={skill.name}
+              level={skill.value}
+              icon={skill.icon}
+              category={skill.category}
+              delay={index * 0.1} // 添加交错动画
+              index={index}
+            />
+          </Grid>
+        ))}
+      </Grid>
+    );
   };
 
   return (
@@ -304,25 +338,25 @@ const SkillsPage: React.FC<SkillsPageProps> = ({ data }) => {
               >
                 <Tab
                   icon={getCategoryIcon(0)}
-                  label={t('skills.programmingLanguages')}
+                  label={t('skills.overview', 'Overview')}
                   iconPosition="start"
                   sx={{ textTransform: 'none' }}
                 />
                 <Tab
                   icon={getCategoryIcon(1)}
-                  label={t('skills.devFrameworks')}
+                  label={t('skills.programmingLanguages')}
                   iconPosition="start"
                   sx={{ textTransform: 'none' }}
                 />
                 <Tab
                   icon={getCategoryIcon(2)}
-                  label={t('skills.devTools')}
+                  label={t('skills.devFrameworks')}
                   iconPosition="start"
                   sx={{ textTransform: 'none' }}
                 />
                 <Tab
                   icon={getCategoryIcon(3)}
-                  label={t('skills.overview')}
+                  label={t('skills.devTools')}
                   iconPosition="start"
                   sx={{ textTransform: 'none' }}
                 />
@@ -341,21 +375,48 @@ const SkillsPage: React.FC<SkillsPageProps> = ({ data }) => {
                 mb: 6
               }}
             >
-              <Grid container spacing={3}>
-                {getActiveSkills().map((skill) => (
-                  <Grid item xs={12} md={6} key={skill.name}>
-                    <RainbowProgressBar
-                      value={skill.value}
-                      label={skill.name}
-                      icon={skill.icon}
-                      height={12}
-                      borderRadius={8}
-                      showPercentage={true}
-                      glowEffect={true}
-                    />
-                  </Grid>
-                ))}
-              </Grid>
+              <Box sx={{ mt: 4 }}>
+                {activeTab === 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    {renderSkills(getActiveSkills())}
+                  </motion.div>
+                )}
+                {activeTab === 1 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    {renderSkills(getActiveSkills())}
+                  </motion.div>
+                )}
+                {activeTab === 2 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    {renderSkills(getActiveSkills())}
+                  </motion.div>
+                )}
+                {activeTab === 3 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    {renderSkills(getActiveSkills())}
+                  </motion.div>
+                )}
+              </Box>
             </GlassyBlobBackground>
           </motion.div>
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Container, Typography, Grid } from '@mui/material';
+import { Box, Container, Typography, Grid, Snackbar, Alert } from '@mui/material';
 import { motion } from 'framer-motion';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useTranslation } from 'react-i18next';
@@ -11,6 +11,8 @@ import { SiSpring, SiMysql } from 'react-icons/si';
 import ProfileAvatar from '../../components/ui/ProfileAvatar';
 import TypedText from '../../components/ui/common/TypedText';
 import CustomTooltip from '../../components/ui/common/CustomTooltip';
+import { Link } from 'react-router-dom';
+import confetti from 'canvas-confetti';
 
 interface HomePageProps {
   data: {
@@ -25,6 +27,14 @@ interface HomePageProps {
   };
 }
 
+// 社交媒体链接接口
+interface SocialLink {
+  icon: React.ReactNode;
+  url: string;
+  label: string;
+  onClick?: () => void;
+}
+
 /**
  * 主页组件
  */
@@ -32,6 +42,7 @@ const HomePage: React.FC<HomePageProps> = ({ data }) => {
   const { theme } = useTheme();
   const { t } = useTranslation();
   const [roleIndex, setRoleIndex] = useState(0);
+  const [snackbar, setSnackbar] = useState({ open: false, message: '' });
 
   // 获取github用户名
   const githubUsername = data.githubUsername || (data.github && data.github.includes('github.com/')
@@ -88,20 +99,73 @@ const HomePage: React.FC<HomePageProps> = ({ data }) => {
   };
 
   // 社交媒体链接
-  const socialLinks = [
-    { icon: <FiGithub size={20} />, url: data.github.startsWith('http') ? data.github : `https://github.com/${githubUsername}`, label: 'GitHub' },
-    { icon: <FiMail size={20} />, url: `mailto:${data.email}`, label: 'Email' },
-    { icon: <FiPhone size={20} />, url: `tel:${data.phone}`, label: 'Phone' }
+  const socialLinks: SocialLink[] = [
+    { icon: <FiGithub size={20} />, url: data.github && data.github.startsWith('http') ? data.github : `https://github.com/${githubUsername}`, label: 'GitHub' },
+    {
+      icon: <FiMail size={20} />,
+      url: `mailto:${data.email}`,
+      label: 'Email',
+      onClick: () => {
+        navigator.clipboard.writeText(data.email)
+          .then(() => {
+            setSnackbar({ open: true, message: `邮箱 ${data.email} 已复制到剪贴板` });
+          })
+          .catch(err => {
+            console.error('复制失败:', err);
+            setSnackbar({ open: true, message: '复制失败，请手动复制' });
+          });
+      }
+    },
+    {
+      icon: <FiPhone size={20} />,
+      url: `tel:${data.phone}`,
+      label: 'Phone',
+      onClick: () => {
+        navigator.clipboard.writeText(data.phone)
+          .then(() => {
+            setSnackbar({ open: true, message: `电话 ${data.phone} 已复制到剪贴板` });
+          })
+          .catch(err => {
+            console.error('复制失败:', err);
+            setSnackbar({ open: true, message: '复制失败，请手动复制' });
+          });
+      }
+    }
   ];
 
   // 如果有微信，添加到社交链接中
   if (data.wechat) {
+    const wechatId = data.wechat; // 将可能的undefined值转换为确定的string
     socialLinks.push({
       icon: <SiWechat size={20} />,
       url: '#',
-      label: data.wechat
+      label: wechatId,
+      onClick: () => {
+        navigator.clipboard.writeText(wechatId)
+          .then(() => {
+            setSnackbar({ open: true, message: `微信号 ${wechatId} 已复制到剪贴板` });
+          })
+          .catch(err => {
+            console.error('复制失败:', err);
+            setSnackbar({ open: true, message: '复制失败，请手动复制' });
+          });
+      }
     });
   }
+
+  // 添加彩带动画函数
+  const runConfetti = () => {
+    confetti({
+      particleCount: 100,
+      spread: 70,
+      origin: { y: 0.6 }
+    });
+  };
+
+  // 关闭提示
+  const handleCloseSnackbar = () => {
+    setSnackbar({ ...snackbar, open: false });
+  };
 
   return (
     <Box
@@ -202,31 +266,31 @@ const HomePage: React.FC<HomePageProps> = ({ data }) => {
 
               <motion.div variants={itemVariants}>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 4, gap: 2 }}>
-                  <Box
-                    component="a"
-                    href="/about"
-                    sx={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      px: 3,
-                      py: 1.2,
-                      borderRadius: '50px',
-                      fontWeight: 600,
-                      textDecoration: 'none',
-                      color: '#fff',
-                      background: theme === 'dark'
-                        ? 'linear-gradient(90deg, #7928CA 0%, #FF0080 100%)'
-                        : 'linear-gradient(90deg, #0070F3 0%, #00DFD8 100%)',
-                      transition: 'all 0.3s ease',
-                      '&:hover': {
-                        transform: 'translateY(-3px)',
-                        boxShadow: '0 7px 14px rgba(0,0,0,0.12)'
-                      }
-                    }}
-                  >
-                    {t('common.viewDetails', '查看详细')}
-                    <FiArrowRight style={{ marginLeft: 8 }} />
-                  </Box>
+                  <Link to="/about" style={{ textDecoration: 'none' }}>
+                    <Box
+                      sx={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        px: 3,
+                        py: 1.2,
+                        borderRadius: '50px',
+                        fontWeight: 600,
+                        textDecoration: 'none',
+                        color: '#fff',
+                        background: theme === 'dark'
+                          ? 'linear-gradient(90deg, #7928CA 0%, #FF0080 100%)'
+                          : 'linear-gradient(90deg, #0070F3 0%, #00DFD8 100%)',
+                        transition: 'all 0.3s ease',
+                        '&:hover': {
+                          transform: 'translateY(-3px)',
+                          boxShadow: '0 7px 14px rgba(0,0,0,0.12)'
+                        }
+                      }}
+                    >
+                      {t('common.viewDetails', '查看详细')}
+                      <FiArrowRight style={{ marginLeft: 8 }} />
+                    </Box>
+                  </Link>
 
                   <Box
                     component="a"
@@ -234,6 +298,9 @@ const HomePage: React.FC<HomePageProps> = ({ data }) => {
                     download="赵东安-Java后端开发工程师-简历.pdf"
                     target="_blank"
                     rel="noopener noreferrer"
+                    onClick={() => {
+                      setTimeout(() => runConfetti(), 300);
+                    }}
                     sx={{
                       display: 'inline-flex',
                       alignItems: 'center',
@@ -243,18 +310,45 @@ const HomePage: React.FC<HomePageProps> = ({ data }) => {
                       fontWeight: 600,
                       textDecoration: 'none',
                       color: theme === 'dark' ? '#fff' : '#fff',
-                      backgroundColor: theme === 'dark' ? '#444' : '#555',
-                      boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+                      background: theme === 'dark'
+                        ? 'linear-gradient(135deg, #333 0%, #666 100%)'
+                        : 'linear-gradient(135deg, #444 0%, #777 100%)',
+                      boxShadow: '0 4px 10px rgba(0,0,0,0.12)',
+                      position: 'relative',
+                      overflow: 'hidden',
+                      '&::before': {
+                        content: '""',
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 50%)',
+                        borderRadius: '50px',
+                      },
                       '&:hover': {
                         backgroundColor: theme === 'dark' ? '#555' : '#666',
                         transform: 'translateY(-3px)',
-                        boxShadow: '0 7px 14px rgba(0,0,0,0.15)'
+                        boxShadow: '0 7px 14px rgba(0,0,0,0.2)',
+                        '& .download-icon': {
+                          transform: 'translateY(2px)'
+                        }
                       },
                       transition: 'all 0.3s ease'
                     }}
                   >
                     {t('common.downloadPdf', '下载简历')}
-                    <FiDownload style={{ marginLeft: 8 }} />
+                    <Box
+                      component="span"
+                      className="download-icon"
+                      sx={{
+                        display: 'inline-flex',
+                        marginLeft: 1,
+                        transition: 'transform 0.3s ease'
+                      }}
+                    >
+                      <FiDownload size={18} />
+                    </Box>
                   </Box>
                 </Box>
               </motion.div>
@@ -268,36 +362,44 @@ const HomePage: React.FC<HomePageProps> = ({ data }) => {
                   }}
                 >
                   {socialLinks.map((link, index) => (
-                    <Box
-                      key={index}
-                      component="a"
-                      href={link.url}
-                      target={link.url.startsWith('http') ? "_blank" : undefined}
-                      rel={link.url.startsWith('http') ? "noopener noreferrer" : undefined}
-                      title={link.label}
-                      sx={{
-                        width: 42,
-                        height: 42,
-                        borderRadius: '12px',
-                        backgroundColor: theme === 'dark'
-                          ? 'rgba(255, 255, 255, 0.05)'
-                          : 'rgba(0, 0, 0, 0.05)',
-                        color: 'text.primary',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        transition: 'all 0.2s ease',
-                        '&:hover': {
+                    <CustomTooltip key={index} title={link.label} placement="top">
+                      <Box
+                        component={link.onClick ? "button" : "a"}
+                        href={link.onClick ? undefined : link.url}
+                        target={link.url && link.url.startsWith('http') ? "_blank" : undefined}
+                        rel={link.url && link.url.startsWith('http') ? "noopener noreferrer" : undefined}
+                        onClick={link.onClick}
+                        sx={{
+                          width: 42,
+                          height: 42,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          borderRadius: '12px',
+                          fontSize: 22,
                           backgroundColor: theme === 'dark'
-                            ? 'rgba(255, 255, 255, 0.1)'
-                            : 'rgba(0, 0, 0, 0.1)',
-                          color: theme === 'dark' ? '#a0a0ff' : '#5050ff',
-                          transform: 'translateY(-3px)'
-                        }
-                      }}
-                    >
-                      {link.icon}
-                    </Box>
+                            ? 'rgba(255, 255, 255, 0.05)'
+                            : 'rgba(0, 0, 0, 0.03)',
+                          color: theme === 'dark' ? '#e0e0ff' : '#3030ff',
+                          transition: 'all 0.3s ease',
+                          border: 'none',
+                          cursor: 'pointer',
+                          outline: 'none',
+                          '&:hover': {
+                            transform: 'translateY(-5px)',
+                            backgroundColor: theme === 'dark'
+                              ? 'rgba(255, 255, 255, 0.1)'
+                              : 'rgba(0, 0, 0, 0.1)',
+                            color: theme === 'dark' ? '#a0a0ff' : '#5050ff',
+                            boxShadow: theme === 'dark'
+                              ? '0 5px 15px rgba(255, 255, 255, 0.1)'
+                              : '0 5px 15px rgba(0, 0, 0, 0.1)'
+                          }
+                        }}
+                      >
+                        {link.icon}
+                      </Box>
+                    </CustomTooltip>
                   ))}
                 </Box>
               </motion.div>
@@ -416,6 +518,36 @@ const HomePage: React.FC<HomePageProps> = ({ data }) => {
           ))}
         </Grid>
       </Container>
+
+      {/* 添加复制成功的Snackbar */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        sx={{
+          '& .MuiAlert-root': {
+            borderRadius: '16px',
+            boxShadow: '0 8px 32px rgba(31, 38, 135, 0.2)',
+            backdropFilter: 'blur(8px)',
+            border: theme === 'dark' ? '1px solid rgba(255, 255, 255, 0.18)' : '1px solid rgba(0, 0, 0, 0.05)',
+            backgroundColor: theme === 'dark' ? 'rgba(50, 50, 70, 0.9)' : 'rgba(255, 255, 255, 0.9)'
+          }
+        }}
+      >
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity="success"
+          sx={{
+            width: '100%',
+            '& .MuiAlert-icon': {
+              color: theme === 'dark' ? '#a0ff9c' : '#00a152'
+            }
+          }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

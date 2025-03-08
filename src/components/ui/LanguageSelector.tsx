@@ -5,13 +5,8 @@ import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../contexts/ThemeContext';
 import { FiCheck, FiGlobe } from 'react-icons/fi';
 import CustomTooltip from './common/CustomTooltip';
-
-// 国旗表情符号映射
-const FLAG_EMOJIS: Record<string, string> = {
-  US: '🇺🇸',
-  CN: '🇨🇳',
-  JP: '🇯🇵'
-};
+// 导入国旗图标库
+import { US, CN, JP } from 'country-flag-icons/react/3x2';
 
 interface Language {
   code: string;
@@ -114,30 +109,28 @@ const LanguageSelector: React.FC = () => {
     }
   };
 
-  // 渲染国旗表情
+  // 渲染国旗图标
   const renderFlag = (countryCode: string, size: number = 20) => {
-    const emoji = FLAG_EMOJIS[countryCode];
+    const props = {
+      width: size,
+      height: size * 0.75,
+      title: `${countryCode} flag`,
+      style: {
+        borderRadius: '2px',
+        boxShadow: theme === 'light' ? '0 1px 2px rgba(0,0,0,0.2)' : '0 1px 2px rgba(0,0,0,0.3)',
+      }
+    };
 
-    if (!emoji) {
-      return <FiGlobe size={size * 0.8} />;
+    switch (countryCode) {
+      case 'US':
+        return <US {...props} />;
+      case 'CN':
+        return <CN {...props} />;
+      case 'JP':
+        return <JP {...props} />;
+      default:
+        return <FiGlobe size={size * 0.8} />;
     }
-
-    return (
-      <Box
-        sx={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: `${size}px`,
-          lineHeight: 1,
-          filter: theme === 'light' ? 'drop-shadow(0 1px 2px rgba(0,0,0,0.1))' : 'none'
-        }}
-      >
-        <span role="img" aria-label={`${countryCode} flag`}>
-          {emoji}
-        </span>
-      </Box>
-    );
   };
 
   return (

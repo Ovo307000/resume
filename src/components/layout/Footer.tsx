@@ -7,6 +7,7 @@ import { SiWechat } from 'react-icons/si';
 import { useTheme } from '../../contexts/ThemeContext';
 import GlassyBlobBackground from '../ui/backgrounds/GlassyBlobBackground';
 import CustomTooltip from '../ui/common/CustomTooltip';
+import resumeData from '../../data/resumeData.json';
 
 /**
  * 页脚组件
@@ -19,6 +20,11 @@ const Footer: React.FC = () => {
   const muiTheme = useMuiTheme();
   const { theme } = useTheme();
   const [snackbar, setSnackbar] = useState({ open: false, message: '' });
+
+  // 获取GitHub用户名
+  const githubUsername = resumeData.basics.githubUsername || 'Ovo307000';
+  const email = resumeData.basics.email;
+  const phone = resumeData.basics.phone;
 
   // 复制文本到剪贴板
   const copyToClipboard = (text: string, message: string) => {
@@ -38,27 +44,29 @@ const Footer: React.FC = () => {
   };
 
   // 微信号
-  const wechatId = 'za1-37';
+  const wechatId = resumeData.basics.wechat;
 
   // 社交媒体链接
   const socialLinks = [
     {
       name: 'GitHub',
       icon: <FiGithub size={18} />,
-      url: 'https://github.com/Ovo307000',
+      url: `https://github.com/${githubUsername}`,
       ariaLabel: 'GitHub'
     },
     {
       name: 'Email',
       icon: <FiMail size={18} />,
-      url: 'mailto:solowzl@outlook.com',
-      ariaLabel: 'Email'
+      url: `mailto:${email}`,
+      ariaLabel: 'Email',
+      onClick: () => copyToClipboard(email, `邮箱 ${email} 已复制到剪贴板`)
     },
     {
       name: 'Phone',
       icon: <FiPhone size={18} />,
-      url: 'tel:19154085798',
-      ariaLabel: 'Phone'
+      url: `tel:${phone}`,
+      ariaLabel: 'Phone',
+      onClick: () => copyToClipboard(phone, `电话 ${phone} 已复制到剪贴板`)
     },
     {
       name: 'WeChat',
@@ -119,7 +127,7 @@ const Footer: React.FC = () => {
                     {t('footer.tagline')}
                   </Typography>
                   <Typography variant="caption" color="text.secondary">
-                    © {currentYear} | Java Backend Developer
+                    © {currentYear} | {githubUsername} | Java Backend Developer
                   </Typography>
                 </motion.div>
               </Box>
@@ -180,14 +188,32 @@ const Footer: React.FC = () => {
         </Container>
       </GlassyBlobBackground>
 
-      {/* 微信号复制成功提示 */}
+      {/* 复制成功提示 */}
       <Snackbar
         open={snackbar.open}
         autoHideDuration={3000}
         onClose={handleCloseSnackbar}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        sx={{
+          '& .MuiAlert-root': {
+            borderRadius: '16px',
+            boxShadow: '0 8px 32px rgba(31, 38, 135, 0.2)',
+            backdropFilter: 'blur(8px)',
+            border: theme === 'dark' ? '1px solid rgba(255, 255, 255, 0.18)' : '1px solid rgba(0, 0, 0, 0.05)',
+            backgroundColor: theme === 'dark' ? 'rgba(50, 50, 70, 0.9)' : 'rgba(255, 255, 255, 0.9)'
+          }
+        }}
       >
-        <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity="success"
+          sx={{
+            width: '100%',
+            '& .MuiAlert-icon': {
+              color: theme === 'dark' ? '#a0ff9c' : '#00a152'
+            }
+          }}
+        >
           {snackbar.message}
         </Alert>
       </Snackbar>

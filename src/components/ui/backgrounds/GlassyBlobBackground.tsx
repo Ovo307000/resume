@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Box } from '@mui/material';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '../../../contexts/ThemeContext';
 
 interface ColorBlob {
@@ -103,7 +103,7 @@ const GlassyBlobBackground: React.FC<GlassyBlobBackgroundProps> = ({
           y: Math.random() * 100,
           size: Math.random() * (maxSize - minSize) + minSize,
           color: colors[Math.floor(Math.random() * colors.length)],
-          duration: Math.random() * 40 + 40 // 动画时长40-80秒
+          duration: Math.random() * 20 + 40 // 动画时长40-60秒，减少变化幅度
         });
       }
 
@@ -116,23 +116,25 @@ const GlassyBlobBackground: React.FC<GlassyBlobBackgroundProps> = ({
     let interval: NodeJS.Timeout | null = null;
 
     if (animate) {
+      // 增加更新间隔时间，减少频繁变化
       interval = setInterval(() => {
         const colors = getColors();
         const updatedBlobs = [...blobs];
         const randomIndex = Math.floor(Math.random() * blobs.length);
 
         if (updatedBlobs[randomIndex]) {
+          // 缓慢过渡到新位置，而不是直接替换
           updatedBlobs[randomIndex] = {
             ...updatedBlobs[randomIndex],
             x: Math.random() * 100,
             y: Math.random() * 100,
             color: colors[Math.floor(Math.random() * colors.length)],
-            duration: Math.random() * 40 + 40
+            duration: Math.random() * 20 + 40
           };
 
           setBlobs(updatedBlobs);
         }
-      }, 10000);
+      }, 15000); // 增加到15秒，减少突兀变化
     }
 
     return () => {
@@ -162,31 +164,51 @@ const GlassyBlobBackground: React.FC<GlassyBlobBackgroundProps> = ({
           opacity: 0.9
         }}
       >
-        {blobs.map((blob) => (
-          <motion.div
-            key={blob.id}
-            initial={{ x: `${blob.x}%`, y: `${blob.y}%` }}
-            animate={animate ? {
-              x: [`${blob.x}%`, `${(blob.x + 20) % 100}%`, `${(blob.x + 40) % 100}%`, `${blob.x}%`],
-              y: [`${blob.y}%`, `${(blob.y + 15) % 100}%`, `${(blob.y + 30) % 100}%`, `${blob.y}%`]
-            } : undefined}
-            transition={{
-              duration: blob.duration,
-              repeat: Infinity,
-              repeatType: 'reverse',
-              ease: 'easeInOut'
-            }}
-            style={{
-              position: 'absolute',
-              width: blob.size,
-              height: blob.size,
-              borderRadius: '50%',
-              background: blob.color,
-              filter: `blur(${blurAmount}px)`,
-              transform: 'translate(-50%, -50%)'
-            }}
-          />
-        ))}
+        <AnimatePresence>
+          {blobs.map((blob) => (
+            <motion.div
+              key={blob.id}
+              initial={{
+                x: `${blob.x}%`,
+                y: `${blob.y}%`,
+                opacity: 0,
+                scale: 0.8
+              }}
+              animate={{
+                opacity: 1,
+                scale: 1,
+                x: animate
+                  ? [`${blob.x}%`, `${(blob.x + 10) % 100}%`, `${(blob.x + 20) % 100}%`, `${blob.x}%`]
+                  : `${blob.x}%`,
+                y: animate
+                  ? [`${blob.y}%`, `${(blob.y + 8) % 100}%`, `${(blob.y + 16) % 100}%`, `${blob.y}%`]
+                  : `${blob.y}%`
+              }}
+              exit={{
+                opacity: 0,
+                scale: 0.8,
+                transition: { duration: 1.5 }
+              }}
+              transition={{
+                duration: blob.duration,
+                repeat: Infinity,
+                repeatType: 'mirror', // 使用mirror而不是reverse，更加平滑
+                ease: 'easeInOut',
+                opacity: { duration: 2 }, // 淡入淡出效果
+                scale: { duration: 2 }    // 缩放效果
+              }}
+              style={{
+                position: 'absolute',
+                width: blob.size,
+                height: blob.size,
+                borderRadius: '50%',
+                background: blob.color,
+                filter: `blur(${blurAmount}px)`,
+                transform: 'translate(-50%, -50%)'
+              }}
+            />
+          ))}
+        </AnimatePresence>
       </Box>
 
       {/* 内容层 */}
