@@ -1,25 +1,29 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Typography,
   Box,
   Container,
   Grid,
-  Card,
   CardMedia,
   CardContent,
   CardActions,
   Button,
   Chip,
   IconButton,
-  Link as MuiLink
+  Link as MuiLink,
+  Tabs,
+  Tab,
+  Divider
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { FiExternalLink, FiGithub } from 'react-icons/fi';
+import { FiExternalLink, FiGithub, FiCode, FiLayers, FiBriefcase, FiFilter } from 'react-icons/fi';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useLanguage } from '../../hooks/useLanguage';
-import GlassyBlobBackground from '../../components/ui/backgrounds/GlassyBlobBackground';
-import PageTitle from '../../components/ui/common/PageTitle';
+import GlassPanel from '../../components/ui/glass/GlassPanel';
+import PageTransition from '../../components/ui/transitions/PageTransition';
+import CustomTooltip from '../../components/ui/common/CustomTooltip';
+import AnimatedLink from '../../components/ui/common/AnimatedLink';
 
 interface Project {
   name: string;
@@ -30,6 +34,8 @@ interface Project {
   longDescription: string;
   technologies: string[];
   imageUrl: string;
+  category?: string;
+  githubUrl?: string;
   showAllTechnologies?: boolean;
 }
 
@@ -46,6 +52,34 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({ data }) => {
   const { theme } = useTheme();
   const { language } = useLanguage();
   const [projects, setProjects] = useState(data.map(project => ({ ...project, showAllTechnologies: false })));
+  const [filter, setFilter] = useState('all');
+  const [filteredProjects, setFilteredProjects] = useState(projects);
+
+  // 过滤项目
+  useEffect(() => {
+    if (filter === 'all') {
+      setFilteredProjects(projects);
+    } else {
+      setFilteredProjects(projects.filter(project => project.category === filter));
+    }
+  }, [filter, projects]);
+
+  // 展开/收起技术栈
+  const toggleTechnologies = (index: number) => {
+    const updatedProjects = [...projects];
+    updatedProjects[index].showAllTechnologies = !updatedProjects[index].showAllTechnologies;
+    setProjects(updatedProjects);
+  };
+
+  // 获取本地化的项目名称
+  const getLocalizedName = (project: Project) => {
+    return language === 'zh' ? project.nameZh : project.name;
+  };
+
+  // 获取本地化的项目描述
+  const getLocalizedDescription = (project: Project) => {
+    return language === 'zh' ? project.descriptionZh : project.description;
+  };
 
   // 动画变体
   const containerVariants = {
@@ -53,187 +87,302 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({ data }) => {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.2,
+        staggerChildren: 0.1,
         delayChildren: 0.2
       }
     }
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { type: 'spring', stiffness: 100, damping: 12 }
+    }
   };
 
-  // 确保项目数据存在
-  if (!data || data.length === 0) {
-    console.warn('No project data available');
-  }
+  // 项目类别
+  const categories = [
+    { value: 'all', label: t('projects.filters.all', '全部'), icon: <FiLayers size={18} /> },
+    { value: 'web', label: t('projects.filters.web', '网页'), icon: <FiCode size={18} /> },
+    { value: 'mobile', label: t('projects.filters.mobile', '移动'), icon: <FiBriefcase size={18} /> },
+    { value: 'other', label: t('projects.filters.other', '其他'), icon: <FiFilter size={18} /> }
+  ];
+
+  // 根据技术栈生成颜色
+  const getTechColor = (tech: string, index: number) => {
+    const colors = ['primary', 'secondary', 'error', 'warning', 'info', 'success'];
+    // 基于技术名称的哈希值选择颜色
+    const hash = tech.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    return colors[hash % colors.length];
+  };
 
   return (
-    <Box sx={{ py: 8 }}>
-      <Container maxWidth="lg">
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-        >
+    <PageTransition mode="fade">
+      <Box sx={{ py: 8 }}>
+        <Container maxWidth="lg">
           {/* 页面标题 */}
-          <motion.div variants={itemVariants}>
-            <PageTitle title={t('projects.title')} />
-          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <Typography
+              variant="h3"
+              component="h1"
+              gutterBottom
+              sx={{
+                fontWeight: 700,
+                textAlign: 'center',
+                mb: 3
+              }}
+            >
+              {t('projects.title')}
+            </Typography>
 
-          {/* 页面简介 */}
-          <motion.div variants={itemVariants}>
-            <GlassyBlobBackground
-              colorSet="rainbow"
-              intensity="light"
-              containerSx={{
-                borderRadius: '16px',
-                p: 3,
+            <Typography
+              variant="h6"
+              sx={{
+                textAlign: 'center',
+                fontWeight: 'medium',
+                color: 'text.secondary',
+                maxWidth: '800px',
+                mx: 'auto',
                 mb: 6
               }}
             >
-              <Typography
-                variant="h6"
-                gutterBottom
-                sx={{
-                  textAlign: 'center',
-                  fontWeight: 'medium',
-                  color: 'text.secondary',
-                  maxWidth: '800px',
-                  mx: 'auto',
-                  lineHeight: 1.8
-                }}
-              >
-                这里展示了我参与开发的项目，涵盖了后端开发的各个方面，从数据库设计到API开发，从业务逻辑到性能优化。
-              </Typography>
-            </GlassyBlobBackground>
+              {t('projects.subtitle')}
+            </Typography>
           </motion.div>
 
-          {/* 项目展示网格 */}
-          <Grid container spacing={4}>
-            {projects.map((project, index) => (
-              <Grid item xs={12} md={6} key={project.name}>
-                <motion.div
-                  variants={itemVariants}
-                  custom={index}
-                >
-                  <GlassyBlobBackground
-                    colorSet={index % 2 === 0 ? "primary" : "cool"}
-                    intensity="light"
-                    containerSx={{
-                      borderRadius: '16px',
-                      p: 0,
-                      overflow: 'hidden',
-                      height: '100%',
-                      transition: 'transform 0.3s ease',
-                      '&:hover': {
-                        transform: 'translateY(-8px)',
-                      }
-                    }}
-                  >
-                    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-                      {/* 项目图片 */}
-                      <Box sx={{ position: 'relative' }}>
-                        <CardMedia
-                          component="img"
-                          height="240"
-                          image={project.imageUrl}
-                          alt={language === 'zh' ? project.nameZh : project.name}
-                          sx={{
-                            objectFit: 'cover',
-                          }}
-                        />
-                        {/* 渐变遮罩 */}
-                        <Box
-                          sx={{
-                            position: 'absolute',
-                            bottom: 0,
-                            left: 0,
-                            right: 0,
-                            height: '50%',
-                            background: 'linear-gradient(to top, rgba(0,0,0,0.7), transparent)',
-                            display: 'flex',
-                            alignItems: 'flex-end',
-                            padding: 2
-                          }}
-                        >
-                          <Typography variant="h5" component="h2" sx={{ color: 'white', fontWeight: 'bold' }}>
-                            {language === 'zh' ? project.nameZh : project.name}
-                          </Typography>
-                        </Box>
-                      </Box>
-
-                      <CardContent sx={{ flexGrow: 1, p: 3 }}>
-                        <Typography variant="body1" color="text.secondary" paragraph>
-                          {language === 'zh' ? project.descriptionZh : project.description}
-                        </Typography>
-
-                        {/* 技术标签 */}
-                        <Box sx={{ mt: 2, display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                          {project.technologies.slice(0, project.technologies.length > 5 && !project.showAllTechnologies ? 5 : project.technologies.length).map((tech, techIndex) => (
-                            <Chip
-                              key={techIndex}
-                              label={tech}
-                              size="small"
-                              sx={{
-                                bgcolor: theme === 'dark' ? 'rgba(67, 56, 202, 0.2)' : 'rgba(67, 56, 202, 0.1)',
-                                color: theme === 'dark' ? 'primary.light' : 'primary.main',
-                                fontWeight: 'medium'
-                              }}
-                            />
-                          ))}
-                          {project.technologies.length > 5 && !project.showAllTechnologies && (
-                            <Chip
-                              label={`+${project.technologies.length - 5}`}
-                              size="small"
-                              variant="outlined"
-                              sx={{
-                                fontWeight: 'medium',
-                                cursor: 'pointer',
-                                '&:hover': {
-                                  bgcolor: theme === 'dark' ? 'rgba(67, 56, 202, 0.1)' : 'rgba(67, 56, 202, 0.05)',
-                                }
-                              }}
-                              onClick={() => {
-                                // Copy projects array and modify the specific project to show all technologies
-                                const updatedProjects = [...projects];
-                                updatedProjects[index] = { ...project, showAllTechnologies: true };
-                                // Update state
-                                setProjects(updatedProjects);
-                              }}
-                            />
-                          )}
-                        </Box>
-                      </CardContent>
-
-                      <CardActions sx={{ p: 2, pt: 0, justifyContent: 'flex-end' }}>
-                        <Button
-                          variant="contained"
-                          color="primary"
-                          size="small"
-                          href={project.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          startIcon={<FiGithub />}
-                          sx={{
-                            textTransform: 'none',
-                            borderRadius: '8px',
-                            px: 2
-                          }}
-                        >
-                          {t('projects.viewCode')}
-                        </Button>
-                      </CardActions>
+          {/* 项目筛选 */}
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              mb: 6
+            }}
+          >
+            <Tabs
+              value={filter}
+              onChange={(_, newValue) => setFilter(newValue)}
+              variant="scrollable"
+              scrollButtons="auto"
+              sx={{
+                mb: 4,
+                '& .MuiTab-root': {
+                  minWidth: 100,
+                  fontWeight: 500,
+                  textTransform: 'none',
+                  borderRadius: '50px',
+                  mx: 0.5,
+                  transition: 'all 0.2s',
+                  '&:hover': {
+                    backgroundColor: theme === 'dark'
+                      ? 'rgba(255, 255, 255, 0.1)'
+                      : 'rgba(0, 0, 0, 0.05)',
+                    color: 'primary.main'
+                  }
+                },
+                '& .Mui-selected': {
+                  color: 'primary.main',
+                  fontWeight: 600
+                },
+                '& .MuiTabs-indicator': {
+                  display: 'none'
+                }
+              }}
+            >
+              {categories.map((category) => (
+                <Tab
+                  key={category.value}
+                  value={category.value}
+                  label={
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      {category.icon}
+                      {category.label}
                     </Box>
-                  </GlassyBlobBackground>
-                </motion.div>
+                  }
+                  sx={{
+                    backgroundColor: filter === category.value
+                      ? theme === 'dark'
+                        ? 'rgba(255, 255, 255, 0.1)'
+                        : 'rgba(0, 0, 0, 0.05)'
+                      : 'transparent'
+                  }}
+                />
+              ))}
+            </Tabs>
+          </Box>
+
+          {/* 项目列表 */}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={filter}
+              initial="hidden"
+              animate="visible"
+              variants={containerVariants}
+              exit={{ opacity: 0 }}
+            >
+              <Grid container spacing={4}>
+                {filteredProjects.map((project, index) => (
+                  <Grid item xs={12} md={6} lg={4} key={index}>
+                    <motion.div variants={itemVariants}>
+                      <GlassPanel
+                        variant="elevated"
+                        intensity="medium"
+                        hoverEffect
+                        sx={{
+                          height: '100%',
+                          overflow: 'hidden',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          borderRadius: '16px',
+                          transition: 'all 0.3s ease',
+                          '&:hover': {
+                            transform: 'translateY(-5px)',
+                            boxShadow: theme === 'dark'
+                              ? '0 10px 30px rgba(255, 255, 255, 0.1)'
+                              : '0 10px 30px rgba(0, 0, 0, 0.1)'
+                          }
+                        }}
+                      >
+                        <Box sx={{ position: 'relative' }}>
+                          <CardMedia
+                            component="img"
+                            height="180"
+                            image={project.imageUrl}
+                            alt={getLocalizedName(project)}
+                            sx={{
+                              objectFit: 'cover',
+                              transition: 'all 0.3s ease',
+                              '&:hover': {
+                                transform: 'scale(1.05)'
+                              }
+                            }}
+                          />
+                          <Box
+                            sx={{
+                              position: 'absolute',
+                              top: 12,
+                              right: 12,
+                              display: 'flex',
+                              gap: 1
+                            }}
+                          >
+                            {project.category && (
+                              <Chip
+                                size="small"
+                                label={t(`projects.filters.${project.category}`, project.category)}
+                                sx={{
+                                  backgroundColor: theme === 'dark'
+                                    ? 'rgba(0, 0, 0, 0.6)'
+                                    : 'rgba(255, 255, 255, 0.8)',
+                                  backdropFilter: 'blur(8px)',
+                                  borderRadius: '50px',
+                                  fontSize: '0.7rem',
+                                  fontWeight: 600,
+                                  color: theme === 'dark' ? 'white' : 'text.primary'
+                                }}
+                              />
+                            )}
+                          </Box>
+                        </Box>
+
+                        <CardContent sx={{ flexGrow: 1, p: 3 }}>
+                          <Typography variant="h6" component="h3" gutterBottom fontWeight="bold">
+                            {getLocalizedName(project)}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary" paragraph sx={{ mb: 2 }}>
+                            {getLocalizedDescription(project)}
+                          </Typography>
+
+                          <Typography
+                            variant="subtitle2"
+                            fontWeight="bold"
+                            sx={{ mb: 1, display: 'flex', alignItems: 'center', gap: 0.5 }}
+                          >
+                            <FiCode size={14} />
+                            {t('projects.technologies')}
+                          </Typography>
+                          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 2 }}>
+                            {(project.showAllTechnologies
+                              ? project.technologies
+                              : project.technologies.slice(0, 4)
+                            ).map((tech, idx) => (
+                              <Chip
+                                key={idx}
+                                label={tech}
+                                size="small"
+                                color={getTechColor(tech, idx) as any}
+                                variant="outlined"
+                                sx={{ borderRadius: '8px', fontSize: '0.7rem' }}
+                              />
+                            ))}
+                            {project.technologies.length > 4 && !project.showAllTechnologies && (
+                              <Chip
+                                label={`+${project.technologies.length - 4}`}
+                                size="small"
+                                variant="outlined"
+                                onClick={() => toggleTechnologies(index)}
+                                sx={{ borderRadius: '8px', fontSize: '0.7rem', cursor: 'pointer' }}
+                              />
+                            )}
+                          </Box>
+                        </CardContent>
+
+                        <Divider sx={{ opacity: 0.1 }} />
+
+                        <CardActions sx={{ p: 2, justifyContent: 'space-between', gap: 1 }}>
+                          <Box sx={{ display: 'flex', gap: 1 }}>
+                            <AnimatedLink to={project.url} variant="button">
+                              <Button
+                                size="small"
+                                variant="contained"
+                                endIcon={<FiExternalLink size={14} />}
+                                sx={{ textTransform: 'none', fontWeight: 500, borderRadius: '8px' }}
+                              >
+                                {t('projects.viewProject')}
+                              </Button>
+                            </AnimatedLink>
+                          </Box>
+                          <Box>
+                            {project.githubUrl && (
+                              <CustomTooltip title={t('projects.viewCode')} placement="top">
+                                <IconButton
+                                  size="small"
+                                  component="a"
+                                  href={project.githubUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  aria-label={t('projects.viewCode')}
+                                  sx={{
+                                    color: theme === 'dark' ? 'text.primary' : 'text.secondary',
+                                    '&:hover': {
+                                      color: 'primary.main',
+                                      backgroundColor: theme === 'dark'
+                                        ? 'rgba(255, 255, 255, 0.1)'
+                                        : 'rgba(0, 0, 0, 0.05)'
+                                    }
+                                  }}
+                                >
+                                  <FiGithub size={20} />
+                                </IconButton>
+                              </CustomTooltip>
+                            )}
+                          </Box>
+                        </CardActions>
+                      </GlassPanel>
+                    </motion.div>
+                  </Grid>
+                ))}
               </Grid>
-            ))}
-          </Grid>
-        </motion.div>
-      </Container>
-    </Box>
+            </motion.div>
+          </AnimatePresence>
+        </Container>
+      </Box>
+    </PageTransition>
   );
 };
 

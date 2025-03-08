@@ -1,9 +1,10 @@
 import React from 'react';
-import { Box, IconButton, Tooltip } from '@mui/material';
+import { Box, IconButton } from '@mui/material';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiSun, FiMoon } from 'react-icons/fi';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useTranslation } from 'react-i18next';
+import CustomTooltip from './common/CustomTooltip';
 
 interface ThemeToggleProps {
   size?: 'small' | 'medium' | 'large';
@@ -93,7 +94,7 @@ const ThemeToggle: React.FC<ThemeToggleProps> = ({ size = 'medium' }) => {
   };
 
   return (
-    <Tooltip title={isDark ? t('common.switchToLight') : t('common.switchToDark')} arrow>
+    <CustomTooltip title={isDark ? t('common.switchToLight') : t('common.switchToDark')} arrow placement="bottom">
       <Box>
         <motion.div
           initial="initial"
@@ -141,7 +142,7 @@ const ThemeToggle: React.FC<ThemeToggleProps> = ({ size = 'medium' }) => {
           </IconButton>
         </motion.div>
       </Box>
-    </Tooltip>
+    </CustomTooltip>
   );
 };
 

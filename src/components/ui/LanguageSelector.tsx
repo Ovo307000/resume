@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Box, Typography, Tooltip, IconButton } from '@mui/material';
+import { Box, Typography, IconButton } from '@mui/material';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../contexts/ThemeContext';
 import { FiCheck, FiGlobe } from 'react-icons/fi';
+import CustomTooltip from './common/CustomTooltip';
 
 // 国旗表情符号映射
 const FLAG_EMOJIS: Record<string, string> = {
@@ -147,7 +148,7 @@ const LanguageSelector: React.FC = () => {
         zIndex: 1200
       }}
     >
-      <Tooltip title={t('common.switchLang')} arrow>
+      <CustomTooltip title={t('common.switchLang')} arrow placement="bottom">
         <IconButton
           onClick={() => setIsOpen(!isOpen)}
           color="inherit"
@@ -170,7 +171,7 @@ const LanguageSelector: React.FC = () => {
             {renderFlag(currentLanguage.countryCode, 20)}
           </Box>
         </IconButton>
-      </Tooltip>
+      </CustomTooltip>
 
       <AnimatePresence>
         {isOpen && (

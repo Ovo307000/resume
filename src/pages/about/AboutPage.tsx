@@ -397,13 +397,23 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
                                 display: 'flex',
                                 alignItems: 'center',
                                 gap: 1.5,
-                                padding: '8px 12px',
-                                borderRadius: '8px',
+                                padding: '10px 16px',
+                                borderRadius: '10px',
                                 backgroundColor: theme === 'dark'
                                   ? 'rgba(255, 255, 255, 0.05)'
                                   : 'rgba(0, 0, 0, 0.03)',
                                 color: 'text.primary',
-                                textDecoration: 'none'
+                                textDecoration: 'none',
+                                transition: 'all 0.2s ease',
+                                '&:hover': {
+                                  backgroundColor: theme === 'dark'
+                                    ? 'rgba(255, 255, 255, 0.1)'
+                                    : 'rgba(0, 0, 0, 0.05)',
+                                  transform: 'translateY(-2px)',
+                                  boxShadow: theme === 'dark'
+                                    ? '0 4px 12px rgba(255, 255, 255, 0.1)'
+                                    : '0 4px 12px rgba(0, 0, 0, 0.05)'
+                                }
                               }}
                             >
                               <Box
@@ -411,8 +421,8 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
                                   display: 'flex',
                                   alignItems: 'center',
                                   justifyContent: 'center',
-                                  width: 36,
-                                  height: 36,
+                                  width: 40,
+                                  height: 40,
                                   borderRadius: '10px',
                                   backgroundColor: theme === 'dark'
                                     ? 'rgba(255, 255, 255, 0.1)'
@@ -422,7 +432,7 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
                               >
                                 {item.icon}
                               </Box>
-                              <Box>
+                              <Box sx={{ minWidth: 120 }}>
                                 <Typography
                                   variant="caption"
                                   color="text.secondary"
@@ -501,7 +511,7 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
                       }}
                     >
                       <FiHeart size={22} color={muiTheme.palette.primary.main} />
-                      {t('about.traits', '个人特质')}
+                      {t('about.traitsTitle', '个人特质')}
                     </Typography>
 
                     <Grid container spacing={2}>
@@ -510,14 +520,22 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
                           <motion.div variants={traitItemVariants}>
                             <GlassPanel
                               variant="elevated"
-                              intensity="medium"
+                              intensity={index % 2 === 0 ? "light" : "medium"}
                               hoverEffect={true}
                               sx={{
                                 p: 2,
-                                borderRadius: '12px',
+                                borderRadius: '16px',
                                 display: 'flex',
                                 alignItems: 'center',
-                                gap: 1.5
+                                gap: 1.5,
+                                height: '100%',
+                                transition: 'all 0.3s ease',
+                                '&:hover': {
+                                  transform: 'translateY(-5px)',
+                                  boxShadow: theme === 'dark'
+                                    ? '0 10px 20px rgba(255, 255, 255, 0.1)'
+                                    : '0 10px 20px rgba(0, 0, 0, 0.08)'
+                                }
                               }}
                             >
                               <Box
@@ -525,13 +543,14 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
                                   display: 'flex',
                                   alignItems: 'center',
                                   justifyContent: 'center',
-                                  width: 40,
-                                  height: 40,
-                                  borderRadius: '10px',
-                                  backgroundColor: theme === 'dark'
-                                    ? 'rgba(255, 255, 255, 0.1)'
-                                    : 'rgba(0, 0, 0, 0.04)',
-                                  color: 'primary.main'
+                                  width: 48,
+                                  height: 48,
+                                  borderRadius: '12px',
+                                  background: `linear-gradient(135deg, ${muiTheme.palette.primary.light}, ${muiTheme.palette.primary.main})`,
+                                  color: '#fff',
+                                  boxShadow: theme === 'dark'
+                                    ? '0 4px 12px rgba(255, 255, 255, 0.15)'
+                                    : '0 4px 12px rgba(0, 0, 0, 0.1)',
                                 }}
                               >
                                 {trait.icon}
@@ -574,10 +593,11 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
                               mb: 0.5
                             }}
                           >
-                            <Typography variant="body2" fontWeight="medium">
+                            <Typography variant="body2" fontWeight="medium" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                              {skill.icon && <Box sx={{ color: 'primary.main' }}>{skill.icon}</Box>}
                               {skill.name}
                             </Typography>
-                            <Typography variant="caption" color="text.secondary">
+                            <Typography variant="caption" color="primary" fontWeight="bold">
                               {skill.level}%
                             </Typography>
                           </Box>
@@ -588,7 +608,20 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
                                 ? 'rgba(255, 255, 255, 0.1)'
                                 : 'rgba(0, 0, 0, 0.05)',
                               borderRadius: 5,
-                              overflow: 'hidden'
+                              overflow: 'hidden',
+                              position: 'relative',
+                              '&::after': {
+                                content: '""',
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                height: '100%',
+                                width: '100%',
+                                background: theme === 'dark'
+                                  ? 'linear-gradient(90deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.1) 100%)'
+                                  : 'linear-gradient(90deg, rgba(0,0,0,0.01) 0%, rgba(0,0,0,0.03) 100%)',
+                                pointerEvents: 'none'
+                              }
                             }}
                           >
                             <motion.div
@@ -598,8 +631,11 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
                               animate={controls.skillBar}
                               style={{
                                 height: '100%',
-                                backgroundColor: muiTheme.palette.primary.main,
-                                borderRadius: 5
+                                background: `linear-gradient(90deg, ${muiTheme.palette.primary.main} 0%, ${muiTheme.palette.primary.light} 100%)`,
+                                borderRadius: 5,
+                                boxShadow: theme === 'dark'
+                                  ? '0 0 8px rgba(255, 255, 255, 0.3)'
+                                  : '0 0 8px rgba(0, 0, 0, 0.1)'
                               }}
                             />
                           </Box>
@@ -646,64 +682,90 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
                         </TimelineDot>
                         {index < experiences.length - 1 && <TimelineConnector />}
                       </TimelineSeparator>
-                      <TimelineContent>
-                        <GlassPanel
-                          variant="elevated"
-                          intensity={index % 2 === 0 ? "light" : "medium"}
-                          hoverEffect={true}
-                          sx={{
-                            p: 3,
-                            borderRadius: '16px',
-                            mb: 2,
-                            width: '100%'
-                          }}
+                      <TimelineContent
+                        sx={{
+                          py: 2,
+                          px: { xs: 2, md: 3 }
+                        }}
+                      >
+                        <motion.div
+                          initial={{ opacity: 0, x: index % 2 === 0 ? 50 : -50 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: index * 0.2, duration: 0.5 }}
                         >
-                          <Typography variant="h6" fontWeight="bold" color="primary">
-                            {exp.title}
-                          </Typography>
-                          <Typography
-                            variant="subtitle1"
-                            sx={{ mb: 1, fontWeight: 'medium' }}
+                          <GlassPanel
+                            variant="elevated"
+                            intensity={index % 2 === 0 ? "light" : "medium"}
+                            hoverEffect={true}
+                            sx={{
+                              p: 3,
+                              borderRadius: '16px',
+                              mb: 2,
+                              width: '100%',
+                              overflow: 'hidden',
+                              position: 'relative',
+                              '&::before': {
+                                content: '""',
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                width: '5px',
+                                height: '100%',
+                                background: `linear-gradient(to bottom, ${muiTheme.palette.primary.main}, ${muiTheme.palette.primary.light})`,
+                                borderTopLeftRadius: '16px',
+                                borderBottomLeftRadius: '16px'
+                              }
+                            }}
                           >
-                            {exp.company}
-                          </Typography>
-                          <Typography variant="body2" sx={{ mb: 2 }}>
-                            {exp.description}
-                          </Typography>
-                          <Box sx={{ mb: 2 }}>
-                            <Typography
-                              variant="subtitle2"
-                              fontWeight="bold"
-                              sx={{ mb: 1, display: 'flex', alignItems: 'center', gap: 0.5 }}
-                            >
-                              <FiAward size={16} />
-                              {t('about.achievements', '成就')}:
+                            <Typography variant="h6" fontWeight="bold" color="primary">
+                              {exp.title}
                             </Typography>
-                            <Box component="ul" sx={{ pl: 2, mt: 0 }}>
-                              {exp.achievements.map((achievement, i) => (
-                                <Typography
-                                  component="li"
-                                  variant="body2"
+                            <Typography
+                              variant="subtitle1"
+                              sx={{ mb: 1, fontWeight: 'medium', display: 'flex', alignItems: 'center', gap: 1 }}
+                            >
+                              <FiBriefcase size={16} color={muiTheme.palette.text.secondary} />
+                              {exp.company}
+                            </Typography>
+                            <Typography variant="body2" sx={{ mb: 2, color: 'text.secondary' }}>
+                              {exp.description}
+                            </Typography>
+                            <Box sx={{ mb: 2 }}>
+                              <Typography
+                                variant="subtitle2"
+                                fontWeight="bold"
+                                sx={{ mb: 1, display: 'flex', alignItems: 'center', gap: 0.5 }}
+                              >
+                                <FiAward size={16} />
+                                {t('about.achievements', '成就')}:
+                              </Typography>
+                              <Box component="ul" sx={{ pl: 2, mt: 0 }}>
+                                {exp.achievements.map((achievement, i) => (
+                                  <Typography
+                                    component="li"
+                                    variant="body2"
+                                    key={i}
+                                    sx={{ mb: 0.5 }}
+                                  >
+                                    {achievement}
+                                  </Typography>
+                                ))}
+                              </Box>
+                            </Box>
+                            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.8 }}>
+                              {exp.technologies.map((tech, i) => (
+                                <Chip
                                   key={i}
-                                  sx={{ mb: 0.5 }}
-                                >
-                                  {achievement}
-                                </Typography>
+                                  label={tech}
+                                  size="small"
+                                  color={i % 3 === 0 ? "primary" : i % 3 === 1 ? "secondary" : "default"}
+                                  variant="outlined"
+                                  sx={{ borderRadius: '8px' }}
+                                />
                               ))}
                             </Box>
-                          </Box>
-                          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                            {exp.technologies.map((tech, i) => (
-                              <Chip
-                                key={i}
-                                label={tech}
-                                size="small"
-                                color={i % 2 === 0 ? "primary" : "secondary"}
-                                variant="outlined"
-                              />
-                            ))}
-                          </Box>
-                        </GlassPanel>
+                          </GlassPanel>
+                        </motion.div>
                       </TimelineContent>
                     </TimelineItem>
                   </motion.div>

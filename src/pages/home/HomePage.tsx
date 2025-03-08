@@ -10,6 +10,7 @@ import { FaJava, FaDocker } from 'react-icons/fa';
 import { SiSpring, SiMysql } from 'react-icons/si';
 import ProfileAvatar from '../../components/ui/ProfileAvatar';
 import TypedText from '../../components/ui/common/TypedText';
+import CustomTooltip from '../../components/ui/common/CustomTooltip';
 
 interface HomePageProps {
   data: {
@@ -337,56 +338,80 @@ const HomePage: React.FC<HomePageProps> = ({ data }) => {
         {/* 统计数据 */}
         <Grid container spacing={3} sx={{ mb: 16 }}>
           {[
-            { icon: <FaJava size={36} />, value: '5', label: t('home.stats.experience', '年Java经验') },
-            { icon: <SiSpring size={36} />, value: '20+', label: t('home.stats.projects', '个项目经验') },
-            { icon: <SiMysql size={36} />, value: '10+', label: t('home.stats.databases', '个数据库项目') },
-            { icon: <FaDocker size={36} />, value: '3+', label: t('home.stats.deployments', '年容器部署经验') }
+            {
+              icon: <FaJava size={36} />,
+              value: '5',
+              label: t('home.stats.experience', '年Java经验'),
+              tooltip: '5年企业级Java开发经验，精通Spring Boot框架'
+            },
+            {
+              icon: <SiSpring size={36} />,
+              value: '20+',
+              label: t('home.stats.projects', '个项目经验'),
+              tooltip: '参与或主导过20多个大中型项目的设计与开发'
+            },
+            {
+              icon: <SiMysql size={36} />,
+              value: '10+',
+              label: t('home.stats.databases', '个数据库项目'),
+              tooltip: '精通MySQL、Redis等多种数据库的设计优化和性能调优'
+            },
+            {
+              icon: <FaDocker size={36} />,
+              value: '3+',
+              label: t('home.stats.deployments', '年容器部署经验'),
+              tooltip: '3年以上Docker容器化部署经验，熟悉CI/CD流程'
+            }
           ].map((stat, index) => (
             <Grid item xs={6} md={3} key={index}>
-              <GlassPanel sx={{
-                p: 3,
-                height: '100%',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                textAlign: 'center',
-                '&:hover': {
-                  transform: 'translateY(-5px)',
-                  boxShadow: theme === 'dark'
-                    ? '0 10px 30px rgba(0, 0, 0, 0.3)'
-                    : '0 10px 30px rgba(0, 0, 0, 0.1)',
-                },
-                transition: 'all 0.3s ease'
-              }}>
-                <Box
-                  sx={{
-                    color: theme === 'dark' ? '#a0a0ff' : '#5050ff',
-                    mb: 2
-                  }}
-                >
-                  {stat.icon}
-                </Box>
-                <Typography
-                  variant="h4"
-                  component="div"
-                  sx={{
-                    fontSize: { xs: '1.8rem', md: '2.2rem' },
-                    fontWeight: 700,
-                    mb: 1
-                  }}
-                >
-                  {stat.value}
-                </Typography>
-                <Typography
-                  variant="body1"
-                  sx={{
-                    color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)',
-                    fontWeight: 500
-                  }}
-                >
-                  {stat.label}
-                </Typography>
-              </GlassPanel>
+              <CustomTooltip title={stat.tooltip} placement="top">
+                <div>
+                  <GlassPanel sx={{
+                    p: 3,
+                    height: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    textAlign: 'center',
+                    '&:hover': {
+                      transform: 'translateY(-5px)',
+                      boxShadow: theme === 'dark'
+                        ? '0 10px 30px rgba(0, 0, 0, 0.3)'
+                        : '0 10px 30px rgba(0, 0, 0, 0.1)',
+                    },
+                    transition: 'all 0.3s ease'
+                  }}>
+                    <Box
+                      sx={{
+                        color: theme === 'dark' ? '#a0a0ff' : '#5050ff',
+                        mb: 2
+                      }}
+                    >
+                      {stat.icon}
+                    </Box>
+                    <Typography
+                      variant="h4"
+                      component="div"
+                      sx={{
+                        fontSize: { xs: '1.8rem', md: '2.2rem' },
+                        fontWeight: 700,
+                        mb: 1
+                      }}
+                    >
+                      {stat.value}
+                    </Typography>
+                    <Typography
+                      variant="body1"
+                      sx={{
+                        color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)',
+                        fontWeight: 500
+                      }}
+                    >
+                      {stat.label}
+                    </Typography>
+                  </GlassPanel>
+                </div>
+              </CustomTooltip>
             </Grid>
           ))}
         </Grid>

@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { Box, Container, Typography, IconButton, Grid, Divider, alpha, useTheme as useMuiTheme } from '@mui/material';
+import { Box, Container, Typography, IconButton, Grid, Divider, alpha, useTheme as useMuiTheme, Snackbar, Alert } from '@mui/material';
 import { FiGithub, FiMail, FiPhone, FiCode, FiHeart } from 'react-icons/fi';
+import { SiWechat } from 'react-icons/si';
 import { useTheme } from '../../contexts/ThemeContext';
 import GlassyBlobBackground from '../ui/backgrounds/GlassyBlobBackground';
+import CustomTooltip from '../ui/common/CustomTooltip';
 
 /**
  * 页脚组件
@@ -16,6 +18,27 @@ const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
   const muiTheme = useMuiTheme();
   const { theme } = useTheme();
+  const [snackbar, setSnackbar] = useState({ open: false, message: '' });
+
+  // 复制文本到剪贴板
+  const copyToClipboard = (text: string, message: string) => {
+    navigator.clipboard.writeText(text)
+      .then(() => {
+        setSnackbar({ open: true, message });
+      })
+      .catch(err => {
+        console.error('复制失败:', err);
+        setSnackbar({ open: true, message: '复制失败，请手动复制' });
+      });
+  };
+
+  // 关闭提示
+  const handleCloseSnackbar = () => {
+    setSnackbar({ ...snackbar, open: false });
+  };
+
+  // 微信号
+  const wechatId = 'za1-37';
 
   // 社交媒体链接
   const socialLinks = [
@@ -36,6 +59,13 @@ const Footer: React.FC = () => {
       icon: <FiPhone size={18} />,
       url: 'tel:19154085798',
       ariaLabel: 'Phone'
+    },
+    {
+      name: 'WeChat',
+      icon: <SiWechat size={18} />,
+      url: '#',
+      ariaLabel: 'WeChat',
+      onClick: () => copyToClipboard(wechatId, `微信号 ${wechatId} 已复制到剪贴板`)
     }
   ];
 
@@ -104,26 +134,29 @@ const Footer: React.FC = () => {
                     whileHover={{ scale: 1.1, y: -2 }}
                     whileTap={{ scale: 0.95 }}
                   >
-                    <IconButton
-                      component="a"
-                      href={link.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={link.ariaLabel}
-                      sx={{
-                        color: theme === 'dark' ? 'white' : 'text.primary',
-                        backgroundColor: alpha(muiTheme.palette.primary.main, theme === 'dark' ? 0.1 : 0.05),
-                        borderRadius: '12px',
-                        p: 1.5,
-                        '&:hover': {
-                          backgroundColor: alpha(muiTheme.palette.primary.main, theme === 'dark' ? 0.2 : 0.1),
-                          color: 'primary.main'
-                        },
-                        transition: 'all 0.2s ease'
-                      }}
-                    >
-                      {link.icon}
-                    </IconButton>
+                    <CustomTooltip title={link.name} placement="top">
+                      <IconButton
+                        component={link.onClick ? 'button' : 'a'}
+                        href={link.onClick ? undefined : link.url}
+                        target={link.onClick ? undefined : "_blank"}
+                        rel={link.onClick ? undefined : "noopener noreferrer"}
+                        aria-label={link.ariaLabel}
+                        onClick={link.onClick}
+                        sx={{
+                          color: theme === 'dark' ? 'white' : 'text.primary',
+                          backgroundColor: alpha(muiTheme.palette.primary.main, theme === 'dark' ? 0.1 : 0.05),
+                          borderRadius: '12px',
+                          p: 1.5,
+                          '&:hover': {
+                            backgroundColor: alpha(muiTheme.palette.primary.main, theme === 'dark' ? 0.2 : 0.1),
+                            color: 'primary.main'
+                          },
+                          transition: 'all 0.2s ease'
+                        }}
+                      >
+                        {link.icon}
+                      </IconButton>
+                    </CustomTooltip>
                   </motion.div>
                 ))}
               </Box>
@@ -146,6 +179,18 @@ const Footer: React.FC = () => {
           </Box>
         </Container>
       </GlassyBlobBackground>
+
+      {/* 微信号复制成功提示 */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

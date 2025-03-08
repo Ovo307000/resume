@@ -109,9 +109,10 @@
     "phone": "电话号码",
     "github": "GitHub",
     "wechat": "微信",
-    "traits": "个人特质",
+    "traitsTitle": "个人特质",
     "achievements": "成就",
     "aboutMe": "关于我",
+    "ongoing": "进行中",
     "traits": {
       "problem_solving": "问题解决能力",
       "teamwork": "团队协作",
@@ -119,8 +120,7 @@
       "code_quality": "代码质量",
       "adaptability": "适应能力",
       "attention_to_detail": "注重细节"
-    },
-    "ongoing": "进行中"
+    }
   },
   "education": {
     "title": "教育经历",
