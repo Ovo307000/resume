@@ -26,6 +26,8 @@ import GlassPanel from '../../components/ui/glass/GlassPanel';
 import PageTransition from '../../components/ui/transitions/PageTransition';
 import CustomTooltip from '../../components/ui/common/CustomTooltip';
 import AnimatedLink from '../../components/ui/common/AnimatedLink';
+import ProjectButton from '../../components/ui/buttons/ProjectButton';
+import AnimatedTagGroup from '../../components/ui/common/AnimatedTagGroup';
 
 interface Project {
   name: string;
@@ -330,63 +332,38 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({ data }) => {
                             <FiCode size={14} />
                             {t('projects.technologies')}
                           </Typography>
-                          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.8 }}>
-                            {(project.showAllTechnologies
-                              ? project.technologies
-                              : project.technologies.slice(0, 4)
-                            ).map((tech, idx) => (
-                              <Chip
-                                key={idx}
-                                label={tech}
-                                size="small"
-                                color={getTechColor(tech, idx) as any}
-                                variant="outlined"
-                                sx={{
-                                  borderRadius: '8px',
-                                  fontSize: '0.7rem',
-                                  height: { xs: '22px', md: '24px' },
-                                  '& .MuiChip-label': {
-                                    fontSize: { xs: '0.7rem', md: '0.75rem' },
-                                    px: 1
-                                  }
-                                }}
-                              />
-                            ))}
-                            {project.technologies.length > 4 && !project.showAllTechnologies && (
-                              <Chip
-                                label={`+${project.technologies.length - 4}`}
-                                size="small"
-                                variant="outlined"
-                                onClick={() => toggleTechnologies(index)}
-                                sx={{
-                                  borderRadius: '8px',
-                                  fontSize: '0.7rem',
-                                  cursor: 'pointer',
-                                  height: { xs: '22px', md: '24px' },
-                                  '& .MuiChip-label': {
-                                    fontSize: { xs: '0.7rem', md: '0.75rem' },
-                                    px: 1
-                                  }
-                                }}
-                              />
-                            )}
-                          </Box>
+
+                          <AnimatedTagGroup
+                            tags={project.technologies}
+                            initialVisibleCount={4}
+                            getTechColor={getTechColor}
+                            chipProps={{
+                              variant: 'outlined',
+                              size: 'small',
+                              borderRadius: '8px',
+                              customSx: {
+                                fontSize: '0.7rem',
+                                height: { xs: '22px', md: '24px' },
+                                '& .MuiChip-label': {
+                                  px: 1
+                                }
+                              }
+                            }}
+                          />
                         </CardContent>
 
                         <Divider sx={{ opacity: 0.1 }} />
 
                         <CardActions sx={{ p: 2, justifyContent: 'space-between', gap: 1 }}>
                           <Box sx={{ display: 'flex', gap: 1 }}>
-                            <AnimatedLink to={project.url} variant="button">
-                              <Button
-                                size="small"
-                                variant="contained"
-                                endIcon={<FiExternalLink size={14} />}
-                                sx={{ textTransform: 'none', fontWeight: 500, borderRadius: '8px' }}
-                              >
-                                {t('projects.viewProject')}
-                              </Button>
-                            </AnimatedLink>
+                            <ProjectButton
+                              href={project.url}
+                              external
+                              icon={<FiExternalLink size={14} />}
+                              size="small"
+                            >
+                              {t('projects.viewProject')}
+                            </ProjectButton>
                           </Box>
                           <Box>
                             {project.githubUrl && (
@@ -399,16 +376,14 @@ const ProjectsPage: React.FC<ProjectsPageProps> = ({ data }) => {
                                   rel="noopener noreferrer"
                                   aria-label={t('projects.viewCode')}
                                   sx={{
-                                    color: theme === 'dark' ? 'text.primary' : 'text.secondary',
+                                    color: theme === 'dark' ? 'white' : 'text.primary',
+                                    backgroundColor: alpha(muiTheme.palette.primary.main, theme === 'dark' ? 0.1 : 0.05),
                                     '&:hover': {
-                                      color: 'primary.main',
-                                      backgroundColor: theme === 'dark'
-                                        ? 'rgba(255, 255, 255, 0.1)'
-                                        : 'rgba(0, 0, 0, 0.05)'
+                                      backgroundColor: alpha(muiTheme.palette.primary.main, theme === 'dark' ? 0.2 : 0.1),
                                     }
                                   }}
                                 >
-                                  <FiGithub size={20} />
+                                  <FiGithub size={16} />
                                 </IconButton>
                               </CustomTooltip>
                             )}

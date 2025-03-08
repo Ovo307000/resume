@@ -58,22 +58,20 @@ const Footer: React.FC = () => {
       name: 'Email',
       icon: <FiMail size={18} />,
       url: `mailto:${email}`,
-      ariaLabel: 'Email',
-      onClick: () => copyToClipboard(email, `邮箱 ${email} 已复制到剪贴板`)
+      ariaLabel: 'Email'
     },
     {
       name: 'Phone',
       icon: <FiPhone size={18} />,
       url: `tel:${phone}`,
-      ariaLabel: 'Phone',
-      onClick: () => copyToClipboard(phone, `电话 ${phone} 已复制到剪贴板`)
+      ariaLabel: 'Phone'
     },
     {
       name: 'WeChat',
       icon: <SiWechat size={18} />,
-      url: '#',
       ariaLabel: 'WeChat',
-      onClick: () => copyToClipboard(wechatId, `微信号 ${wechatId} 已复制到剪贴板`)
+      onClick: () => copyToClipboard(wechatId, `微信号 ${wechatId} 已复制到剪贴板`),
+      tooltip: t('footer.wechatTooltip', '点击复制微信号')
     }
   ];
 
@@ -142,7 +140,7 @@ const Footer: React.FC = () => {
                     whileHover={{ scale: 1.1, y: -2 }}
                     whileTap={{ scale: 0.95 }}
                   >
-                    <CustomTooltip title={link.name} placement="top">
+                    <CustomTooltip title={link.tooltip || link.name} placement="top">
                       <IconButton
                         component={link.onClick ? 'button' : 'a'}
                         href={link.onClick ? undefined : link.url}
@@ -155,9 +153,15 @@ const Footer: React.FC = () => {
                           backgroundColor: alpha(muiTheme.palette.primary.main, theme === 'dark' ? 0.1 : 0.05),
                           borderRadius: '12px',
                           p: 1.5,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          width: 40,
+                          height: 40,
                           '&:hover': {
                             backgroundColor: alpha(muiTheme.palette.primary.main, theme === 'dark' ? 0.2 : 0.1),
-                            color: 'primary.main'
+                            color: muiTheme.palette.primary.main
                           },
                           transition: 'all 0.2s ease'
                         }}

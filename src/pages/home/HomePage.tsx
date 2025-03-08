@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Container, Typography, Grid, Snackbar, Alert } from '@mui/material';
+import { Box, Container, Typography, Grid, Snackbar, Alert, Grow } from '@mui/material';
 import { motion } from 'framer-motion';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useTranslation } from 'react-i18next';
-import { FiArrowRight, FiGithub, FiMail, FiPhone, FiDownload } from 'react-icons/fi';
+import { FiArrowRight, FiGithub, FiMail, FiPhone, FiDownload, FiCopy, FiCheck } from 'react-icons/fi';
 import { SiWechat } from 'react-icons/si';
 import GlassPanel from '../../components/ui/glass/GlassPanel';
 import { FaJava, FaDocker } from 'react-icons/fa';
@@ -13,6 +13,8 @@ import TypedText from '../../components/ui/common/TypedText';
 import CustomTooltip from '../../components/ui/common/CustomTooltip';
 import { Link } from 'react-router-dom';
 import confetti from 'canvas-confetti';
+// 导入全局复制通知Hook
+import { useCopyNotification } from '../../contexts/CopyNotificationContext';
 
 interface HomePageProps {
   data: {
@@ -27,12 +29,14 @@ interface HomePageProps {
   };
 }
 
-// 社交媒体链接接口
 interface SocialLink {
   icon: React.ReactNode;
-  url: string;
+  url?: string;
   label: string;
   onClick?: () => void;
+  needCopy?: boolean;
+  copyIcon?: React.ReactNode;
+  value?: string;
 }
 
 /**
@@ -42,7 +46,8 @@ const HomePage: React.FC<HomePageProps> = ({ data }) => {
   const { theme } = useTheme();
   const { t } = useTranslation();
   const [roleIndex, setRoleIndex] = useState(0);
-  const [snackbar, setSnackbar] = useState({ open: false, message: '' });
+  // 使用全局复制通知
+  const { copyToClipboard } = useCopyNotification();
 
   // 获取github用户名
   const githubUsername = data.githubUsername || (data.github && data.github.includes('github.com/')
@@ -98,82 +103,80 @@ const HomePage: React.FC<HomePageProps> = ({ data }) => {
     exit: { opacity: 0, y: -20 }
   };
 
+  // 复制到剪贴板函数
+  const handleCopyToClipboard = (text: string, label: string) => {
+    if (!text) return;
+
+    copyToClipboard(text, label).then(success => {
+      if (success) {
+        // 复制成功时触发微小彩带效果
+        confetti({
+          particleCount: 80,
+          spread: 40,
+          origin: { y: 0.6 },
+          colors: ['#26c9fc', '#7b64ff', '#FFB6C1']
+        });
+      }
+    });
+  };
+
   // 社交媒体链接
   const socialLinks: SocialLink[] = [
-    { icon: <FiGithub size={20} />, url: data.github && data.github.startsWith('http') ? data.github : `https://github.com/${githubUsername}`, label: 'GitHub' },
+    {
+      icon: <FiGithub size={20} />,
+      url: data.github && data.github.startsWith('http') ? data.github : `https://github.com/${githubUsername}`,
+      label: 'GitHub',
+      needCopy: false
+    },
     {
       icon: <FiMail size={20} />,
-      url: `mailto:${data.email}`,
       label: 'Email',
-      onClick: () => {
-        navigator.clipboard.writeText(data.email)
-          .then(() => {
-            setSnackbar({ open: true, message: `邮箱 ${data.email} 已复制到剪贴板` });
-          })
-          .catch(err => {
-            console.error('复制失败:', err);
-            setSnackbar({ open: true, message: '复制失败，请手动复制' });
-          });
-      }
+      needCopy: true,
+      copyIcon: <FiCopy size={12} />,
+      value: data.email,
+      onClick: () => handleCopyToClipboard(data.email, 'Email')
     },
     {
       icon: <FiPhone size={20} />,
-      url: `tel:${data.phone}`,
       label: 'Phone',
-      onClick: () => {
-        navigator.clipboard.writeText(data.phone)
-          .then(() => {
-            setSnackbar({ open: true, message: `电话 ${data.phone} 已复制到剪贴板` });
-          })
-          .catch(err => {
-            console.error('复制失败:', err);
-            setSnackbar({ open: true, message: '复制失败，请手动复制' });
-          });
-      }
+      needCopy: true,
+      copyIcon: <FiCopy size={12} />,
+      value: data.phone,
+      onClick: () => handleCopyToClipboard(data.phone, 'Phone')
     }
   ];
 
   // 如果有微信，添加到社交链接中
   if (data.wechat) {
-    const wechatId = data.wechat; // 将可能的undefined值转换为确定的string
+    const wechatId = data.wechat;
     socialLinks.push({
       icon: <SiWechat size={20} />,
-      url: '#',
-      label: wechatId,
-      onClick: () => {
-        navigator.clipboard.writeText(wechatId)
-          .then(() => {
-            setSnackbar({ open: true, message: `微信号 ${wechatId} 已复制到剪贴板` });
-          })
-          .catch(err => {
-            console.error('复制失败:', err);
-            setSnackbar({ open: true, message: '复制失败，请手动复制' });
-          });
-      }
+      label: 'WeChat',
+      needCopy: true,
+      copyIcon: <FiCopy size={12} />,
+      value: wechatId,
+      onClick: () => handleCopyToClipboard(wechatId, 'WeChat')
     });
   }
 
-  // 添加彩带动画函数
-  const runConfetti = () => {
-    confetti({
-      particleCount: 100,
-      spread: 70,
-      origin: { y: 0.6 }
-    });
-  };
-
-  // 关闭提示
-  const handleCloseSnackbar = () => {
-    setSnackbar({ ...snackbar, open: false });
+  // 处理社交链接点击
+  const handleSocialClick = (e: React.MouseEvent<HTMLElement>, link: SocialLink) => {
+    // 如果是复制功能
+    if (link.needCopy && link.value) {
+      e.preventDefault();
+      e.stopPropagation();
+      handleCopyToClipboard(link.value, link.label);
+    }
+    // 如果不是复制功能，让默认的导航行为执行
   };
 
   return (
     <Box
-      component="section"
+      component="main"
       sx={{
+        minHeight: '100vh',
+        pt: { xs: 2, sm: 4 },
         position: 'relative',
-        pt: { xs: 4, md: 8 },
-        pb: { xs: 6, md: 10 },
         overflow: 'hidden'
       }}
     >
@@ -299,7 +302,11 @@ const HomePage: React.FC<HomePageProps> = ({ data }) => {
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={() => {
-                      setTimeout(() => runConfetti(), 300);
+                      setTimeout(() => confetti({
+                        particleCount: 100,
+                        spread: 70,
+                        origin: { y: 0.6 }
+                      }), 300);
                     }}
                     sx={{
                       display: 'inline-flex',
@@ -362,43 +369,65 @@ const HomePage: React.FC<HomePageProps> = ({ data }) => {
                   }}
                 >
                   {socialLinks.map((link, index) => (
-                    <CustomTooltip key={index} title={link.label} placement="top">
-                      <Box
-                        component={link.onClick ? "button" : "a"}
-                        href={link.onClick ? undefined : link.url}
-                        target={link.url && link.url.startsWith('http') ? "_blank" : undefined}
-                        rel={link.url && link.url.startsWith('http') ? "noopener noreferrer" : undefined}
-                        onClick={link.onClick}
-                        sx={{
-                          width: 42,
-                          height: 42,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          borderRadius: '12px',
-                          fontSize: 22,
-                          backgroundColor: theme === 'dark'
-                            ? 'rgba(255, 255, 255, 0.05)'
-                            : 'rgba(0, 0, 0, 0.03)',
-                          color: theme === 'dark' ? '#e0e0ff' : '#3030ff',
-                          transition: 'all 0.3s ease',
-                          border: 'none',
-                          cursor: 'pointer',
-                          outline: 'none',
-                          '&:hover': {
-                            transform: 'translateY(-5px)',
-                            backgroundColor: theme === 'dark'
-                              ? 'rgba(255, 255, 255, 0.1)'
-                              : 'rgba(0, 0, 0, 0.1)',
-                            color: theme === 'dark' ? '#a0a0ff' : '#5050ff',
-                            boxShadow: theme === 'dark'
-                              ? '0 5px 15px rgba(255, 255, 255, 0.1)'
-                              : '0 5px 15px rgba(0, 0, 0, 0.1)'
-                          }
-                        }}
+                    <CustomTooltip
+                      key={index}
+                      title={
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                          {link.label}
+                          {link.needCopy ? (
+                            <Box component="span" sx={{ display: 'inline-flex', ml: 0.5, color: '#10B981' }}>
+                              <FiCopy size={12} />
+                            </Box>
+                          ) : (
+                            <Box component="span" sx={{ display: 'inline-flex', ml: 0.5, color: '#6366F1' }}>
+                              <FiArrowRight size={12} />
+                            </Box>
+                          )}
+                        </Box>
+                      }
+                      placement="top"
+                    >
+                      <motion.div
+                        whileHover={{ y: -5, scale: 1.05 }}
+                        transition={{ type: 'spring', stiffness: 500, damping: 15 }}
+                        style={{ display: 'inline-block' }}
                       >
-                        {link.icon}
-                      </Box>
+                        <Box
+                          component={link.needCopy ? "button" : "a"}
+                          href={!link.needCopy ? link.url : undefined}
+                          target={!link.needCopy && link.url?.startsWith('http') ? "_blank" : undefined}
+                          rel={!link.needCopy && link.url?.startsWith('http') ? "noopener noreferrer" : undefined}
+                          onClick={(e) => handleSocialClick(e, link)}
+                          sx={{
+                            width: 42,
+                            height: 42,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            borderRadius: '12px',
+                            fontSize: 22,
+                            backgroundColor: theme === 'dark'
+                              ? 'rgba(255, 255, 255, 0.05)'
+                              : 'rgba(0, 0, 0, 0.03)',
+                            color: theme === 'dark' ? '#e0e0ff' : '#3030ff',
+                            transition: 'all 0.3s ease',
+                            border: 'none',
+                            cursor: 'pointer',
+                            outline: 'none',
+                            '&:hover': {
+                              backgroundColor: theme === 'dark'
+                                ? 'rgba(255, 255, 255, 0.1)'
+                                : 'rgba(0, 0, 0, 0.1)',
+                              color: theme === 'dark' ? '#a0a0ff' : '#5050ff',
+                              boxShadow: theme === 'dark'
+                                ? '0 5px 15px rgba(255, 255, 255, 0.1)'
+                                : '0 5px 15px rgba(0, 0, 0, 0.1)'
+                            }
+                          }}
+                        >
+                          {link.icon}
+                        </Box>
+                      </motion.div>
                     </CustomTooltip>
                   ))}
                 </Box>
@@ -518,36 +547,6 @@ const HomePage: React.FC<HomePageProps> = ({ data }) => {
           ))}
         </Grid>
       </Container>
-
-      {/* 添加复制成功的Snackbar */}
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={3000}
-        onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-        sx={{
-          '& .MuiAlert-root': {
-            borderRadius: '16px',
-            boxShadow: '0 8px 32px rgba(31, 38, 135, 0.2)',
-            backdropFilter: 'blur(8px)',
-            border: theme === 'dark' ? '1px solid rgba(255, 255, 255, 0.18)' : '1px solid rgba(0, 0, 0, 0.05)',
-            backgroundColor: theme === 'dark' ? 'rgba(50, 50, 70, 0.9)' : 'rgba(255, 255, 255, 0.9)'
-          }
-        }}
-      >
-        <Alert
-          onClose={handleCloseSnackbar}
-          severity="success"
-          sx={{
-            width: '100%',
-            '& .MuiAlert-icon': {
-              color: theme === 'dark' ? '#a0ff9c' : '#00a152'
-            }
-          }}
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
     </Box>
   );
 };

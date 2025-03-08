@@ -14,7 +14,7 @@ interface AnimatedLinkProps {
   showExternalIcon?: boolean;
   textAlign?: 'left' | 'center' | 'right';
   sx?: any;
-  onClick?: () => void;
+  onClick?: (event?: React.MouseEvent<HTMLElement>) => void;
 }
 
 /**

@@ -8,11 +8,6 @@ import {
   Paper,
   Button,
   TextField,
-  IconButton,
-  Link,
-  useTheme as useMuiTheme,
-  Snackbar,
-  Alert,
   CircularProgress
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
@@ -22,12 +17,15 @@ import {
   FiGithub,
   FiMessageSquare,
   FiSend,
-  FiCheckCircle
+  FiCopy,
+  FiExternalLink
 } from 'react-icons/fi';
 import { useTheme } from '../../contexts/ThemeContext';
 import Confetti from '../../components/ui/animations/Confetti';
-import AnimatedLink from '../../components/ui/animations/AnimatedLink';
 import GlassyBlobBackground from '../../components/ui/backgrounds/GlassyBlobBackground';
+import CopyableLink from '../../components/ui/common/CopyableLink';
+// 导入全局复制通知Hook
+import { useCopyNotification } from '../../contexts/CopyNotificationContext';
 
 interface ContactPageProps {
   data: {
@@ -48,7 +46,8 @@ interface ContactPageProps {
 const ContactPage: React.FC<ContactPageProps> = ({ data }) => {
   const { t } = useTranslation();
   const { theme } = useTheme();
-  const muiTheme = useMuiTheme();
+  // 使用全局复制通知
+  const { copyToClipboard } = useCopyNotification();
 
   // 表单状态
   const [formData, setFormData] = useState({
@@ -61,11 +60,6 @@ const ContactPage: React.FC<ContactPageProps> = ({ data }) => {
   // 提交状态
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
-  const [snackbar, setSnackbar] = useState({
-    open: false,
-    message: '',
-    severity: 'success' as 'success' | 'error' | 'info' | 'warning'
-  });
 
   // 动画变体
   const containerVariants = {
@@ -84,81 +78,44 @@ const ContactPage: React.FC<ContactPageProps> = ({ data }) => {
     visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
   };
 
-  // 联系方式数据
-  const contactMethods = [
-    {
-      icon: <FiMail size={24} />,
-      title: t('contact.email'),
-      value: data.email,
-      link: `mailto:${data.email}`,
-      color: '#EF4444' // 红色
-    },
-    {
-      icon: <FiPhone size={24} />,
-      title: t('contact.phone'),
-      value: data.phone,
-      link: `tel:${data.phone}`,
-      color: '#10B981' // 绿色
-    },
-    {
-      icon: <FiGithub size={24} />,
-      title: t('contact.github'),
-      value: data.githubUsername,
-      link: data.github,
-      color: '#6366F1' // 紫色
-    },
-    {
-      icon: <FiMessageSquare size={24} />,
-      title: t('contact.wechat'),
-      value: data.wechat,
-      link: undefined,
-      color: '#22C55E' // 微信绿
-    }
-  ];
+  // 复制到剪贴板函数
+  const handleCopyToClipboard = (text: string, label: string) => {
+    if (!text) return;
 
-  // 处理表单输入变化
+    copyToClipboard(text, label);
+  };
+
+  // 表单输入变更处理函数
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value
-    });
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  // 关闭提示信息
-  const handleCloseSnackbar = () => {
-    setSnackbar({
-      ...snackbar,
-      open: false
-    });
-  };
-
-  // 表单验证
+  // 表单验证函数
   const validateForm = () => {
     if (!formData.name.trim()) {
-      setSnackbar({
-        open: true,
-        message: '请输入您的姓名',
-        severity: 'error'
-      });
+      copyToClipboard('请输入您的姓名', '错误');
       return false;
     }
 
-    if (!formData.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      setSnackbar({
-        open: true,
-        message: '请输入有效的邮箱地址',
-        severity: 'error'
-      });
+    if (!formData.email.trim()) {
+      copyToClipboard('请输入您的邮箱', '错误');
+      return false;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      copyToClipboard('请输入有效的邮箱地址', '错误');
+      return false;
+    }
+
+    if (!formData.subject.trim()) {
+      copyToClipboard('请输入邮件主题', '错误');
       return false;
     }
 
     if (!formData.message.trim()) {
-      setSnackbar({
-        open: true,
-        message: '请输入消息内容',
-        severity: 'error'
-      });
+      copyToClipboard('请输入邮件内容', '错误');
       return false;
     }
 
@@ -168,37 +125,24 @@ const ContactPage: React.FC<ContactPageProps> = ({ data }) => {
   // 表单提交处理函数
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    // 表单验证
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
 
     setIsSubmitting(true);
 
     try {
-      // 创建要发送到mailto链接的邮件内容
-      const mailtoSubject = encodeURIComponent(formData.subject || `来自${formData.name}的咨询`);
+      // 构建mailto链接
+      const mailtoSubject = encodeURIComponent(formData.subject);
       const mailtoBody = encodeURIComponent(
-        `姓名: ${formData.name}\n` +
-        `邮箱: ${formData.email}\n\n` +
-        `消息:\n${formData.message}`
+        `来自: ${formData.name}\n邮箱: ${formData.email}\n\n${formData.message}`
       );
 
-      // 模拟异步操作
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // 使用mailto链接打开邮件客户端
+      window.location.href = `mailto:${data.email}?subject=${mailtoSubject}&body=${mailtoBody}`;
 
-      // 使用mailto协议打开默认邮件客户端
-      window.location.href = `mailto:solowzl@outlook.com?subject=${mailtoSubject}&body=${mailtoBody}`;
-
-      // 显示成功消息和彩带
+      // 表单提交成功
+      copyToClipboard('邮件客户端已打开，请完成邮件发送', '成功');
+      // 显示彩带效果
       setShowConfetti(true);
-      setSnackbar({
-        open: true,
-        message: '邮件客户端已打开，请完成邮件发送',
-        severity: 'success'
-      });
-
       // 重置表单
       setFormData({
         name: '',
@@ -206,55 +150,76 @@ const ContactPage: React.FC<ContactPageProps> = ({ data }) => {
         subject: '',
         message: ''
       });
-    } catch (error) {
-      console.error('发送邮件时出错:', error);
-      setSnackbar({
-        open: true,
-        message: '发送邮件时出错，请直接联系 solowzl@outlook.com',
-        severity: 'error'
-      });
+    } catch (err) {
+      console.error('发送邮件时出错:', err);
+
+      // 表单提交失败
+      copyToClipboard(`发送消息时出错，请直接联系 ${data.email}`, '错误');
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  // 联系方式数据
+  const contactMethods = [
+    {
+      icon: <FiMail size={24} />,
+      title: t('contact.email'),
+      value: data.email,
+      color: '#4285F4',
+      needCopy: true,
+      copyIcon: <FiCopy size={16} />
+    },
+    {
+      icon: <FiPhone size={24} />,
+      title: t('contact.phone'),
+      value: data.phone,
+      color: '#0F9D58',
+      needCopy: true,
+      copyIcon: <FiCopy size={16} />
+    },
+    {
+      icon: <FiGithub size={24} />,
+      title: t('contact.github'),
+      value: data.githubUsername,
+      link: data.github,
+      color: theme === 'dark' ? '#fff' : '#333',
+      needCopy: false
+    },
+    {
+      icon: <FiMessageSquare size={24} />,
+      title: t('contact.wechat'),
+      value: data.wechat,
+      color: '#22C55E',
+      needCopy: true,
+      copyIcon: <FiCopy size={16} />
+    }
+  ];
+
   return (
-    <Box sx={{ py: 8 }}>
+    <Box component="main" sx={{ flexGrow: 1, pt: { xs: 6, md: 10 }, pb: 8 }}>
       <Container maxWidth="lg">
         <motion.div
           variants={containerVariants}
           initial="hidden"
           animate="visible"
         >
-          {/* 页面标题 */}
-          <motion.div variants={itemVariants}>
-            <Typography
-              variant="h3"
-              component="h1"
-              fontWeight="bold"
-              textAlign="center"
-              sx={{
-                mb: 6,
-                position: 'relative',
-                display: 'inline-block',
-                '&::after': {
-                  content: '""',
-                  position: 'absolute',
-                  bottom: '-10px',
-                  left: 0,
-                  width: '100%',
-                  height: '4px',
-                  background: 'linear-gradient(90deg, #4338CA, #6366F1)',
-                  borderRadius: '2px',
-                }
-              }}
-            >
-              {t('contact.title')}
-            </Typography>
-          </motion.div>
+          <Typography
+            variant="h2"
+            component="h1"
+            gutterBottom
+            sx={{
+              fontSize: { xs: '2rem', md: '2.5rem' },
+              mb: 4,
+              textAlign: 'center',
+              fontWeight: 700
+            }}
+          >
+            {t('contact.title')}
+          </Typography>
 
-          <Grid container spacing={4} justifyContent="center">
-            {/* 联系方式卡片 */}
+          <Grid container spacing={4}>
+            {/* 联系信息卡片 */}
             <Grid item xs={12} md={5}>
               <motion.div variants={itemVariants}>
                 <GlassyBlobBackground
@@ -262,8 +227,7 @@ const ContactPage: React.FC<ContactPageProps> = ({ data }) => {
                   intensity="light"
                   blobCount={3}
                   containerSx={{
-                    height: '100%',
-                    borderRadius: '16px',
+                    borderRadius: 4,
                     overflow: 'hidden'
                   }}
                 >
@@ -271,29 +235,21 @@ const ContactPage: React.FC<ContactPageProps> = ({ data }) => {
                     elevation={0}
                     sx={{
                       p: 4,
-                      borderRadius: '16px',
+                      borderRadius: 4,
                       height: '100%',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      position: 'relative',
-                      overflow: 'hidden',
-                      bgcolor: 'transparent'
+                      backgroundColor: 'transparent'
                     }}
                   >
-                    <Typography variant="h5" fontWeight="bold" gutterBottom>
-                      {t('contact.getInTouch')}
+                    <Typography variant="h5" gutterBottom>
+                      {t('contact.contactInfo')}
                     </Typography>
 
-                    <Typography variant="body1" color="text.secondary" paragraph sx={{ mb: 4 }}>
-                      非常感谢您的关注，如果您有任何问题或合作意向，请随时通过以下方式与我联系。
-                    </Typography>
-
-                    <Box sx={{ flex: 1 }}>
+                    <Box sx={{ mt: 3 }}>
                       {contactMethods.map((method, index) => (
                         <motion.div
-                          key={method.title}
+                          key={index}
                           variants={itemVariants}
-                          custom={index}
+                          whileHover={{ x: 5 }}
                         >
                           <Box
                             sx={{
@@ -301,10 +257,10 @@ const ContactPage: React.FC<ContactPageProps> = ({ data }) => {
                               alignItems: 'center',
                               mb: 3,
                               p: 2,
-                              borderRadius: '12px',
-                              transition: 'all 0.3s ease',
+                              borderRadius: 2,
+                              transition: 'all 0.3s',
                               '&:hover': {
-                                bgcolor: theme === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.02)',
+                                bgcolor: theme === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)',
                               }
                             }}
                           >
@@ -329,18 +285,22 @@ const ContactPage: React.FC<ContactPageProps> = ({ data }) => {
                               <Typography variant="subtitle2" color="text.secondary">
                                 {method.title}
                               </Typography>
-                              {method.link ? (
-                                <AnimatedLink
-                                  to={method.link}
-                                  external={method.title === t('contact.github')}
-                                  underlineColor={method.color}
-                                >
-                                  {method.value}
-                                </AnimatedLink>
+                              {method.needCopy ? (
+                                <CopyableLink
+                                  value={method.value}
+                                  label={method.title}
+                                  copyIcon={method.copyIcon}
+                                  linkColor={method.color}
+                                  onCopy={handleCopyToClipboard}
+                                />
                               ) : (
-                                <Typography variant="body1" fontWeight="medium">
-                                  {method.value}
-                                </Typography>
+                                <CopyableLink
+                                  value={method.value}
+                                  to={method.link}
+                                  isExternal={method.title === t('contact.github')}
+                                  externalIcon={<FiExternalLink size={16} />}
+                                  linkColor={method.color}
+                                />
                               )}
                             </Box>
                           </Box>
@@ -360,7 +320,7 @@ const ContactPage: React.FC<ContactPageProps> = ({ data }) => {
                   intensity="light"
                   blobCount={4}
                   containerSx={{
-                    borderRadius: '16px',
+                    borderRadius: 4,
                     overflow: 'hidden'
                   }}
                 >
@@ -368,26 +328,23 @@ const ContactPage: React.FC<ContactPageProps> = ({ data }) => {
                     elevation={0}
                     sx={{
                       p: 4,
-                      borderRadius: '16px',
+                      borderRadius: 4,
                       height: '100%',
-                      position: 'relative',
-                      overflow: 'hidden',
-                      bgcolor: 'transparent'
+                      backgroundColor: 'transparent'
                     }}
                   >
-                    <Box component="form" onSubmit={handleSubmit} sx={{ position: 'relative', zIndex: 1 }}>
-                      <Typography variant="h5" fontWeight="bold" gutterBottom>
-                        发送消息
-                      </Typography>
+                    <Typography variant="h5" gutterBottom>
+                      {t('contact.sendMessage')}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" paragraph>
+                      {t('contact.fillForm')}
+                    </Typography>
 
-                      <Typography variant="body1" color="text.secondary" paragraph sx={{ mb: 4 }}>
-                        您可以通过下面的表单直接向我发送消息，我会尽快回复您。邮件将发送至 solowzl@outlook.com
-                      </Typography>
-
+                    <Box component="form" onSubmit={handleSubmit} sx={{ mt: 3 }}>
                       <Grid container spacing={2}>
                         <Grid item xs={12} sm={6}>
                           <TextField
-                            label="您的姓名"
+                            label={t('contact.form.name')}
                             name="name"
                             value={formData.name}
                             onChange={handleInputChange}
@@ -400,33 +357,34 @@ const ContactPage: React.FC<ContactPageProps> = ({ data }) => {
                         </Grid>
                         <Grid item xs={12} sm={6}>
                           <TextField
-                            label="您的邮箱"
+                            label={t('contact.form.email')}
                             name="email"
+                            type="email"
                             value={formData.email}
                             onChange={handleInputChange}
                             fullWidth
                             margin="normal"
                             required
                             variant="outlined"
-                            type="email"
                             disabled={isSubmitting}
                           />
                         </Grid>
                         <Grid item xs={12}>
                           <TextField
-                            label="主题"
+                            label={t('contact.form.subject')}
                             name="subject"
                             value={formData.subject}
                             onChange={handleInputChange}
                             fullWidth
                             margin="normal"
+                            required
                             variant="outlined"
                             disabled={isSubmitting}
                           />
                         </Grid>
                         <Grid item xs={12}>
                           <TextField
-                            label="消息内容"
+                            label={t('contact.form.message')}
                             name="message"
                             value={formData.message}
                             onChange={handleInputChange}
@@ -475,34 +433,10 @@ const ContactPage: React.FC<ContactPageProps> = ({ data }) => {
       {/* 成功提交时的彩带动画 */}
       <Confetti
         active={showConfetti}
-        duration={4000}
+        duration={3000}
         pieces={200}
         onComplete={() => setShowConfetti(false)}
       />
-
-      {/* 提示信息 */}
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={6000}
-        onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      >
-        <Alert
-          onClose={handleCloseSnackbar}
-          severity={snackbar.severity}
-          sx={{
-            width: '100%',
-            alignItems: 'center',
-            borderRadius: '10px',
-            '& .MuiAlert-icon': {
-              fontSize: '1.5rem'
-            }
-          }}
-          icon={snackbar.severity === 'success' ? <FiCheckCircle /> : undefined}
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
     </Box>
   );
 };
