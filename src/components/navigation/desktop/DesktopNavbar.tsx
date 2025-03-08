@@ -1,165 +1,124 @@
-import React, { useRef, useEffect, useState } from 'react';
-import { Box, AppBar, Toolbar, Container, useTheme as useMuiTheme } from '@mui/material';
-import { motion, AnimatePresence } from 'framer-motion';
+import React from 'react';
+import {
+  AppBar,
+  Box,
+  Container,
+  Toolbar,
+  Slide,
+  useScrollTrigger
+} from '@mui/material';
+import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { useTheme } from '../../../contexts/ThemeContext';
-import Logo from '../../ui/logo/Logo';
-import ThemeToggle from '../../ui/theme/ThemeToggle';
-import LanguageSelector from '../../ui/language/LanguageSelector';
-import DesktopNavLink from './DesktopNavLink';
-import { NavbarProps } from '../common/types';
-import { getAppBarStyles } from '../common/styles';
-import { useScrollDetection } from '../common/utils';
+import ThemeToggle from '../../ui/ThemeToggle';
+import LanguageSelector from '../../ui/LanguageSelector';
+import LogoAvatar from '../../ui/LogoAvatar';
+
+interface NavRoute {
+  path: string;
+  label: string;
+}
+
+interface NavbarProps {
+  routes: NavRoute[];
+  isActive: (path: string) => boolean;
+  isCompact?: boolean;
+}
 
 /**
  * 桌面导航栏组件
- * 仅在中等及以上屏幕尺寸显示
  */
-const DesktopNavbar: React.FC<NavbarProps> = ({ routes, isActive }) => {
+const DesktopNavbar: React.FC<NavbarProps> = ({ routes, isActive, isCompact = false }) => {
   const { theme } = useTheme();
-  const muiTheme = useMuiTheme();
-  const scrolled = useScrollDetection();
 
-  // 导航链接容器和导航链接的引用
-  const navLinksRef = useRef<HTMLDivElement>(null);
-  const navItemsRef = useRef<(HTMLDivElement | null)[]>([]);
-
-  // 指示条位置状态
-  const [indicatorStyle, setIndicatorStyle] = useState({
-    left: 0,
-    width: 0,
-    opacity: 0,
+  // 检测滚动方向
+  const trigger = useScrollTrigger({
+    disableHysteresis: true,
+    threshold: 100
   });
 
-  // 获取当前活跃的导航项
-  const activeRoute = routes.find(route => isActive(route.path));
-  const activeIndex = activeRoute ? routes.indexOf(activeRoute) : 0;
-
-  // 更新指示条位置的函数
-  useEffect(() => {
-    const updateIndicator = () => {
-      if (navItemsRef.current[activeIndex]) {
-        const activeItem = navItemsRef.current[activeIndex];
-        const navLinksElement = navLinksRef.current;
-
-        if (activeItem && navLinksElement) {
-          const activeRect = activeItem.getBoundingClientRect();
-          const navRect = navLinksElement.getBoundingClientRect();
-
-          // 计算指示条位置和宽度
-          const left = activeRect.left - navRect.left;
-          const width = activeRect.width;
-
-          setIndicatorStyle({
-            left,
-            width,
-            opacity: 1,
-          });
-        }
-      }
-    };
-
-    // 初始化时和窗口大小改变时更新指示条位置
-    updateIndicator();
-    window.addEventListener('resize', updateIndicator);
-
-    return () => {
-      window.removeEventListener('resize', updateIndicator);
-    };
-  }, [activeIndex]);
-
   return (
-    <Box sx={{ display: { xs: 'none', md: 'block' } }}>
+    <Slide appear={false} direction="down" in={!trigger}>
       <AppBar
         position="fixed"
-        color="transparent"
         elevation={0}
         sx={{
-          ...getAppBarStyles(theme, muiTheme, scrolled),
-          top: scrolled ? 0 : 20,
-          left: scrolled ? 0 : 20,
-          right: scrolled ? 0 : 20,
-          width: scrolled ? '100%' : 'auto',
-          zIndex: 1100,
+          background: theme === 'dark'
+            ? 'rgba(18, 18, 30, 0.7)'
+            : 'rgba(255, 255, 255, 0.7)',
+          backdropFilter: 'blur(10px)',
+          borderRadius: 0,
+          borderBottom: `1px solid ${theme === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)'}`,
+          boxShadow: theme === 'dark'
+            ? '0 4px 30px rgba(0, 0, 0, 0.2)'
+            : '0 4px 30px rgba(0, 0, 0, 0.05)',
+          transition: 'all 0.3s ease-in-out',
+          display: { xs: 'none', md: 'block' }
         }}
       >
         <Container maxWidth="lg">
           <Toolbar
-            disableGutters
             sx={{
-              py: 1.5,
-              px: 3,
-              transition: 'all 0.3s ease',
-              position: 'relative',
+              py: isCompact ? 0.5 : 1.5,
+              transition: 'padding 0.3s ease'
             }}
+            disableGutters
           >
             {/* Logo */}
-            <Box sx={{ flexGrow: 0, mr: 3 }}>
-              <Logo />
-            </Box>
+            <LogoAvatar
+              size={isCompact ? 'small' : 'medium'}
+              animate={true}
+            />
 
-            {/* 导航链接 */}
-            <Box
-              ref={navLinksRef}
-              sx={{
-                flexGrow: 1,
-                display: 'flex',
-                justifyContent: 'center',
-                position: 'relative',
-              }}
-            >
-              {routes.map((route, index) => (
-                <Box
-                  key={route.path}
-                  ref={(el: HTMLDivElement | null) => {
-                    navItemsRef.current[index] = el;
-                  }}
-                >
-                  <DesktopNavLink
-                    route={route}
-                    active={isActive(route.path)}
-                  />
-                </Box>
-              ))}
-
-              {/* 全局指示条 - 作为整体移动 */}
-              <AnimatePresence>
+            {/* Navigation Links */}
+            <Box sx={{ display: 'flex', mx: 'auto' }}>
+              {routes.map((route) => (
                 <motion.div
-                  key="navbar-indicator"
-                  initial={{ opacity: 0 }}
-                  animate={{
-                    opacity: indicatorStyle.opacity,
-                    left: indicatorStyle.left,
-                    width: indicatorStyle.width,
-                  }}
-                  transition={{
-                    type: 'spring',
-                    stiffness: 300,
-                    damping: 30,
-                  }}
-                  style={{
-                    position: 'absolute',
-                    bottom: '6px',
-                    height: '3px',
-                    borderRadius: '4px',
-                    backgroundColor: activeRoute?.color || muiTheme.palette.primary.main,
-                    boxShadow: `0 0 8px ${activeRoute?.color || muiTheme.palette.primary.main}`,
-                    pointerEvents: 'none', // 防止拦截鼠标事件
-                  }}
-                />
-              </AnimatePresence>
+                  key={route.path}
+                  whileHover={{ y: -3 }}
+                  whileTap={{ y: 0 }}
+                >
+                  <Box
+                    component={Link}
+                    to={route.path}
+                    sx={{
+                      px: 2,
+                      py: 1,
+                      mx: 1,
+                      color: isActive(route.path)
+                        ? (theme === 'dark' ? '#a0a0ff' : '#5050ff')
+                        : 'text.primary',
+                      fontWeight: isActive(route.path) ? 600 : 400,
+                      textDecoration: 'none',
+                      position: 'relative',
+                      '&::after': isActive(route.path) ? {
+                        content: '""',
+                        position: 'absolute',
+                        bottom: -4,
+                        left: '50%',
+                        width: '20px',
+                        height: '3px',
+                        backgroundColor: theme === 'dark' ? '#a0a0ff' : '#5050ff',
+                        borderRadius: '3px',
+                        transform: 'translateX(-50%)'
+                      } : {}
+                    }}
+                  >
+                    {route.label}
+                  </Box>
+                </motion.div>
+              ))}
             </Box>
 
-            {/* 工具栏区域 */}
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            {/* Right Side Utils */}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <ThemeToggle />
-              <Box sx={{ ml: 2 }}>
-                <LanguageSelector />
-              </Box>
+              <LanguageSelector />
             </Box>
           </Toolbar>
         </Container>
       </AppBar>
-    </Box>
+    </Slide>
   );
 };
 

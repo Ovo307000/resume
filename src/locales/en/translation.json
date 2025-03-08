@@ -2,7 +2,14 @@
   "common": {
     "language": "Language",
     "darkMode": "Dark Mode",
-    "lightMode": "Light Mode"
+    "lightMode": "Light Mode",
+    "learnMore": "Learn More",
+    "viewDetails": "View Details",
+    "visitSite": "Visit Site",
+    "viewCode": "View Code",
+    "downloadPdf": "Download PDF",
+    "viewResume": "View Resume",
+    "sendMessage": "Send Message"
   },
   "header": {
     "home": "Home",
@@ -29,62 +36,107 @@
     "language": "Change Language"
   },
   "hero": {
-    "greeting": "Hello, I'm",
+    "greeting": "👋 Hi, I'm",
     "title": "Java Backend Developer",
-    "summary": "Java backend engineer with expertise in common design patterns and rich project experience, dedicated to building high-performance, highly available, stable systems to improve business efficiency and actively embracing new technologies.",
+    "summary": "I'm a passionate developer with expertise in creating engaging digital experiences. I love solving complex problems and turning ideas into reality.",
     "contactMe": "Contact Me"
+  },
+  "home": {
+    "title": "Building Digital Experiences",
+    "subtitle": "Full Stack Developer & UI/UX Enthusiast",
+    "description": "I'm a passionate developer focused on creating modern, responsive, and user-friendly applications. With expertise in both frontend and backend technologies, I bring ideas to life through clean code and intuitive design.",
+    "viewProjects": "View Projects",
+    "aboutMe": "About Me",
+    "exploreTitle": "Explore My Portfolio",
+    "exploreSubtitle": "Discover more about my skills, experience, and projects",
+    "connectWith": "Connect with me",
+    "cards": {
+      "development": {
+        "title": "Development",
+        "description": "Explore my technical skills and areas of expertise in software development and engineering."
+      },
+      "about": {
+        "title": "About Me",
+        "description": "Learn more about who I am, my background, and my professional journey."
+      },
+      "projects": {
+        "title": "Projects",
+        "description": "Discover the innovative projects I've worked on and the problems they solve."
+      }
+    }
   },
   "about": {
     "title": "About Me",
-    "description": "Java backend engineer with expertise in common design patterns and rich project experience, dedicated to building high-performance, highly available, stable systems to improve business efficiency and actively embracing new technologies."
+    "subtitle": "My journey and what drives me",
+    "introduction": "I'm a passionate software developer with a focus on creating user-friendly and efficient applications. With years of experience in the field, I've developed a strong understanding of software development principles and best practices.",
+    "philosophy": "My Philosophy",
+    "philosophyText": "I believe in writing clean, maintainable code and creating intuitive user experiences. I'm constantly learning new technologies and methodologies to improve my skills and deliver better solutions.",
+    "experience": "Professional Experience",
+    "education": "Education & Training",
+    "interests": "Interests & Hobbies",
+    "interestsText": "Outside of coding, I enjoy hiking, reading about new technologies, and contributing to open-source projects."
   },
   "education": {
     "title": "Education",
-    "college1": {
-      "name": "Anhui Industry & Trade Vocational College",
-      "degree": "Software Technology",
-      "date": "Oct 2020 - Jun 2023"
-    },
-    "college2": {
-      "name": "Anhui University of Finance and Economics",
-      "degree": "Computer Science and Technology",
-      "date": "Mar 2024 - Ongoing"
-    }
+    "subtitle": "My academic background and continuous learning",
+    "degree": "Degree",
+    "field": "Field of Study",
+    "university": "University",
+    "date": "Date",
+    "courses": "Relevant Coursework",
+    "certifications": "Certifications"
   },
   "skills": {
-    "title": "Skills & Expertise",
-    "programmingLanguages": "Programming Languages",
-    "devFrameworks": "Development Frameworks",
-    "devTools": "Development Tools & Environment",
-    "overview": "Skills Overview"
+    "title": "Skills",
+    "subtitle": "My technical expertise and capabilities",
+    "languages": "Programming Languages",
+    "frameworks": "Frameworks & Libraries",
+    "tools": "Tools & Platforms",
+    "other": "Other Skills"
   },
   "projects": {
     "title": "Projects",
-    "viewCode": "View Code",
-    "sky": {
-      "title": "Sky-Take-Out",
-      "description": "A food delivery platform for restaurants with both management system and mini-program application."
+    "subtitle": "A showcase of my recent work and collaborations",
+    "filters": {
+      "all": "All",
+      "web": "Web",
+      "mobile": "Mobile",
+      "other": "Other"
     },
-    "lease": {
-      "title": "Lease",
-      "description": "An apartment rental platform project with mobile client and backend management system."
-    }
+    "viewProject": "View Project",
+    "technologies": "Technologies:"
   },
   "contact": {
     "title": "Contact Me",
+    "subtitle": "Get in touch for collaborations or inquiries",
+    "name": "Name",
     "email": "Email",
+    "message": "Message",
+    "submit": "Submit",
+    "success": "Your message has been sent successfully!",
+    "error": "There was an error sending your message. Please try again.",
+    "required": "This field is required.",
+    "invalidEmail": "Please enter a valid email address.",
+    "getInTouch": "Get In Touch",
+    "getInTouchDescription": "Feel free to reach out to me for any project inquiries, collaborations, or just to say hello.",
+    "contactInfo": "Contact Information",
+    "location": "Location",
     "phone": "Phone",
-    "github": "Github",
-    "wechat": "Wechat",
-    "getInTouch": "Get in touch"
+    "social": "Connect on Social"
   },
   "footer": {
-    "tagline": "Dedicated to building high-performance, stable systems",
+    "tagline": "Building high-performance, stable systems with passion",
     "quickLinks": "Quick Links",
     "connect": "Connect",
     "contactEmail": "Email",
     "contactPhone": "Phone",
     "madeWith": "Made with",
-    "using": "using"
+    "using": "using",
+    "copyright": "All rights reserved."
+  },
+  "notFound": {
+    "title": "Page Not Found",
+    "message": "The page you are looking for might have been removed or is temporarily unavailable.",
+    "back": "Back to Home"
   }
 }

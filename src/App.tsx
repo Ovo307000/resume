@@ -1,3 +1,4 @@
+import React from 'react';
 import { CssBaseline } from '@mui/material';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { LanguageProvider } from './contexts/LanguageContext';
@@ -11,6 +12,7 @@ import SkillsPage from './pages/skills/SkillsPage';
 import ProjectsPage from './pages/projects/ProjectsPage';
 import EducationPage from './pages/education/EducationPage';
 import ContactPage from './pages/contact/ContactPage';
+import CustomScrollbar from './components/ui/common/CustomScrollbar';
 
 // 导入简历数据
 import resumeData from './data/resumeData.json';
@@ -25,6 +27,12 @@ function App() {
       <LanguageProvider>
         <Router>
           <CssBaseline />
+          {/* 应用自定义滚动条 */}
+          <CustomScrollbar
+            thickness={8}
+            borderRadius={4}
+            trackOpacity={0.05}
+          />
           <Layout>
             <Routes>
               <Route path="/" element={<HomePage data={resumeData.basics} />} />

@@ -26,8 +26,13 @@ import {
 import { useTranslation } from 'react-i18next';
 import { FiBook, FiBriefcase, FiAward, FiTarget, FiActivity, FiCheckCircle, FiChevronDown, FiChevronUp } from 'react-icons/fi';
 import { useLanguage } from '../../hooks/useLanguage';
-import GlassyBlobBackground from '../../components/ui/backgrounds/GlassyBlobBackground';
-import PageTitle from '../../components/ui/common/PageTitle';
+import GlassPanel from '../../components/ui/glass/GlassPanel';
+import PageTransition from '../../components/ui/transitions/PageTransition';
+
+interface LocalizedText {
+  en: string;
+  zh: string;
+}
 
 interface Education {
   institution: string;
@@ -35,34 +40,13 @@ interface Education {
   startDate: string;
   endDate: string;
   isOngoing?: boolean;
-  displayDate: {
-    en: string;
-    zh: string;
-  };
-  description?: {
-    en: string;
-    zh: string;
-  };
-  activities?: Array<{
-    en: string;
-    zh: string;
-  }>;
-  achievements?: Array<{
-    en: string;
-    zh: string;
-  }>;
-  skills?: Array<{
-    en: string;
-    zh: string;
-  }>;
-  currentFocus?: Array<{
-    en: string;
-    zh: string;
-  }>;
-  goals?: Array<{
-    en: string;
-    zh: string;
-  }>;
+  displayDate: LocalizedText;
+  description?: LocalizedText;
+  activities?: LocalizedText[];
+  achievements?: LocalizedText[];
+  skills?: LocalizedText[];
+  currentFocus?: LocalizedText[];
+  goals?: LocalizedText[];
 }
 
 interface EducationPageProps {
@@ -85,74 +69,202 @@ const EducationPage: React.FC<EducationPageProps> = ({ data }) => {
     }));
   };
 
-  // 动画变体
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.2,
-        delayChildren: 0.2
-      }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
-  };
-
   // 获取翻译文本
-  const getLocalizedText = (item: { en: string; zh: string }) => {
+  const getLocalizedText = (item: LocalizedText) => {
     return language === 'zh' ? item.zh : item.en;
   };
 
   // 渲染详情列表项
-  const renderListItems = (items: Array<{ en: string; zh: string }> | undefined, icon: React.ReactNode) => {
+  const renderListItems = (items: LocalizedText[] | undefined, icon: React.ReactNode, delay = 0) => {
     if (!items || items.length === 0) return null;
 
     return (
-      <List disablePadding>
-        {items.map((item, idx) => (
-          <ListItem key={idx} alignItems="flex-start" sx={{ px: 0, py: 0.5 }}>
-            <ListItemIcon sx={{ minWidth: 36 }}>
-              {icon}
-            </ListItemIcon>
-            <ListItemText
-              primary={getLocalizedText(item)}
-              primaryTypographyProps={{
-                variant: 'body2',
-                color: 'text.secondary'
-              }}
-            />
-          </ListItem>
-        ))}
-      </List>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.3 + delay }}
+      >
+        <List disablePadding>
+          {items.map((item, idx) => (
+            <motion.div
+              key={idx}
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.3 + (idx * 0.05) + delay }}
+            >
+              <ListItem alignItems="flex-start" sx={{ px: 0, py: 0.5 }}>
+                <ListItemIcon sx={{ minWidth: 36 }}>
+                  {icon}
+                </ListItemIcon>
+                <ListItemText
+                  primary={getLocalizedText(item)}
+                  primaryTypographyProps={{
+                    variant: 'body2',
+                    color: 'text.secondary'
+                  }}
+                />
+              </ListItem>
+            </motion.div>
+          ))}
+        </List>
+      </motion.div>
+    );
+  };
+
+  // 教育卡片组件
+  const EducationCard = ({ education, index }: { education: Education, index: number }) => {
+    const isExpanded = !!expandedItems[index];
+    const hasDetails = education.activities || education.achievements || education.skills || education.currentFocus || education.goals;
+
+    return (
+      <GlassPanel
+        variant="elevated"
+        intensity={index % 2 === 0 ? "light" : "medium"}
+        hoverEffect={true}
+        sx={{
+          p: 0,
+          borderRadius: '16px',
+          overflow: 'hidden',
+        }}
+      >
+        <Paper
+          elevation={0}
+          sx={{
+            p: 3,
+            bgcolor: 'transparent',
+          }}
+        >
+          <Box sx={{ mb: 2 }}>
+            <Typography variant="h5" component="h3" fontWeight="bold">
+              {education.institution}
+            </Typography>
+            <Typography variant="subtitle1" color="primary.main" gutterBottom>
+              {education.area}
+            </Typography>
+
+            {education.description && (
+              <Typography variant="body2" paragraph>
+                {getLocalizedText(education.description)}
+              </Typography>
+            )}
+
+            {education.isOngoing && (
+              <Chip
+                label={t('education.ongoing', '进行中')}
+                size="small"
+                color="primary"
+                sx={{ mt: 1, mb: 2 }}
+              />
+            )}
+          </Box>
+
+          {hasDetails && (
+            <>
+              <Button
+                variant="text"
+                color="primary"
+                onClick={() => toggleExpand(index)}
+                endIcon={isExpanded ? <FiChevronUp /> : <FiChevronDown />}
+                sx={{ mb: 1, textTransform: 'none' }}
+              >
+                {isExpanded ? t('common.showLess', '收起') : t('common.showMore', '查看更多')}
+              </Button>
+
+              <Collapse in={isExpanded} timeout={300}>
+                <Box sx={{ mt: 2 }}>
+                  <Grid container spacing={3}>
+                    {education.activities && (
+                      <Grid item xs={12} md={6}>
+                        <Typography variant="subtitle2" fontWeight="bold" color="primary" gutterBottom>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <FiActivity />
+                            {t('education.activities', '相关活动')}
+                          </Box>
+                        </Typography>
+                        {renderListItems(education.activities, <FiCheckCircle color="#6366F1" size={16} />, 0.1)}
+                      </Grid>
+                    )}
+
+                    {education.achievements && (
+                      <Grid item xs={12} md={6}>
+                        <Typography variant="subtitle2" fontWeight="bold" color="primary" gutterBottom>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <FiAward />
+                            {t('education.achievements', '成就')}
+                          </Box>
+                        </Typography>
+                        {renderListItems(education.achievements, <FiAward color="#10B981" size={16} />, 0.2)}
+                      </Grid>
+                    )}
+
+                    {education.skills && (
+                      <Grid item xs={12} md={6}>
+                        <Typography variant="subtitle2" fontWeight="bold" color="primary" gutterBottom>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <FiBook />
+                            {t('education.skills', '获得技能')}
+                          </Box>
+                        </Typography>
+                        {renderListItems(education.skills, <FiCheckCircle color="#8B5CF6" size={16} />, 0.3)}
+                      </Grid>
+                    )}
+
+                    {education.currentFocus && (
+                      <Grid item xs={12} md={6}>
+                        <Typography variant="subtitle2" fontWeight="bold" color="primary" gutterBottom>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <FiBriefcase />
+                            {t('education.currentFocus', '当前专注')}
+                          </Box>
+                        </Typography>
+                        {renderListItems(education.currentFocus, <FiActivity color="#F59E0B" size={16} />, 0.4)}
+                      </Grid>
+                    )}
+
+                    {education.goals && (
+                      <Grid item xs={12} md={6}>
+                        <Typography variant="subtitle2" fontWeight="bold" color="primary" gutterBottom>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <FiTarget />
+                            {t('education.goals', '学习目标')}
+                          </Box>
+                        </Typography>
+                        {renderListItems(education.goals, <FiTarget color="#EC4899" size={16} />, 0.5)}
+                      </Grid>
+                    )}
+                  </Grid>
+                </Box>
+              </Collapse>
+            </>
+          )}
+        </Paper>
+      </GlassPanel>
     );
   };
 
   return (
-    <Box sx={{ py: 8 }}>
-      <Container maxWidth="lg">
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-        >
+    <PageTransition mode="fade">
+      <Box sx={{ py: 8 }}>
+        <Container maxWidth="lg">
           {/* 页面标题 */}
-          <motion.div variants={itemVariants}>
-            <PageTitle title={t('education.title')} />
-          </motion.div>
-
-          <GlassyBlobBackground
-            colorSet="rainbow"
-            intensity="light"
-            containerSx={{
-              borderRadius: '16px',
-              p: 3,
-              mb: 6
-            }}
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
           >
+            <Typography
+              variant="h3"
+              component="h1"
+              gutterBottom
+              sx={{
+                fontWeight: 700,
+                textAlign: 'center',
+                mb: 3
+              }}
+            >
+              {t('education.title')}
+            </Typography>
+
             <Typography
               variant="h6"
               gutterBottom
@@ -162,12 +274,13 @@ const EducationPage: React.FC<EducationPageProps> = ({ data }) => {
                 color: 'text.secondary',
                 maxWidth: '800px',
                 mx: 'auto',
+                mb: 8,
                 lineHeight: 1.8
               }}
             >
-              我的教育经历展示了我在技术和计算机科学领域的学习轨迹。从专科的基础开始，到本科深入研究，每一段学习都为我的技术成长添砖加瓦。
+              {t('education.subtitle')}
             </Typography>
-          </GlassyBlobBackground>
+          </motion.div>
 
           {/* 教育经历时间线 */}
           <Timeline
@@ -209,20 +322,35 @@ const EducationPage: React.FC<EducationPageProps> = ({ data }) => {
                       fontWeight: 'medium',
                     }}
                   >
-                    {language === 'zh' ? education.displayDate.zh : education.displayDate.en}
+                    {getLocalizedText(education.displayDate)}
                   </Typography>
                 </TimelineOppositeContent>
 
                 <TimelineSeparator>
-                  <TimelineDot
-                    sx={{
-                      bgcolor: index % 2 === 0 ? 'primary.main' : 'secondary.main',
-                      boxShadow: 3
-                    }}
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: index * 0.2, duration: 0.5, type: 'spring' }}
                   >
-                    <FiBook size={20} />
-                  </TimelineDot>
-                  {index < data.length - 1 && <TimelineConnector />}
+                    <TimelineDot
+                      sx={{
+                        bgcolor: index % 2 === 0 ? 'primary.main' : 'secondary.main',
+                        boxShadow: 3
+                      }}
+                    >
+                      <FiBook size={20} />
+                    </TimelineDot>
+                  </motion.div>
+                  {index < data.length - 1 && (
+                    <motion.div
+                      initial={{ height: 0 }}
+                      animate={{ height: 'auto' }}
+                      transition={{ delay: index * 0.2 + 0.2, duration: 0.5 }}
+                      style={{ width: '100%' }}
+                    >
+                      <TimelineConnector />
+                    </motion.div>
+                  )}
                 </TimelineSeparator>
 
                 <TimelineContent
@@ -231,181 +359,20 @@ const EducationPage: React.FC<EducationPageProps> = ({ data }) => {
                     px: { xs: 2, md: 3 }
                   }}
                 >
-                  <GlassyBlobBackground
-                    colorSet={index % 2 === 0 ? "primary" : "cool"}
-                    intensity="light"
-                    blobCount={3}
-                    containerSx={{
-                      p: 0,
-                      borderRadius: '16px',
-                      overflow: 'hidden'
-                    }}
+                  <motion.div
+                    initial={{ opacity: 0, x: index % 2 === 0 ? 50 : -50 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.2, duration: 0.5 }}
                   >
-                    <Paper
-                      elevation={0}
-                      sx={{
-                        p: 3,
-                        bgcolor: 'transparent',
-                      }}
-                    >
-                      <Typography
-                        variant="h6"
-                        component="div"
-                        color="primary"
-                        fontWeight="bold"
-                      >
-                        {education.institution}
-                      </Typography>
-
-                      <Typography
-                        variant="subtitle1"
-                        color="text.primary"
-                      >
-                        {education.area}
-                      </Typography>
-
-                      {education.description && (
-                        <Typography
-                          variant="body2"
-                          color="text.secondary"
-                          paragraph
-                          sx={{ mt: 1, lineHeight: 1.7 }}
-                        >
-                          {getLocalizedText(education.description)}
-                        </Typography>
-                      )}
-
-                      {/* 标签展示 */}
-                      <Box sx={{ mt: 2, display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                        {education.isOngoing && (
-                          <Chip
-                            label={language === 'zh' ? "进行中" : "Ongoing"}
-                            color="success"
-                            size="small"
-                            variant="outlined"
-                          />
-                        )}
-
-                        {education.activities && education.activities.length > 0 && (
-                          <Chip
-                            icon={<FiActivity size={14} />}
-                            label={language === 'zh' ? "活动经历" : "Activities"}
-                            color="info"
-                            size="small"
-                            variant="outlined"
-                          />
-                        )}
-
-                        {education.achievements && education.achievements.length > 0 && (
-                          <Chip
-                            icon={<FiAward size={14} />}
-                            label={language === 'zh' ? "所获成就" : "Achievements"}
-                            color="secondary"
-                            size="small"
-                            variant="outlined"
-                          />
-                        )}
-
-                        {education.skills && education.skills.length > 0 && (
-                          <Chip
-                            icon={<FiCheckCircle size={14} />}
-                            label={language === 'zh' ? "获得技能" : "Skills"}
-                            color="primary"
-                            size="small"
-                            variant="outlined"
-                          />
-                        )}
-
-                        {education.currentFocus && education.currentFocus.length > 0 && (
-                          <Chip
-                            icon={<FiTarget size={14} />}
-                            label={language === 'zh' ? "当前关注" : "Current Focus"}
-                            color="warning"
-                            size="small"
-                            variant="outlined"
-                          />
-                        )}
-                      </Box>
-
-                      {/* 展开/收起按钮 */}
-                      {(education.activities || education.achievements || education.skills || education.currentFocus || education.goals) && (
-                        <Box sx={{ mt: 2 }}>
-                          <Button
-                            size="small"
-                            onClick={() => toggleExpand(index)}
-                            endIcon={expandedItems[index] ? <FiChevronUp /> : <FiChevronDown />}
-                            sx={{ textTransform: 'none' }}
-                          >
-                            {expandedItems[index]
-                              ? (language === 'zh' ? '收起详情' : 'Hide Details')
-                              : (language === 'zh' ? '查看详情' : 'View Details')}
-                          </Button>
-                        </Box>
-                      )}
-
-                      {/* 详细信息区域 */}
-                      <Collapse in={expandedItems[index]} timeout="auto" unmountOnExit>
-                        <Grid container spacing={2} sx={{ mt: 1 }}>
-                          {/* 活动列表 */}
-                          {education.activities && education.activities.length > 0 && (
-                            <Grid item xs={12}>
-                              <Typography variant="subtitle2" fontWeight="bold" gutterBottom>
-                                {language === 'zh' ? '活动经历' : 'Activities'}
-                              </Typography>
-                              {renderListItems(education.activities, <FiActivity size={18} color="#3B82F6" />)}
-                            </Grid>
-                          )}
-
-                          {/* 成就列表 */}
-                          {education.achievements && education.achievements.length > 0 && (
-                            <Grid item xs={12}>
-                              <Typography variant="subtitle2" fontWeight="bold" gutterBottom>
-                                {language === 'zh' ? '所获成就' : 'Achievements'}
-                              </Typography>
-                              {renderListItems(education.achievements, <FiAward size={18} color="#8B5CF6" />)}
-                            </Grid>
-                          )}
-
-                          {/* 技能列表 */}
-                          {education.skills && education.skills.length > 0 && (
-                            <Grid item xs={12}>
-                              <Typography variant="subtitle2" fontWeight="bold" gutterBottom>
-                                {language === 'zh' ? '获得技能' : 'Skills'}
-                              </Typography>
-                              {renderListItems(education.skills, <FiCheckCircle size={18} color="#10B981" />)}
-                            </Grid>
-                          )}
-
-                          {/* 当前关注列表 */}
-                          {education.currentFocus && education.currentFocus.length > 0 && (
-                            <Grid item xs={12}>
-                              <Typography variant="subtitle2" fontWeight="bold" gutterBottom>
-                                {language === 'zh' ? '当前关注' : 'Current Focus'}
-                              </Typography>
-                              {renderListItems(education.currentFocus, <FiTarget size={18} color="#F59E0B" />)}
-                            </Grid>
-                          )}
-
-                          {/* 目标列表 */}
-                          {education.goals && education.goals.length > 0 && (
-                            <Grid item xs={12}>
-                              <Typography variant="subtitle2" fontWeight="bold" gutterBottom>
-                                {language === 'zh' ? '学习目标' : 'Goals'}
-                              </Typography>
-                              {renderListItems(education.goals, <FiTarget size={18} color="#EF4444" />)}
-                            </Grid>
-                          )}
-                        </Grid>
-                      </Collapse>
-                    </Paper>
-                  </GlassyBlobBackground>
+                    <EducationCard education={education} index={index} />
+                  </motion.div>
                 </TimelineContent>
               </TimelineItem>
             ))}
           </Timeline>
-        </motion.div>
-      </Container>
-    </Box>
+        </Container>
+      </Box>
+    </PageTransition>
   );
 };
 

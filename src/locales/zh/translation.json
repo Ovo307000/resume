@@ -1,8 +1,25 @@
 {
   "common": {
     "language": "语言",
-    "darkMode": "暗黑模式",
-    "lightMode": "明亮模式"
+    "darkMode": "暗色模式",
+    "lightMode": "亮色模式",
+    "learnMore": "了解更多",
+    "viewDetails": "查看详情",
+    "visitSite": "访问网站",
+    "viewCode": "查看代码",
+    "downloadPdf": "下载简历",
+    "viewResume": "查看简历",
+    "sendMessage": "发送消息",
+    "switchToLight": "切换到亮色模式",
+    "switchToDark": "切换到暗色模式",
+    "switchLang": "切换语言",
+    "themeAndLang": "切换主题和语言",
+    "social": {
+      "github": "GitHub",
+      "linkedin": "领英",
+      "twitter": "推特",
+      "email": "电子邮件"
+    }
   },
   "header": {
     "home": "首页",
@@ -10,7 +27,7 @@
     "skills": "技能",
     "projects": "项目",
     "education": "教育",
-    "contact": "联系方式",
+    "contact": "联系我",
     "menu": "菜单",
     "homeDescription": "我的个人简历主页",
     "aboutDescription": "了解我的背景和经历",
@@ -29,62 +46,154 @@
     "language": "切换语言"
   },
   "hero": {
-    "greeting": "你好，我是",
+    "greeting": "👋 你好，我是",
     "title": "Java 后端开发工程师",
-    "summary": "Java 后端工程师，熟练掌握常用设计模式，拥有丰富的项目经验，致力于构建高性能、高可用的稳定系统，提升企业业务效率，并积极拥抱新技术。",
+    "summary": "我是一名充满激情的开发者，擅长创建引人入胜的数字体验。我热爱解决复杂问题并将创意转化为现实。",
     "contactMe": "联系我"
+  },
+  "home": {
+    "title": "构建数字体验",
+    "subtitle": "全栈开发者 & UI/UX 爱好者",
+    "description": "我是一名充满激情的开发者，专注于创建现代、响应式和用户友好的应用程序。凭借前端和后端技术的专业知识，我通过简洁的代码和直观的设计将创意变为现实。",
+    "viewProjects": "查看项目",
+    "aboutMe": "关于我",
+    "exploreTitle": "探索我的作品集",
+    "exploreSubtitle": "了解更多关于我的技能、经验和项目",
+    "connectWith": "与我联系",
+    "view_projects": "查看项目",
+    "contact_me": "联系我",
+    "view_all_projects": "查看所有项目",
+    "recent_projects": "最近项目",
+    "skills": "技能",
+    "role_1": "Java 后端开发工程师",
+    "role_2": "Java 工程师",
+    "role_3": "后端开发者",
+    "avatar_alt": "个人头像",
+    "stats": {
+      "code_lines": "行代码",
+      "projects_completed": "项目完成",
+      "happy_clients": "满意客户",
+      "coffee_cups": "咖啡杯",
+      "experience": "年Java经验",
+      "projects": "个项目经验",
+      "databases": "个数据库项目",
+      "deployments": "年容器部署经验"
+    },
+    "cards": {
+      "development": {
+        "title": "开发技能",
+        "description": "探索我在软件开发和工程领域的技术技能和专业知识。"
+      },
+      "about": {
+        "title": "关于我",
+        "description": "了解更多关于我是谁，我的背景和我的职业旅程。"
+      },
+      "projects": {
+        "title": "项目展示",
+        "description": "发现我参与过的创新项目以及它们解决的问题。"
+      }
+    }
   },
   "about": {
     "title": "关于我",
-    "description": "Java 后端工程师，熟练掌握常用设计模式，拥有丰富的项目经验，致力于构建高性能、高可用的稳定系统，提升企业业务效率，并积极拥抱新技术。"
+    "subtitle": "我的旅程和驱动力",
+    "introduction": "我是一名热衷于创建用户友好且高效应用程序的软件开发者。凭借多年的行业经验，我对软件开发原则和最佳实践有着深刻的理解。",
+    "philosophy": "我的理念",
+    "philosophyText": "我坚信编写干净、可维护的代码并创造直观的用户体验。我不断学习新技术和方法来提升我的技能并提供更好的解决方案。",
+    "experience": "职业经验",
+    "education": "教育与培训",
+    "interests": "兴趣爱好",
+    "interestsText": "除了编程，我喜欢徒步旅行、阅读新技术相关的书籍，以及为开源项目做贡献。",
+    "contact": "联系方式",
+    "email": "电子邮件",
+    "phone": "电话号码",
+    "github": "GitHub",
+    "traits": "个人特质",
+    "aboutMe": "关于我"
   },
   "education": {
     "title": "教育经历",
-    "college1": {
-      "name": "安徽工贸学院",
-      "degree": "软件技术",
-      "date": "2020年10月 - 2023年6月"
-    },
-    "college2": {
-      "name": "安徽财经大学",
-      "degree": "计算机科学与技术",
-      "date": "2024年3月 - 至今"
-    }
+    "subtitle": "我的学术背景和持续学习",
+    "degree": "学位",
+    "field": "研究领域",
+    "university": "大学",
+    "date": "日期",
+    "courses": "相关课程",
+    "certifications": "证书"
   },
   "skills": {
-    "title": "技能与专长",
+    "title": "技能",
+    "subtitle": "我的技术专长和能力",
+    "languages": "编程语言",
+    "frameworks": "框架和库",
+    "tools": "工具和平台",
+    "other": "其他技能",
     "programmingLanguages": "编程语言",
     "devFrameworks": "开发框架",
-    "devTools": "开发工具与环境",
-    "overview": "技能概览"
+    "devTools": "开发工具",
+    "overview": "技能概述",
+    "categories": {
+      "frontend": "前端开发",
+      "backend": "后端开发",
+      "database": "数据库",
+      "devops": "DevOps"
+    }
   },
   "projects": {
-    "title": "项目经验",
-    "viewCode": "查看代码",
-    "sky": {
-      "title": "苍穹外卖",
-      "description": "专为餐饮企业定制的软件产品，包括系统管理后台和小程序端应用。"
+    "title": "项目",
+    "subtitle": "展示我近期的工作和合作项目",
+    "filters": {
+      "all": "全部",
+      "web": "网页",
+      "mobile": "移动",
+      "other": "其他"
     },
-    "lease": {
-      "title": "尚庭公寓",
-      "description": "公寓租赁平台项目，包含移动端和后台管理系统。"
+    "viewProject": "查看项目",
+    "technologies": "技术栈：",
+    "viewCode": "查看代码",
+    "portfolio": {
+      "description": "一个使用React和Material UI构建的现代化个人作品集网站。"
+    },
+    "ecommerce": {
+      "description": "全栈电子商务平台，包含支付处理和订单管理功能。"
+    },
+    "taskapp": {
+      "description": "具有实时更新和团队协作功能的任务管理应用程序。"
     }
   },
   "contact": {
-    "title": "联系方式",
+    "title": "联系我",
+    "subtitle": "有合作或咨询，请与我联系",
+    "name": "姓名",
     "email": "邮箱",
+    "message": "留言",
+    "submit": "提交",
+    "success": "您的消息已成功发送！",
+    "error": "发送消息时出错。请重试。",
+    "required": "此字段为必填项。",
+    "invalidEmail": "请输入有效的电子邮件地址。",
+    "getInTouch": "保持联系",
+    "getInTouchDescription": "欢迎就任何项目咨询、合作或只是打个招呼与我联系。",
+    "contactInfo": "联系信息",
+    "location": "位置",
     "phone": "电话",
-    "github": "Github",
-    "wechat": "微信",
-    "getInTouch": "与我联系"
+    "social": "社交媒体",
+    "github": "GitHub",
+    "wechat": "微信"
   },
   "footer": {
-    "tagline": "致力于构建高性能、高可用的稳定系统",
+    "tagline": "用热情打造高性能、稳定的系统",
     "quickLinks": "快速导航",
     "connect": "联系我",
     "contactEmail": "邮箱",
     "contactPhone": "电话",
     "madeWith": "用",
-    "using": "和"
+    "using": "和",
+    "copyright": "版权所有。"
+  },
+  "notFound": {
+    "title": "页面未找到",
+    "message": "您查找的页面可能已被移除或暂时不可用。",
+    "back": "返回首页"
   }
 }

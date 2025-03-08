@@ -19,6 +19,8 @@ export interface NavLinkProps {
   route: NavRoute;
   active: boolean;
   onClick?: () => void;
+  index?: number;       // 添加索引属性
+  activeIndex?: number; // 添加活跃索引属性
 }
 
 /**
@@ -35,4 +37,5 @@ export interface NavbarProps {
 export interface MobileNavProps extends NavbarProps {
   mobileOpen: boolean;
   handleDrawerToggle: () => void;
+  showLanguageSelector?: boolean;
 }

@@ -1,417 +1,395 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { Box, Container, Typography, Grid } from '@mui/material';
 import { motion } from 'framer-motion';
-import { Typography, Box, Button, Container, Grid, Avatar } from '@mui/material';
+import { useTheme } from '../../contexts/ThemeContext';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
-import { FiArrowRight } from 'react-icons/fi';
+import { FiArrowRight, FiGithub, FiMail, FiPhone, FiDownload } from 'react-icons/fi';
+import { SiWechat } from 'react-icons/si';
+import GlassPanel from '../../components/ui/glass/GlassPanel';
+import { FaJava, FaDocker } from 'react-icons/fa';
+import { SiSpring, SiMysql } from 'react-icons/si';
+import ProfileAvatar from '../../components/ui/ProfileAvatar';
+import TypedText from '../../components/ui/common/TypedText';
 
 interface HomePageProps {
   data: {
     name: string;
     label: string;
     summary: string;
+    email: string;
+    phone: string;
+    github: string;
+    githubUsername?: string;
+    wechat?: string;
   };
 }
 
 /**
  * 主页组件
- * 提供现代化、具有冲击感的首页设计
  */
 const HomePage: React.FC<HomePageProps> = ({ data }) => {
+  const { theme } = useTheme();
   const { t } = useTranslation();
+  const [roleIndex, setRoleIndex] = useState(0);
 
-  // 粒子动画变体
-  const particleVariants = {
-    hidden: { opacity: 0, scale: 0 },
-    visible: (i: number) => ({
-      opacity: 0.8,
-      scale: 1,
+  // 获取github用户名
+  const githubUsername = data.githubUsername || (data.github && data.github.includes('github.com/')
+    ? data.github.split('github.com/')[1]
+    : data.github);
+
+  // 角色列表
+  const roles = [
+    data.label,
+    t('home.role_2', 'Java 工程师'),
+    t('home.role_3', '后端开发者')
+  ];
+
+  // 每3秒切换一次角色
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setRoleIndex((prev) => (prev + 1) % roles.length);
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [roles.length]);
+
+  // 名字部分渐变色
+  const nameGradient = theme === 'dark'
+    ? 'linear-gradient(90deg, #f0f0f0 0%, #a0a0ff 100%)'
+    : 'linear-gradient(90deg, #303030 0%, #5050ff 100%)';
+
+  // 动画变体
+  const contentVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
       transition: {
-        delay: i * 0.1,
-        duration: 0.8,
-        repeat: Infinity,
-        repeatType: 'reverse' as const,
-        repeatDelay: Math.random() * 2
+        duration: 0.6,
+        staggerChildren: 0.2,
+        delayChildren: 0.4
       }
-    })
+    }
   };
 
-  // 创建随机粒子
-  const particles = Array.from({ length: 50 }).map((_, i) => {
-    const size = Math.random() * 20 + 5;
-    return (
-      <motion.div
-        key={i}
-        custom={i}
-        variants={particleVariants}
-        initial="hidden"
-        animate="visible"
-        style={{
-          position: 'absolute',
-          width: `${size}px`,
-          height: `${size}px`,
-          borderRadius: '50%',
-          background: i % 4 === 0
-            ? 'linear-gradient(135deg, #EF4444, #F87171)'
-            : i % 4 === 1
-              ? 'linear-gradient(135deg, #3B82F6, #60A5FA)'
-              : i % 4 === 2
-                ? 'linear-gradient(135deg, #10B981, #34D399)'
-                : 'linear-gradient(135deg, #8B5CF6, #A78BFA)',
-          left: `${Math.random() * 100}%`,
-          top: `${Math.random() * 100}%`,
-          filter: 'blur(1px)',
-          opacity: 0.7,
-          zIndex: 0
-        }}
-      />
-    );
-  });
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { type: 'spring', stiffness: 300, damping: 24 }
+    }
+  };
 
-  // 创建动态光效
-  const glowEffects = [
-    { color: 'rgba(66, 153, 225, 0.6)', top: '10%', left: '10%', size: '40%' },
-    { color: 'rgba(159, 122, 234, 0.6)', bottom: '10%', right: '15%', size: '35%' },
-    { color: 'rgba(236, 72, 153, 0.5)', top: '50%', right: '5%', size: '25%' },
-    { color: 'rgba(99, 102, 241, 0.5)', bottom: '30%', left: '20%', size: '30%' },
-    { color: 'rgba(59, 130, 246, 0.4)', top: '25%', right: '30%', size: '35%' }
+  const roleVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 },
+    exit: { opacity: 0, y: -20 }
+  };
+
+  // 社交媒体链接
+  const socialLinks = [
+    { icon: <FiGithub size={20} />, url: data.github.startsWith('http') ? data.github : `https://github.com/${githubUsername}`, label: 'GitHub' },
+    { icon: <FiMail size={20} />, url: `mailto:${data.email}`, label: 'Email' },
+    { icon: <FiPhone size={20} />, url: `tel:${data.phone}`, label: 'Phone' }
   ];
+
+  // 如果有微信，添加到社交链接中
+  if (data.wechat) {
+    socialLinks.push({
+      icon: <SiWechat size={20} />,
+      url: '#',
+      label: data.wechat
+    });
+  }
 
   return (
     <Box
+      component="section"
       sx={{
         position: 'relative',
-        minHeight: 'calc(100vh - 64px)',
-        overflow: 'hidden',
-        display: 'flex',
-        alignItems: 'center',
-        pt: { xs: 8, md: 0 },
-        background: (theme) =>
-          theme.palette.mode === 'dark'
-            ? 'linear-gradient(180deg, #0f172a 0%, #1e1b4b 100%)'
-            : 'linear-gradient(180deg, #f8fafc 0%, #e0e7ff 100%)',
-        '&::before': {
-          content: '""',
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundImage: (theme) =>
-            theme.palette.mode === 'dark'
-              ? 'radial-gradient(circle at 30% 30%, rgba(99, 102, 241, 0.3), transparent 35%), radial-gradient(circle at 80% 80%, rgba(236, 72, 153, 0.3), transparent 30%), radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.2), transparent 60%)'
-              : 'radial-gradient(circle at 30% 30%, rgba(99, 102, 241, 0.15), transparent 35%), radial-gradient(circle at 80% 80%, rgba(236, 72, 153, 0.15), transparent 30%), radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.1), transparent 60%)',
-          opacity: 1,
-          zIndex: 0,
-        },
-        '&::after': {
-          content: '""',
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundImage: (theme) =>
-            theme.palette.mode === 'dark'
-              ? 'url("data:image/svg+xml,%3Csvg width=\'100\' height=\'100\' viewBox=\'0 0 100 100\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z\' fill=\'%234f46e5\' fill-opacity=\'0.05\' fill-rule=\'evenodd\'/%3E%3C/svg%3E")'
-              : 'url("data:image/svg+xml,%3Csvg width=\'100\' height=\'100\' viewBox=\'0 0 100 100\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z\' fill=\'%234f46e5\' fill-opacity=\'0.05\' fill-rule=\'evenodd\'/%3E%3C/svg%3E")',
-          opacity: 0.5,
-          zIndex: 0,
-        }
+        pt: { xs: 4, md: 8 },
+        pb: { xs: 6, md: 10 },
+        overflow: 'hidden'
       }}
     >
-      {/* 背景炫光效果 */}
-      {glowEffects.map((glow, index) => (
-        <Box
-          key={index}
-          sx={{
-            position: 'absolute',
-            width: glow.size,
-            height: glow.size,
-            borderRadius: '50%',
-            background: `radial-gradient(circle, ${glow.color} 0%, rgba(0,0,0,0) 70%)`,
-            filter: 'blur(40px)',
-            opacity: 0.7,
-            top: glow.top,
-            left: glow.left,
-            right: glow.right,
-            bottom: glow.bottom,
-            zIndex: 0,
-            animation: `pulse${index} 8s infinite alternate`,
-            [`@keyframes pulse${index}`]: {
-              '0%': {
-                opacity: 0.5,
-                transform: 'scale(1)',
-              },
-              '100%': {
-                opacity: 0.7,
-                transform: 'scale(1.1)',
-              },
-            },
-          }}
-        />
-      ))}
-
-      {/* 背景粒子 */}
-      {particles}
-
-      {/* 主要内容 */}
-      <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 1 }}>
-        <Grid container spacing={4} alignItems="center">
-          <Grid item xs={12} md={6}>
-            <Box sx={{ position: 'relative', zIndex: 1 }}>
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6 }}
-              >
-                <Typography
-                  variant="h6"
-                  color="primary"
-                  fontWeight="medium"
-                  sx={{ mb: 2 }}
-                >
-                  {t('hero.greeting')}
-                </Typography>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.2 }}
-              >
+      {/* 顶部英雄区域 */}
+      <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 2 }}>
+        <Grid
+          container
+          spacing={4}
+          alignItems="center"
+          justifyContent="space-between"
+          sx={{ mb: { xs: 8, md: 12 } }}
+        >
+          {/* 左侧内容：介绍文本和社交链接 */}
+          <Grid item xs={12} md={7}>
+            <motion.div
+              initial="hidden"
+              animate="visible"
+              variants={contentVariants}
+            >
+              <motion.div variants={itemVariants}>
                 <Typography
                   variant="h2"
                   component="h1"
-                  fontWeight="bold"
                   sx={{
-                    mb: 2,
-                    background: 'linear-gradient(135deg, #4338CA, #6366F1)',
-                    backgroundClip: 'text',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                    textShadow: '0px 2px 4px rgba(0,0,0,0.1)'
+                    fontSize: { xs: '2.5rem', md: '3.5rem' },
+                    fontWeight: 700,
+                    mb: 1,
+                    lineHeight: 1.2,
+                    letterSpacing: '-0.02em'
                   }}
                 >
-                  {data.name}
+                  {t('hero.greeting', '👋 你好，我是')}{' '}
+                  <Box
+                    component="span"
+                    sx={{
+                      background: nameGradient,
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent',
+                      backgroundClip: 'text'
+                    }}
+                  >
+                    {data.name}
+                  </Box>
                 </Typography>
               </motion.div>
 
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.4 }}
-              >
-                <Typography
-                  variant="h4"
-                  color="text.secondary"
-                  fontWeight="medium"
-                  sx={{ mb: 3 }}
-                >
-                  {data.label}
-                </Typography>
+              <motion.div variants={itemVariants}>
+                <Box sx={{ height: '2.5rem', mb: 3 }}>
+                  <motion.div
+                    key={roleIndex}
+                    initial="hidden"
+                    animate="visible"
+                    exit="exit"
+                    variants={roleVariants}
+                    transition={{ duration: 0.5 }}
+                  >
+                    <Typography
+                      variant="h4"
+                      component="h2"
+                      sx={{
+                        color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)',
+                        fontWeight: 500
+                      }}
+                    >
+                      {roles[roleIndex]}
+                    </Typography>
+                  </motion.div>
+                </Box>
               </motion.div>
 
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.6 }}
-              >
+              <motion.div variants={itemVariants}>
                 <Typography
                   variant="body1"
-                  color="text.secondary"
-                  sx={{ mb: 4, maxWidth: '90%' }}
+                  sx={{
+                    mb: 4,
+                    maxWidth: 580,
+                    fontSize: { xs: '1rem', md: '1.125rem' },
+                    lineHeight: 1.6
+                  }}
                 >
-                  {data.summary}
+                  <TypedText
+                    strings={[data.summary]}
+                    typeSpeed={20}
+                    startDelay={800}
+                    loop={false}
+                    showCursor={false}
+                  />
                 </Typography>
               </motion.div>
 
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.8 }}
-                style={{ display: 'flex', gap: '16px' }}
-              >
-                <Button
-                  component={Link}
-                  to="/about"
-                  variant="contained"
-                  color="primary"
-                  size="large"
-                  endIcon={<FiArrowRight />}
-                  sx={{
-                    borderRadius: '50px',
-                    px: 4,
-                    py: 1.5,
-                    textTransform: 'none',
-                    fontWeight: 'bold',
-                    boxShadow: '0 10px 20px rgba(67, 56, 202, 0.3)',
-                    position: 'relative',
-                    overflow: 'hidden',
-                    '&::after': {
-                      content: '""',
-                      position: 'absolute',
-                      top: 0,
-                      left: 0,
-                      width: '100%',
-                      height: '100%',
-                      background: 'linear-gradient(120deg, rgba(255,255,255,0) 30%, rgba(255,255,255,0.4), rgba(255,255,255,0) 70%)',
-                      animation: 'shine 3s infinite linear',
-                    },
-                    '@keyframes shine': {
-                      '0%': {
-                        transform: 'translateX(-100%)',
-                      },
-                      '100%': {
-                        transform: 'translateX(100%)',
-                      },
-                    },
-                  }}
-                >
-                  {t('header.about')}
-                </Button>
+              <motion.div variants={itemVariants}>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 4, gap: 2 }}>
+                  <Box
+                    component="a"
+                    href="/projects"
+                    sx={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      px: 3,
+                      py: 1.2,
+                      borderRadius: '50px',
+                      fontWeight: 600,
+                      textDecoration: 'none',
+                      color: '#fff',
+                      background: theme === 'dark'
+                        ? 'linear-gradient(90deg, #7928CA 0%, #FF0080 100%)'
+                        : 'linear-gradient(90deg, #0070F3 0%, #00DFD8 100%)',
+                      transition: 'all 0.3s ease',
+                      '&:hover': {
+                        transform: 'translateY(-3px)',
+                        boxShadow: '0 7px 14px rgba(0,0,0,0.12)'
+                      }
+                    }}
+                  >
+                    {t('common.viewDetails', '查看项目')}
+                    <FiArrowRight style={{ marginLeft: 8 }} />
+                  </Box>
 
-                <Button
-                  component={Link}
-                  to="/projects"
-                  variant="outlined"
-                  color="primary"
-                  size="large"
+                  <Box
+                    component="a"
+                    href="/Resume.pdf"
+                    download="赵东安-Java后端开发工程师-简历.pdf"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    sx={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      px: 3,
+                      py: 1.2,
+                      borderRadius: '50px',
+                      fontWeight: 600,
+                      textDecoration: 'none',
+                      color: theme === 'dark' ? '#fff' : '#fff',
+                      backgroundColor: theme === 'dark' ? '#444' : '#555',
+                      boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+                      '&:hover': {
+                        backgroundColor: theme === 'dark' ? '#555' : '#666',
+                        transform: 'translateY(-3px)',
+                        boxShadow: '0 7px 14px rgba(0,0,0,0.15)'
+                      },
+                      transition: 'all 0.3s ease'
+                    }}
+                  >
+                    {t('common.downloadPdf', '下载简历')}
+                    <FiDownload style={{ marginLeft: 8 }} />
+                  </Box>
+                </Box>
+              </motion.div>
+
+              <motion.div variants={itemVariants}>
+                <Box
                   sx={{
-                    borderRadius: '50px',
-                    px: 4,
-                    py: 1.5,
-                    textTransform: 'none',
-                    fontWeight: 'bold'
+                    display: 'flex',
+                    gap: 1.5,
+                    mb: { xs: 3, md: 0 }
                   }}
                 >
-                  {t('header.projects')}
-                </Button>
+                  {socialLinks.map((link, index) => (
+                    <Box
+                      key={index}
+                      component="a"
+                      href={link.url}
+                      target={link.url.startsWith('http') ? "_blank" : undefined}
+                      rel={link.url.startsWith('http') ? "noopener noreferrer" : undefined}
+                      title={link.label}
+                      sx={{
+                        width: 42,
+                        height: 42,
+                        borderRadius: '12px',
+                        backgroundColor: theme === 'dark'
+                          ? 'rgba(255, 255, 255, 0.05)'
+                          : 'rgba(0, 0, 0, 0.05)',
+                        color: 'text.primary',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        transition: 'all 0.2s ease',
+                        '&:hover': {
+                          backgroundColor: theme === 'dark'
+                            ? 'rgba(255, 255, 255, 0.1)'
+                            : 'rgba(0, 0, 0, 0.1)',
+                          color: theme === 'dark' ? '#a0a0ff' : '#5050ff',
+                          transform: 'translateY(-3px)'
+                        }
+                      }}
+                    >
+                      {link.icon}
+                    </Box>
+                  ))}
+                </Box>
+              </motion.div>
+            </motion.div>
+          </Grid>
+
+          {/* 右侧内容：头像 */}
+          <Grid item xs={12} md={5} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            {/* 移动端显示的头像（xs可见，md隐藏） */}
+            <Box sx={{ display: { xs: 'block', md: 'none' }, width: '100%', textAlign: 'center' }}>
+              <ProfileAvatar
+                imageSrc="/profile_avatar.png"
+                size="large"
+                animate={true}
+                alt={data.name}
+              />
+            </Box>
+
+            {/* 桌面端显示的头像（xs隐藏，md可见） */}
+            <Box sx={{ display: { xs: 'none', md: 'block' }, width: '100%', textAlign: 'center' }}>
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.6, delay: 0.3 }}
+              >
+                <ProfileAvatar
+                  imageSrc="/profile_avatar.png"
+                  size="xlarge"
+                  animate={true}
+                  alt={data.name}
+                  sx={{ mx: 'auto' }}
+                />
               </motion.div>
             </Box>
           </Grid>
-
-          <Grid item xs={12} md={6} sx={{ display: { xs: 'none', md: 'block' } }}>
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.8, delay: 1 }}
-            >
-              <Box
-                sx={{
-                  position: 'relative',
-                  width: '100%',
-                  height: '400px',
-                  borderRadius: '24px',
-                  overflow: 'hidden',
-                  boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
-                  background: 'linear-gradient(135deg, #4338CA, #6366F1)',
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  '&::before': {
-                    content: '""',
-                    position: 'absolute',
-                    width: '150%',
-                    height: '150%',
-                    background: 'repeating-linear-gradient(45deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 2px, transparent 2px, transparent 8px)',
-                    animation: 'slide 20s linear infinite',
-                  },
-                  '@keyframes slide': {
-                    '0%': {
-                      transform: 'translateX(-50%) translateY(-50%) rotate(0deg)',
-                    },
-                    '100%': {
-                      transform: 'translateX(-50%) translateY(-50%) rotate(360deg)',
-                    },
-                  },
-                }}
-              >
-                {/* 个人头像 */}
-                <Box
-                  sx={{
-                    position: 'relative',
-                    zIndex: 1,
-                    width: '200px',
-                    height: '200px',
-                    borderRadius: '50%',
-                    backgroundColor: 'white',
-                    padding: '5px',
-                    boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
-                  }}
-                >
-                  <Avatar
-                    sx={{
-                      width: '100%',
-                      height: '100%',
-                      border: '4px solid rgba(255,255,255,0.3)',
-                    }}
-                    alt={data.name}
-                    src="/profile_avatar.png"
-                  >
-                    {/* 如果没有头像，显示姓名首字母 */}
-                    {data.name.charAt(0)}
-                  </Avatar>
-                </Box>
-
-                {/* 装饰性图形 */}
-                <Box
-                  sx={{
-                    position: 'absolute',
-                    bottom: 0,
-                    left: 0,
-                    width: '100%',
-                    height: '30%',
-                    background: 'rgba(255, 255, 255, 0.1)',
-                    backdropFilter: 'blur(10px)',
-                    borderTopLeftRadius: '100px',
-                    borderTopRightRadius: '100px',
-                  }}
-                />
-
-                {/* 代码符号装饰 */}
-                <Box
-                  sx={{
-                    position: 'absolute',
-                    top: '20px',
-                    left: '20px',
-                    color: 'rgba(255, 255, 255, 0.3)',
-                    fontFamily: 'monospace',
-                    fontSize: '24px'
-                  }}
-                >
-                  {'</>'}
-                </Box>
-
-                <Box
-                  sx={{
-                    position: 'absolute',
-                    bottom: '20px',
-                    right: '20px',
-                    color: 'rgba(255, 255, 255, 0.3)',
-                    fontFamily: 'monospace',
-                    fontSize: '24px'
-                  }}
-                >
-                  {'{}'}
-                </Box>
-              </Box>
-            </motion.div>
-          </Grid>
         </Grid>
 
-        {/* 底部装饰 */}
-        <Box
-          sx={{
-            position: 'absolute',
-            bottom: { xs: '-100px', md: '0' },
-            left: 0,
-            width: '100%',
-            height: '100px',
-            background: 'linear-gradient(to top, rgba(255,255,255,0.1), transparent)',
-            zIndex: -1
-          }}
-        />
+        {/* 统计数据 */}
+        <Grid container spacing={3} sx={{ mb: 16 }}>
+          {[
+            { icon: <FaJava size={36} />, value: '5', label: t('home.stats.experience', '年Java经验') },
+            { icon: <SiSpring size={36} />, value: '20+', label: t('home.stats.projects', '个项目经验') },
+            { icon: <SiMysql size={36} />, value: '10+', label: t('home.stats.databases', '个数据库项目') },
+            { icon: <FaDocker size={36} />, value: '3+', label: t('home.stats.deployments', '年容器部署经验') }
+          ].map((stat, index) => (
+            <Grid item xs={6} md={3} key={index}>
+              <GlassPanel sx={{
+                p: 3,
+                height: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                textAlign: 'center',
+                '&:hover': {
+                  transform: 'translateY(-5px)',
+                  boxShadow: theme === 'dark'
+                    ? '0 10px 30px rgba(0, 0, 0, 0.3)'
+                    : '0 10px 30px rgba(0, 0, 0, 0.1)',
+                },
+                transition: 'all 0.3s ease'
+              }}>
+                <Box
+                  sx={{
+                    color: theme === 'dark' ? '#a0a0ff' : '#5050ff',
+                    mb: 2
+                  }}
+                >
+                  {stat.icon}
+                </Box>
+                <Typography
+                  variant="h4"
+                  component="div"
+                  sx={{
+                    fontSize: { xs: '1.8rem', md: '2.2rem' },
+                    fontWeight: 700,
+                    mb: 1
+                  }}
+                >
+                  {stat.value}
+                </Typography>
+                <Typography
+                  variant="body1"
+                  sx={{
+                    color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)',
+                    fontWeight: 500
+                  }}
+                >
+                  {stat.label}
+                </Typography>
+              </GlassPanel>
+            </Grid>
+          ))}
+        </Grid>
       </Container>
     </Box>
   );

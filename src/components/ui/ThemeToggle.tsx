@@ -1,51 +1,147 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { Box, IconButton, Tooltip } from '@mui/material';
+import { motion, AnimatePresence } from 'framer-motion';
+import { FiSun, FiMoon } from 'react-icons/fi';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useTranslation } from 'react-i18next';
 
-const ThemeToggle: React.FC = () => {
+interface ThemeToggleProps {
+  size?: 'small' | 'medium' | 'large';
+}
+
+/**
+ * 主题切换按钮组件
+ * 提供日/夜间模式切换功能，带有流畅动画效果
+ */
+const ThemeToggle: React.FC<ThemeToggleProps> = ({ size = 'medium' }) => {
   const { theme, toggleTheme } = useTheme();
   const { t } = useTranslation();
+  const isDark = theme === 'dark';
+
+  // 根据size属性计算尺寸
+  const getSize = () => {
+    switch (size) {
+      case 'small':
+        return {
+          button: { width: 36, height: 36, borderRadius: '10px' },
+          icon: 18
+        };
+      case 'large':
+        return {
+          button: { width: 48, height: 48, borderRadius: '14px' },
+          icon: 24
+        };
+      default:
+        return {
+          button: { width: 42, height: 42, borderRadius: '12px' },
+          icon: 22
+        };
+    }
+  };
+
+  const sizes = getSize();
+
+  // 获取按钮样式
+  const getButtonStyle = () => {
+    // 日间模式下的样式优化
+    if (theme === 'light') {
+      return {
+        backgroundColor: 'rgba(240, 240, 245, 0.6)',
+        border: '1px solid rgba(0, 0, 0, 0.08)',
+        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
+        '&:hover': {
+          backgroundColor: 'rgba(230, 230, 240, 0.8)'
+        }
+      };
+    }
+
+    // 暗黑模式下的样式
+    return {
+      backgroundColor: 'rgba(255, 255, 255, 0.06)',
+      '&:hover': {
+        backgroundColor: 'rgba(255, 255, 255, 0.1)'
+      }
+    };
+  };
+
+  // 动画变体
+  const buttonVariants = {
+    initial: { scale: 0.8, opacity: 0 },
+    animate: { scale: 1, opacity: 1, transition: { duration: 0.3 } },
+    tap: { scale: 0.9 },
+    hover: { scale: 1.05 }
+  };
+
+  const iconVariants = {
+    initial: { scale: 0, rotate: -30, opacity: 0 },
+    animate: {
+      scale: 1,
+      rotate: 0,
+      opacity: 1,
+      transition: {
+        type: 'spring',
+        stiffness: 300,
+        damping: 15
+      }
+    },
+    exit: {
+      scale: 0,
+      rotate: 30,
+      opacity: 0,
+      transition: { duration: 0.2 }
+    }
+  };
 
   return (
-    <button
-      onClick={toggleTheme}
-      className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-      aria-label={theme === 'dark' ? t('common.lightMode') : t('common.darkMode')}
-    >
-      <motion.div
-        initial={false}
-        animate={{ rotate: theme === 'dark' ? 0 : 180 }}
-        transition={{ duration: 0.5, type: 'spring' }}
-        className="relative w-6 h-6"
-      >
-        {theme === 'dark' ? (
-          // 月亮图标
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="w-5 h-5 text-white"
-            viewBox="0 0 20 20"
-            fill="currentColor"
+    <Tooltip title={isDark ? t('common.switchToLight') : t('common.switchToDark')} arrow>
+      <Box>
+        <motion.div
+          initial="initial"
+          animate="animate"
+          whileHover="hover"
+          whileTap="tap"
+          variants={buttonVariants}
+        >
+          <IconButton
+            onClick={toggleTheme}
+            aria-label={isDark ? t('common.switchToLight') : t('common.switchToDark')}
+            sx={{
+              ...sizes.button,
+              padding: 0,
+              transition: 'all 0.3s ease',
+              color: isDark ? '#FFD700' : '#FF9500', // 金黄色在暗色模式，橙色在亮色模式
+              ...getButtonStyle()
+            }}
           >
-            <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
-          </svg>
-        ) : (
-          // 太阳图标
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="w-5 h-5 text-amber-500"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-          >
-            <path
-              fillRule="evenodd"
-              d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"
-              clipRule="evenodd"
-            />
-          </svg>
-        )}
-      </motion.div>
-    </button>
+            <AnimatePresence mode="wait">
+              {isDark ? (
+                <motion.div
+                  key="moon"
+                  variants={iconVariants}
+                  initial="initial"
+                  animate="animate"
+                  exit="exit"
+                  style={{ display: 'flex' }}
+                >
+                  <FiMoon size={sizes.icon} />
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="sun"
+                  variants={iconVariants}
+                  initial="initial"
+                  animate="animate"
+                  exit="exit"
+                  style={{ display: 'flex' }}
+                >
+                  <FiSun size={sizes.icon} />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </IconButton>
+        </motion.div>
+      </Box>
+    </Tooltip>
   );
 };
 

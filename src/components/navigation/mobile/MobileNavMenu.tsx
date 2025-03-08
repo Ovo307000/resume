@@ -15,7 +15,8 @@ const MobileNavMenu: React.FC<MobileNavProps> = ({
   routes,
   isActive,
   mobileOpen,
-  handleDrawerToggle
+  handleDrawerToggle,
+  showLanguageSelector = true // 新增属性，默认显示语言切换器
 }) => {
   const muiTheme = useMuiTheme();
   const { theme } = useTheme();
@@ -71,9 +72,12 @@ const MobileNavMenu: React.FC<MobileNavProps> = ({
         ))}
       </List>
 
-      <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
-        <LanguageSelector />
-      </Box>
+      {/* 仅当showLanguageSelector为true时才显示语言切换器 */}
+      {showLanguageSelector && (
+        <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
+          <LanguageSelector />
+        </Box>
+      )}
     </Drawer>
   );
 };
