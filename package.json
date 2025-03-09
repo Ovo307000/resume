@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "vercel-build": "npx vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "changelog": "node scripts/update-changelog.js"
@@ -18,6 +19,7 @@
     "@mui/material": "^6.4.7",
     "@types/canvas-confetti": "^1.9.0",
     "autoprefixer": "^10.4.20",
+    "axios": "^1.8.2",
     "canvas-confetti": "^1.9.3",
     "country-flag-icons": "^1.5.18",
     "framer-motion": "^12.4.10",

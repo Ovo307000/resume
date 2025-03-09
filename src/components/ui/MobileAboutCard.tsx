@@ -10,17 +10,19 @@ interface MobileAboutCardProps {
   icon: React.ReactNode;
   children: React.ReactNode;
   delay?: number;
+  isPc?: boolean;
 }
 
 /**
- * 移动端关于我卡片组件
- * 优化移动端显示效果
+ * 可复用卡片组件，既适用于移动端也适用于PC端
+ * 优化显示效果和动画表现
  */
 const MobileAboutCard: React.FC<MobileAboutCardProps> = ({
   title,
   icon,
   children,
-  delay = 0
+  delay = 0,
+  isPc = false
 }) => {
   const { theme } = useTheme();
   const muiTheme = useMuiTheme();
@@ -30,18 +32,18 @@ const MobileAboutCard: React.FC<MobileAboutCardProps> = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{
-        duration: 0.5,
-        delay,
+        duration: 0.4,
+        delay: isPc ? Math.min(delay, 0.1) : delay,
         type: 'spring',
-        stiffness: 100,
-        damping: 15
+        stiffness: 120,
+        damping: 16
       }}
     >
       <GlassPanel
         variant="elevated"
         intensity="light"
         sx={{
-          p: 2.5,
+          p: isPc ? 3 : 2.5,
           borderRadius: '16px',
           mb: 3,
           boxShadow: theme === 'dark'

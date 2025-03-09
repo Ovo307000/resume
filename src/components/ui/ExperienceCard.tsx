@@ -6,6 +6,7 @@ import GlassPanel from './glass/GlassPanel';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useTranslation } from 'react-i18next';
 import { alpha } from '@mui/material/styles';
+import TechTag from './common/TechTag';
 
 export interface ExperienceCardProps {
   title: string;
@@ -176,20 +177,12 @@ const ExperienceCard: React.FC<ExperienceCardProps> = ({
             </Typography>
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.8 }}>
               {technologies.map((tech, index) => (
-                <Chip
+                <TechTag
                   key={index}
                   label={tech}
-                  size="small"
-                  variant="outlined"
-                  sx={{
-                    borderRadius: '8px',
-                    fontSize: isMobile ? '0.7rem' : '0.75rem',
-                    height: isMobile ? '22px' : '24px',
-                    '& .MuiChip-label': {
-                      px: 1,
-                      color: theme === 'dark' ? 'rgba(255, 255, 255, 0.9)' : 'inherit'
-                    }
-                  }}
+                  variant="small"
+                  animate={false}
+                  index={index}
                 />
               ))}
             </Box>

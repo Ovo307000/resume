@@ -26,6 +26,7 @@ import GlassyBlobBackground from '../../components/ui/backgrounds/GlassyBlobBack
 import CopyableLink from '../../components/ui/common/CopyableLink';
 // 导入全局复制通知Hook
 import { useCopyNotification } from '../../contexts/CopyNotificationContext';
+import axios from 'axios';
 
 interface ContactPageProps {
   data: {
@@ -130,31 +131,33 @@ const ContactPage: React.FC<ContactPageProps> = ({ data }) => {
     setIsSubmitting(true);
 
     try {
-      // 构建mailto链接
-      const mailtoSubject = encodeURIComponent(formData.subject);
-      const mailtoBody = encodeURIComponent(
-        `来自: ${formData.name}\n邮箱: ${formData.email}\n\n${formData.message}`
-      );
-
-      // 使用mailto链接打开邮件客户端
-      window.location.href = `mailto:${data.email}?subject=${mailtoSubject}&body=${mailtoBody}`;
-
-      // 表单提交成功
-      copyToClipboard('邮件客户端已打开，请完成邮件发送', '成功');
-      // 显示彩带效果
-      setShowConfetti(true);
-      // 重置表单
-      setFormData({
-        name: '',
-        email: '',
-        subject: '',
-        message: ''
+      // 调用后端API发送邮件
+      const response = await axios.post('/api/send-email', {
+        name: formData.name,
+        email: formData.email,
+        subject: formData.subject,
+        message: formData.message
       });
-    } catch (err) {
-      console.error('发送邮件时出错:', err);
 
-      // 表单提交失败
-      copyToClipboard(`发送消息时出错，请直接联系 ${data.email}`, '错误');
+      if (response.data.success) {
+        // 表单提交成功
+        copyToClipboard('邮件发送成功！', '成功');
+        // 显示彩带效果
+        setShowConfetti(true);
+        // 重置表单
+        setFormData({
+          name: '',
+          email: '',
+          subject: '',
+          message: ''
+        });
+      } else {
+        // 服务器返回了错误
+        copyToClipboard(response.data.message || '发送邮件失败，请稍后再试', '错误');
+      }
+    } catch (error) {
+      console.error('Error sending email:', error);
+      copyToClipboard('发送邮件失败，请稍后再试', '错误');
     } finally {
       setIsSubmitting(false);
     }

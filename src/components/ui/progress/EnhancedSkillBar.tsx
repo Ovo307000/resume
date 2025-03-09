@@ -50,7 +50,8 @@ const EnhancedSkillBar: React.FC<EnhancedSkillBarProps> = memo(({
   const controls = useAnimation();
   const [ref, inView] = useInView({
     triggerOnce: true,
-    threshold: 0.1
+    threshold: 0.2,
+    rootMargin: "30px 0px 0px 0px"
   });
 
   // 使用animationFrame优化的值更新函数
@@ -60,7 +61,8 @@ const EnhancedSkillBar: React.FC<EnhancedSkillBarProps> = memo(({
 
     const animate = (time: number) => {
       const elapsed = time - startTime;
-      const progress = Math.min(elapsed / (maxDuration * 1000), 1);
+      // 加快动画速度
+      const progress = Math.min(elapsed / (maxDuration * 500), 1);
       const easedProgress = easing(progress);
 
       setCurrentValue(Math.round(easedProgress * targetValue));
@@ -73,19 +75,28 @@ const EnhancedSkillBar: React.FC<EnhancedSkillBarProps> = memo(({
     requestAnimationFrame(animate);
   }, []);
 
+  // 当组件挂载时立即设置一个初始值
+  useEffect(() => {
+    // 立即显示一部分值，提供更好的用户体验
+    setCurrentValue(Math.round(value * 0.3));
+  }, []);
+
   // 当组件进入视图时启动动画
   useEffect(() => {
     if (inView && animated) {
       controls.start('visible');
 
-      // 等待一段时间后开始值动画
+      // 减少延迟，加快动画开始
       const timer = setTimeout(() => {
         const startTime = performance.now();
         animateToValue(value, startTime, duration);
-      }, delay * 1000);
+      }, Math.max(delay * 500, 50)); // 减少延迟，最低为50ms
 
       return () => clearTimeout(timer);
     } else if (!animated) {
+      setCurrentValue(value);
+    } else {
+      // 如果不在视图中但需要动画，设置为完整值
       setCurrentValue(value);
     }
   }, [inView, animated, value, controls, delay, duration, animateToValue]);

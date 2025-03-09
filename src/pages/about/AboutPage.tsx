@@ -5,7 +5,6 @@ import {
   Box,
   Container,
   Grid,
-  Divider,
   useTheme as useMuiTheme,
   useMediaQuery
 } from '@mui/material';
@@ -13,24 +12,25 @@ import { useTranslation } from 'react-i18next';
 import {
   FiUser, FiBook, FiHeart, FiTarget,
   FiCoffee, FiGlobe, FiActivity, FiTrendingUp,
-  FiFeather, FiZap
+  FiFeather, FiZap, FiServer, FiPackage, FiImage
 } from 'react-icons/fi';
 import {
   DiJava, DiPython, DiMysql, DiRedis,
   DiDocker, DiGit, DiReact, DiMongodb,
-  DiNodejs
+  DiPostgresql
 } from 'react-icons/di';
 import {
-  SiSpring, SiKubernetes, SiJavascript,
-  SiTypescript, SiVuedotjs, SiFlutter,
-  SiGraphql, SiGo, SiNginx, SiLinux
+  SiSpring, SiVuedotjs,
+  SiLinux, SiSharp, SiC, SiTailwindcss,
+  SiGradle, SiTypescript
 } from 'react-icons/si';
-import GlassPanel from '../../components/ui/glass/GlassPanel';
 import PageTransition from '../../components/ui/transitions/PageTransition';
 import ExperienceCard from '../../components/ui/ExperienceCard';
 import TraitCard from '../../components/ui/TraitCard';
 import MobileAboutCard from '../../components/ui/MobileAboutCard';
-import EnhancedSkillBar from '../../components/ui/progress/EnhancedSkillBar';
+import SkillBarGroup from '../../components/ui/skills/SkillBarGroup';
+import EnhancedTechTags from '../../components/ui/skills/EnhancedTechTags';
+import { Skill } from '../../types/skill';
 
 interface AboutPageProps {
   data: {
@@ -43,14 +43,6 @@ interface AboutPageProps {
     githubUsername?: string;
     wechat: string;
   };
-}
-
-interface Skill {
-  name: string;
-  level: number;
-  category: string;
-  icon?: React.ReactNode;
-  url?: string;
 }
 
 /**
@@ -92,18 +84,32 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
       url: 'https://www.python.org/'
     },
     {
-      name: 'Node.js',
-      level: 78,
+      name: 'C#',
+      level: 70,
       category: 'backend',
-      icon: <DiNodejs size={20} />,
-      url: 'https://nodejs.org/'
+      icon: <SiSharp size={20} />,
+      url: 'https://dotnet.microsoft.com/languages/csharp'
     },
     {
-      name: 'Go',
+      name: 'C',
       level: 65,
       category: 'backend',
-      icon: <SiGo size={20} />,
-      url: 'https://golang.org/'
+      icon: <SiC size={20} />,
+      url: 'https://en.cppreference.com/w/c'
+    },
+    {
+      name: 'TypeScript',
+      level: 78,
+      category: 'frontend',
+      icon: <SiTypescript size={20} />,
+      url: 'https://www.typescriptlang.org/'
+    },
+    {
+      name: 'Spring',
+      level: 88,
+      category: 'backend',
+      icon: <SiSpring size={20} />,
+      url: 'https://spring.io/'
     },
     {
       name: 'Spring Boot',
@@ -112,24 +118,30 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
       icon: <SiSpring size={20} />,
       url: 'https://spring.io/projects/spring-boot'
     },
-
+    {
+      name: 'Spring MVC',
+      level: 85,
+      category: 'backend',
+      icon: <SiSpring size={20} />,
+      url: 'https://docs.spring.io/spring-framework/reference/web/webmvc.html'
+    },
+    {
+      name: 'Spring JPA',
+      level: 82,
+      category: 'backend',
+      icon: <SiSpring size={20} />,
+      url: 'https://spring.io/projects/spring-data-jpa'
+    },
+    {
+      name: 'RESTAPI',
+      level: 85,
+      category: 'backend',
+      icon: <FiServer size={20} />,
+      url: 'https://restfulapi.net/'
+    },
     // 前端技术
     {
-      name: 'JavaScript',
-      level: 85,
-      category: 'frontend',
-      icon: <SiJavascript size={20} />,
-      url: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript'
-    },
-    {
-      name: 'TypeScript',
-      level: 80,
-      category: 'frontend',
-      icon: <SiTypescript size={20} />,
-      url: 'https://www.typescriptlang.org/'
-    },
-    {
-      name: 'React',
+      name: 'React.js',
       level: 82,
       category: 'frontend',
       icon: <DiReact size={20} />,
@@ -143,11 +155,26 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
       url: 'https://vuejs.org/'
     },
     {
-      name: 'Flutter',
-      level: 60,
-      category: 'mobile',
-      icon: <SiFlutter size={20} />,
-      url: 'https://flutter.dev/'
+      name: 'TailWind CSS',
+      level: 75,
+      category: 'frontend',
+      icon: <SiTailwindcss size={20} />,
+      url: 'https://tailwindcss.com/'
+    },
+    // 构建工具
+    {
+      name: 'Maven',
+      level: 85,
+      category: 'tool',
+      icon: <FiPackage size={20} />,
+      url: 'https://maven.apache.org/'
+    },
+    {
+      name: 'Gradle',
+      level: 78,
+      category: 'tool',
+      icon: <SiGradle size={20} />,
+      url: 'https://gradle.org/'
     },
 
     // 数据库
@@ -159,11 +186,11 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
       url: 'https://www.mysql.com/'
     },
     {
-      name: 'Redis',
+      name: 'PostgreSQL',
       level: 78,
       category: 'database',
-      icon: <DiRedis size={20} />,
-      url: 'https://redis.io/'
+      icon: <DiPostgresql size={20} />,
+      url: 'https://www.postgresql.org/'
     },
     {
       name: 'MongoDB',
@@ -172,28 +199,21 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
       icon: <DiMongodb size={20} />,
       url: 'https://www.mongodb.com/'
     },
+    {
+      name: 'Redis',
+      level: 80,
+      category: 'database',
+      icon: <DiRedis size={20} />,
+      url: 'https://redis.io/'
+    },
 
     // DevOps & 工具
     {
       name: 'Docker',
-      level: 82,
+      level: 80,
       category: 'devops',
       icon: <DiDocker size={20} />,
       url: 'https://www.docker.com/'
-    },
-    {
-      name: 'Kubernetes',
-      level: 68,
-      category: 'devops',
-      icon: <SiKubernetes size={20} />,
-      url: 'https://kubernetes.io/'
-    },
-    {
-      name: 'Nginx',
-      level: 75,
-      category: 'devops',
-      icon: <SiNginx size={20} />,
-      url: 'https://nginx.org/'
     },
     {
       name: 'Linux',
@@ -210,11 +230,11 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
       url: 'https://git-scm.com/'
     },
     {
-      name: 'GraphQL',
-      level: 72,
-      category: 'api',
-      icon: <SiGraphql size={20} />,
-      url: 'https://graphql.org/'
+      name: 'Stable Diffusion',
+      level: 70,
+      category: 'tool',
+      icon: <FiImage size={20} />,
+      url: 'https://stability.ai/'
     }
   ];
 
@@ -264,10 +284,10 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
 
   // 检测元素是否在视图中
   const isInView = {
-    skill: useInView(refs.skillRef, { once: true, amount: 0.3 }),
+    skill: useInView(refs.skillRef, { once: true, amount: 0.1 }),
     timeline: useInView(refs.timelineRef, { once: true, amount: 0.1 }),
-    traits: useInView(refs.traitsRef, { once: true, amount: 0.3 }),
-    contact: useInView(refs.contactRef, { once: true, amount: 0.3 })
+    traits: useInView(refs.traitsRef, { once: true, amount: 0.1 }),
+    contact: useInView(refs.contactRef, { once: true, amount: 0.1 })
   };
 
   // 根据元素是否在视图中控制动画
@@ -285,6 +305,19 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
       controls.contact.start('visible');
     }
   }, [isInView.skill, isInView.timeline, isInView.traits, isInView.contact]);
+
+  // 添加技能动画变体
+  const skillVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        duration: 0.5,
+        when: "beforeChildren",
+        staggerChildren: 0.1
+      }
+    }
+  };
 
   // 时间线动画
   const timelineVariants = {
@@ -312,150 +345,194 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
     }
   };
 
-  // 生成左侧的内容
-  const renderLeftColumn = () => (
-    <Box>
-      {/* 个人特质 */}
-      <Box ref={refs.traitsRef} sx={{ mb: 6 }}>
-        <motion.div
-          initial="hidden"
-          animate={controls.traits}
-          variants={traitsVariants}
-        >
-          <Divider textAlign="left" sx={{ mb: 3 }}>
-            <Typography variant="subtitle2" color="primary" fontWeight="bold">
-              {t('about.traitsTitle', '个人特质')}
-            </Typography>
-          </Divider>
-
-          <Grid container spacing={2}>
-            {traits.map((trait, index) => (
-              <Grid item xs={12} key={index}>
-                <motion.div variants={traitItemVariants}>
-                  <TraitCard
-                    name={trait.name}
-                    icon={trait.icon}
-                    index={index}
-                  />
-                </motion.div>
-              </Grid>
-            ))}
-          </Grid>
-        </motion.div>
-      </Box>
-    </Box>
-  );
-
-  // 修改技能渲染部分，增加分类标题，并启用点击跳转功能
-  const renderSkillBars = () => {
-    // 按类别分组技能
-    const categories = {
-      backend: { title: '后端技术', skills: [] as Skill[] },
-      frontend: { title: '前端技术', skills: [] as Skill[] },
-      database: { title: '数据库', skills: [] as Skill[] },
-      devops: { title: 'DevOps & 运维', skills: [] as Skill[] },
-      tool: { title: '开发工具', skills: [] as Skill[] },
-      api: { title: 'API & 协议', skills: [] as Skill[] },
-      mobile: { title: '移动开发', skills: [] as Skill[] }
-    };
-
-    // 将技能分组
-    skills.forEach(skill => {
-      if (categories[skill.category as keyof typeof categories]) {
-        categories[skill.category as keyof typeof categories].skills.push(skill);
-      }
-    });
-
+  // 恢复PC端完整的技能分类展示
+  const renderFullSkillBars = () => {
     return (
-      <Box>
-        {Object.entries(categories).map(([key, category]) =>
-          category.skills.length > 0 && (
-            <Box key={key} sx={{ mb: 4 }}>
-              <Typography
-                variant="subtitle1"
-                sx={{
-                  mb: 2,
-                  borderLeft: `4px solid ${muiTheme.palette.primary.main}`,
-                  pl: 1.5,
-                  fontWeight: 600
-                }}
-              >
-                {category.title}
-              </Typography>
-
-              {category.skills.map((skill, index) => (
-                <EnhancedSkillBar
-                  key={skill.name}
-                  label={skill.name}
-                  value={skill.level}
-                  icon={skill.icon}
-                  delay={index * 0.05}
-                  variant="glass"
-                  height={12}
-                  borderRadius={6}
-                  glowEffect={true}
-                  clickable={true}
-                  url={skill.url}
-                />
-              ))}
-            </Box>
-          )
-        )}
-      </Box>
+      <SkillBarGroup
+        skills={skills}
+        showCategoryHeaders={true}
+        categoryTranslations={{
+          backend: t('skills.categories.backend', '后端开发'),
+          frontend: t('skills.categories.frontend', '前端开发'),
+          database: t('skills.categories.database', '数据库'),
+          devops: t('skills.categories.devops', 'DevOps & 运维'),
+          tool: t('skills.categories.tools', '开发工具')
+        }}
+        animated={true} // 始终启用动画
+        variant="glass"
+        height={10}
+        glowEffect={true}
+      />
     );
   };
 
+  // 生成个人特质网格
+  const renderTraitsGrid = () => (
+    <Grid container spacing={2}>
+      {traits.map((trait, index) => (
+        <Grid item xs={12} sm={6} key={index}>
+          <motion.div variants={traitItemVariants}>
+            <TraitCard
+              name={trait.name}
+              icon={trait.icon}
+              index={index}
+            />
+          </motion.div>
+        </Grid>
+      ))}
+    </Grid>
+  );
+
+  // 生成左侧的内容
+  const renderLeftColumn = () => (
+    <Box>
+      {/* 使用MobileAboutCard组件替换原有Divider和TraitCard组合 */}
+      <motion.div variants={mobileCardItemVariants}>
+        <MobileAboutCard
+          title={t('about.aboutMe', '关于我')}
+          icon={<FiUser size={22} />}
+          delay={0}
+          isPc={true} // PC端使用
+        >
+          <Typography variant="body2" paragraph>
+            {data.summary}
+          </Typography>
+          <Typography variant="body2">
+            {t('about.philosophyText', '我坚信编写干净、可维护的代码并创造直观的用户体验。我不断学习新技术和方法来提升我的技能并提供更好的解决方案。')}
+          </Typography>
+        </MobileAboutCard>
+      </motion.div>
+
+      {/* 技能卡片 - PC端显示完整分类 */}
+      <motion.div
+        variants={mobileCardItemVariants}
+        style={{ marginTop: '16px' }}
+      >
+        <MobileAboutCard
+          title={t('about.skillsTitle', '技能')}
+          icon={<FiZap size={22} />}
+          delay={0.1}
+          isPc={true} // PC端使用
+        >
+          <Box ref={refs.skillRef}>
+            <motion.div
+              initial="hidden"
+              animate={controls.skillBar}
+              variants={skillVariants}
+            >
+              {/* 技能条技能展示 */}
+              <Box sx={{ mb: 3 }}>
+                {renderFullSkillBars()}
+              </Box>
+
+              {/* 添加技能标签组 */}
+              <Box sx={{ mt: 4 }}>
+                <Typography
+                  variant="subtitle1"
+                  color="primary"
+                  sx={{ mb: 2, fontWeight: 600, opacity: 0.8 }}
+                >
+                  {t('about.technicalSkills', '技术技能')}
+                </Typography>
+
+                <EnhancedTechTags
+                  title={t('about.frontendTech', '前端技术')}
+                  skills={skills}
+                  category="frontend"
+                  maxDisplayed={4}
+                  enableSizing={true}
+                  animate={true}
+                  variant="small"
+                />
+
+                <EnhancedTechTags
+                  title={t('about.backendTech', '后端技术')}
+                  skills={skills}
+                  category="backend"
+                  maxDisplayed={4}
+                  enableSizing={true}
+                  animate={true}
+                  variant="small"
+                />
+
+                <EnhancedTechTags
+                  title={t('about.toolsAndOthers', '工具和其他')}
+                  skills={skills.filter(skill =>
+                    skill.category === "tool" || skill.category === "database" || skill.category === "devops"
+                  )}
+                  maxDisplayed={4}
+                  enableSizing={true}
+                  animate={true}
+                  variant="small"
+                />
+              </Box>
+            </motion.div>
+          </Box>
+        </MobileAboutCard>
+      </motion.div>
+    </Box>
+  );
+
   // 生成右侧的内容
   const renderRightColumn = () => (
-    <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, delay: 0.2 }}
-    >
-      <GlassPanel
-        variant="elevated"
-        intensity="light"
-        sx={{ p: 3, borderRadius: '16px', mb: 4 }}
+    <Box>
+      {/* 个人特质 - 改用MobileAboutCard并使用网格布局展示 */}
+      <motion.div variants={mobileCardItemVariants}>
+        <MobileAboutCard
+          title={t('about.traitsTitle', '个人特质')}
+          icon={<FiTarget size={22} />}
+          delay={0.2}
+          isPc={true} // PC端使用
+        >
+          <Box ref={refs.traitsRef}>
+            <motion.div
+              initial="hidden"
+              animate={controls.traits}
+              variants={traitsVariants}
+            >
+              {renderTraitsGrid()}
+            </motion.div>
+          </Box>
+        </MobileAboutCard>
+      </motion.div>
+
+      {/* 工作经验卡片 - 使用与移动端相同的组件 */}
+      <motion.div
+        variants={mobileCardItemVariants}
+        style={{ marginTop: '16px' }}
       >
-        <Typography
-          variant="h5"
-          sx={{
-            mb: 2,
-            display: 'flex',
-            alignItems: 'center',
-            gap: 1
-          }}
+        <MobileAboutCard
+          title={t('about.experienceTitle', '工作经验')}
+          icon={<FiHeart size={22} />}
+          delay={0.3}
+          isPc={true} // PC端使用
         >
-          <FiUser size={22} color={muiTheme.palette.primary.main} />
-          {t('about.introduction', '我的自我介绍')}
-        </Typography>
-
-        <Typography
-          variant="body1"
-          sx={{
-            mb: 3,
-            lineHeight: 1.8
-          }}
-        >
-          {data.summary}
-        </Typography>
-
-        <Typography variant="body1" paragraph>
-          {t('about.philosophyText', '我坚信编写干净、可维护的代码并创造直观的用户体验。我不断学习新技术和方法来提升我的技能并提供更好的解决方案。')}
-        </Typography>
-      </GlassPanel>
-
-      {/* 技能部分 */}
-      <Box ref={refs.skillRef} sx={{ mb: 4 }}>
-        <Divider textAlign="left" sx={{ mb: 3 }}>
-          <Typography variant="subtitle2" color="primary" fontWeight="bold">
-            {t('skills.title', '技能')}
-          </Typography>
-        </Divider>
-
-        {renderSkillBars()}
-      </Box>
-    </motion.div>
+          <Box ref={refs.timelineRef}>
+            <motion.div
+              initial="hidden"
+              animate={controls.timeline}
+              variants={timelineVariants}
+            >
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                {experiences.map((experience, index) => (
+                  <motion.div key={index} variants={timelineItemVariants}>
+                    <ExperienceCard
+                      title={experience.title}
+                      company={experience.company}
+                      period={experience.period}
+                      description={experience.description}
+                      achievements={experience.achievements}
+                      technologies={experience.technologies}
+                      isMobile={false} // PC端保留卡片原样式
+                    />
+                  </motion.div>
+                ))}
+              </Box>
+            </motion.div>
+          </Box>
+        </MobileAboutCard>
+      </motion.div>
+    </Box>
   );
 
   // 保留所有动画变体
@@ -505,29 +582,23 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
     }
   };
 
-  // 修改移动端技能视图，也添加分类
+  // 移动端简略显示重要技能
   const renderMobileSkillBars = () => {
-    // 仅显示主要技能
+    // 只展示熟练度75以上的技能
     const mainSkills = skills.filter(skill => skill.level >= 75);
 
     return (
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-        {mainSkills.map((skill, index) => (
-          <EnhancedSkillBar
-            key={skill.name}
-            label={skill.name}
-            value={skill.level}
-            icon={skill.icon}
-            delay={index * 0.05}
-            variant="glass"
-            height={10}
-            borderRadius={5}
-            glowEffect={true}
-            clickable={true}
-            url={skill.url}
-          />
-        ))}
-      </Box>
+      <SkillBarGroup
+        skills={mainSkills}
+        showCategoryHeaders={false}
+        animated={true} // 始终启用动画
+        variant="glass"
+        height={10}
+        glowEffect={true}
+        compact={true}
+        useGrid={true} // 移动端也使用网格布局
+        columnsPerRow={1} // 但一行只显示一个
+      />
     );
   };
 
@@ -543,7 +614,7 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
           <motion.div
             initial="hidden"
             animate={controls.skillBar}
-            variants={timelineVariants}
+            variants={skillVariants}
           >
             {renderMobileSkillBars()}
           </motion.div>

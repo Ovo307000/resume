@@ -1,142 +1,130 @@
-import React, { useState } from 'react';
-import { Box, Button, alpha, useTheme as useMuiTheme } from '@mui/material';
-import { motion, AnimatePresence } from 'framer-motion';
-import { FiChevronDown, FiChevronUp } from 'react-icons/fi';
-import { useTheme } from '../../../contexts/ThemeContext';
-import { useTranslation } from 'react-i18next';
-import CustomChip from './CustomChip';
+import { alpha, Box, Button, useTheme as useMuiTheme } from "@mui/material";
+import { AnimatePresence, motion }                     from "framer-motion";
+import React, { useState }                             from "react";
+import { useTranslation }                              from "react-i18next";
+import { FiChevronDown, FiChevronUp }                  from "react-icons/fi";
+import { useTheme }                                    from "../../../contexts/ThemeContext";
+import TechTag                                         from "./TechTag";
 
-interface AnimatedTagGroupProps {
-  tags: string[];
-  initialVisibleCount?: number;
-  maxHeight?: number | string;
-  getTechColor?: (tech: string, index: number) => string | undefined;
-  chipProps?: React.ComponentProps<typeof CustomChip>;
+interface Tag
+{
+    label: string;
+    icon?: React.ReactNode;
+    url?: string;
+    category?: string;
+}
+
+interface AnimatedTagGroupProps
+{
+    tags: ( string | Tag )[];
+    initialVisibleCount?: number;
+    maxHeight?: number | string;
+    variant?: "default" | "small" | "large";
+    getTagIcon?: ( tag: string, index: number ) => React.ReactNode | undefined;
 }
 
 /**
- * 带动画效果的技术标签组
- * 支持展开和收起动画
+ * 动画标签组组件
+ * 用于显示一组可折叠的标签
  */
-const AnimatedTagGroup: React.FC<AnimatedTagGroupProps> = ({
-  tags,
-  initialVisibleCount = 4,
-  maxHeight = 200,
-  getTechColor,
-  chipProps = {}
-}) => {
-  const { t } = useTranslation();
-  const { theme } = useTheme();
-  const muiTheme = useMuiTheme();
-  const [expanded, setExpanded] = useState(false);
+const AnimatedTagGroup: React.FC<AnimatedTagGroupProps> = ( {
+                                                                tags,
+                                                                initialVisibleCount = 4,
+                                                                maxHeight = 200,
+                                                                variant = "small",
+                                                                getTagIcon
+                                                            } ) =>
+{
+    const { theme } = useTheme ();
+    const muiTheme = useMuiTheme ();
+    const { t } = useTranslation ();
+    const [ expanded, setExpanded ] = useState ( false );
 
-  // 切换展开/收起状态
-  const toggleExpanded = () => {
-    setExpanded(!expanded);
-  };
+    const visibleTags = expanded ? tags : tags.slice ( 0, initialVisibleCount );
+    const hasMoreTags = tags.length > initialVisibleCount;
 
-  // 显示的标签
-  const visibleTags = expanded ? tags : tags.slice(0, initialVisibleCount);
+    // 切换展开状态
+    const toggleExpanded = () => setExpanded ( !expanded );
 
-  // 动画变体
-  const containerVariants = {
-    hidden: { opacity: 0, height: 0 },
-    visible: {
-      opacity: 1,
-      height: 'auto',
-      transition: {
-        staggerChildren: 0.05,
-        height: {
-          duration: 0.3,
-          ease: "easeOut"
-        }
-      }
-    },
-    exit: {
-      opacity: 0,
-      height: 0,
-      transition: {
-        staggerChildren: 0.05,
-        staggerDirection: -1,
-        height: {
-          duration: 0.3,
-          ease: "easeIn"
-        }
-      }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, scale: 0.8, y: 10 },
-    visible: {
-      opacity: 1,
-      scale: 1,
-      y: 0,
-      transition: { type: 'spring', stiffness: 300, damping: 20 }
-    },
-    exit: {
-      opacity: 0,
-      scale: 0.8,
-      y: -10,
-      transition: { duration: 0.2 }
-    }
-  };
-
-  return (
-    <Box>
-      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.8, mb: 1 }}>
-        <AnimatePresence>
-          {visibleTags.map((tag, index) => (
-            <motion.div
-              key={tag}
-              variants={itemVariants}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
-              layout
-            >
-              <CustomChip
-                label={tag}
-                size="small"
-                color={getTechColor ? getTechColor(tag, index) : 'primary'}
-                variant="filled"
-                animate={true}
-                {...chipProps}
-              />
-            </motion.div>
-          ))}
-        </AnimatePresence>
-      </Box>
-
-      {tags.length > initialVisibleCount && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
-        >
-          <Button
-            size="small"
-            onClick={toggleExpanded}
-            endIcon={expanded ? <FiChevronUp size={14} /> : <FiChevronDown size={14} />}
-            sx={{
-              textTransform: 'none',
-              fontSize: '0.75rem',
-              mt: 1,
-              color: theme === 'dark' ? muiTheme.palette.primary.light : muiTheme.palette.primary.main,
-              '&:hover': {
-                backgroundColor: alpha(muiTheme.palette.primary.main, theme === 'dark' ? 0.15 : 0.08),
-              }
-            }}
-          >
-            {expanded
-              ? t('common.showLess', '显示更少')
-              : t('common.showMore', '显示更多') + ` (${tags.length - initialVisibleCount})`
+    // 标签动画变体
+    const tagVariants = {
+        hidden   : { opacity: 0, scale: 0.8, y: 10 }, visible: ( i: number ) => ( {
+            opacity: 1, scale: 1, y: 0, transition: {
+                type: "spring", stiffness: 260, damping: 20, delay: i * 0.05
             }
-          </Button>
-        </motion.div>
-      )}
-    </Box>
-  );
+        } ), exit: { opacity: 0, scale: 0.8, transition: { duration: 0.2 } }
+    };
+
+    // 渲染标签
+    const renderTag = ( tag: string | Tag, index: number ) =>
+    {
+        const isStringTag = typeof tag === "string";
+        const label = isStringTag ? tag : tag.label;
+        const icon = isStringTag ? ( getTagIcon ? getTagIcon ( tag, index ) : undefined ) : tag.icon;
+        const url = isStringTag ? undefined : tag.url;
+        const category = isStringTag ? undefined : tag.category;
+
+        return <motion.div
+                key = { label }
+                custom = { index }
+                variants = { tagVariants }
+                initial = "hidden"
+                animate = "visible"
+                exit = "exit"
+                style = { { display: "inline-block", margin: "0.25rem" } }
+            >
+                <TechTag
+                    label = { label }
+                    icon = { icon }
+                    url = { url }
+                    category = { category }
+                    variant = { variant }
+                    animate = { false }
+                    index = { index }
+                />
+            </motion.div>;
+    };
+
+    return <Box>
+            <Box
+                sx = { {
+                    display   : "flex",
+                    flexWrap  : "wrap",
+                    maxHeight : expanded ? "none" : maxHeight,
+                    overflow  : expanded ? "visible" : "hidden",
+                    transition: "all 0.3s ease",
+                    mb        : hasMoreTags ? 1 : 0
+                } }
+            >
+                <AnimatePresence>
+                    { visibleTags.map ( ( tag, index ) => renderTag ( tag, index ) ) }
+                </AnimatePresence>
+            </Box>
+
+            { hasMoreTags && <Button
+                    onClick = { toggleExpanded }
+                    size = "small"
+                    startIcon = { expanded ? <FiChevronUp size = { 14 } /> : <FiChevronDown size = { 14 } /> }
+                    sx = { {
+                        fontSize       : "0.7rem",
+                        color          : theme === "dark" ?
+                                         muiTheme.palette.primary.light :
+                                         muiTheme.palette.primary.main,
+                        backgroundColor: theme === "dark" ?
+                                         alpha ( muiTheme.palette.primary.main, 0.1 ) :
+                                         alpha ( muiTheme.palette.primary.main, 0.05 ),
+                        borderRadius   : "20px",
+                        p              : "4px 10px",
+                        "&:hover"      : {
+                            backgroundColor: theme === "dark" ?
+                                             alpha ( muiTheme.palette.primary.main, 0.2 ) :
+                                             alpha ( muiTheme.palette.primary.main, 0.1 )
+                        }
+                    } }
+                >
+                    { expanded ? t ( "common.showLess", "Show Less" ) : t ( "common.showMore", "Show More" ) }
+                </Button> }
+        </Box>;
 };
 
 export default AnimatedTagGroup;
