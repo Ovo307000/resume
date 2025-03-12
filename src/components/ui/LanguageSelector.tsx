@@ -1,12 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Box, Typography, IconButton } from '@mui/material';
+import { Box, Typography, Paper, alpha, SxProps, Theme } from '@mui/material';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../contexts/ThemeContext';
-import { FiCheck, FiGlobe } from 'react-icons/fi';
-import CustomTooltip from './common/CustomTooltip';
+import { FiGlobe, FiCheck } from 'react-icons/fi';
 // 导入国旗图标库
 import { US, CN, JP } from 'country-flag-icons/react/3x2';
+import IconButton from './common/IconButton';
 
 interface Language {
   code: string;
@@ -17,8 +17,15 @@ interface Language {
 /**
  * 自定义语言选择器组件
  * 提供优雅的动画下拉效果和多语言选择
+ * 使用统一的IconButton组件实现
  */
-const LanguageSelector: React.FC = () => {
+const LanguageSelector: React.FC<{
+  size?: 'small' | 'medium' | 'large';
+  sx?: SxProps<Theme>;
+}> = ({
+  size = 'medium',
+  sx
+}) => {
   const { i18n, t } = useTranslation();
   const { theme } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
@@ -109,6 +116,17 @@ const LanguageSelector: React.FC = () => {
     }
   };
 
+  // 根据size属性计算图标尺寸
+  const getIconSize = () => {
+    switch (size) {
+      case 'small': return 18;
+      case 'large': return 24;
+      default: return 22;
+    }
+  };
+
+  const iconSize = getIconSize();
+
   // 渲染国旗图标
   const renderFlag = (countryCode: string, size: number = 20) => {
     const props = {
@@ -129,42 +147,29 @@ const LanguageSelector: React.FC = () => {
       case 'JP':
         return <JP {...props} />;
       default:
-        return <FiGlobe size={size * 0.8} />;
+        return <FiGlobe size={size} />;
     }
   };
 
+  // 渲染当前语言图标
+  const renderCurrentLanguageIcon = () => {
+    return renderFlag(currentLanguage.countryCode, iconSize);
+  };
+
+  const toggleMenu = () => {
+    setIsOpen(!isOpen);
+  };
+
   return (
-    <Box
-      ref={menuRef}
-      sx={{
-        position: 'relative',
-        zIndex: 1200
-      }}
-    >
-      <CustomTooltip title={t('common.switchLang')} arrow placement="bottom">
-        <IconButton
-          onClick={() => setIsOpen(!isOpen)}
-          color="inherit"
-          size="small"
-          sx={{
-            opacity: 0.7,
-            borderRadius: '50%',
-            p: 1,
-            transition: 'all 0.2s',
-            backgroundColor: 'transparent',
-            '&:hover': {
-              opacity: 1,
-              backgroundColor: theme === 'dark'
-                ? 'rgba(255, 255, 255, 0.1)'
-                : 'rgba(0, 0, 0, 0.05)'
-            }
-          }}
-        >
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            {renderFlag(currentLanguage.countryCode, 20)}
-          </Box>
-        </IconButton>
-      </CustomTooltip>
+    <Box ref={menuRef} sx={{ position: 'relative' }}>
+      <IconButton
+        onClick={toggleMenu}
+        tooltipText={t('language.select')}
+        size={size}
+        sx={sx}
+        ariaLabel={t('language.select')}
+        icon={renderCurrentLanguageIcon()}
+      />
 
       <AnimatePresence>
         {isOpen && (
@@ -175,83 +180,99 @@ const LanguageSelector: React.FC = () => {
             exit="exit"
             style={{
               position: 'absolute',
-              right: 0,
               top: 'calc(100% + 8px)',
-              width: '180px',
-              borderRadius: '12px',
-              overflow: 'hidden',
-              boxShadow: theme === 'dark'
-                ? '0 8px 20px rgba(0, 0, 0, 0.25)'
-                : '0 8px 20px rgba(0, 0, 0, 0.15)',
-              backgroundColor: theme === 'dark'
-                ? 'rgba(30, 30, 46, 0.9)'
-                : 'rgba(255, 255, 255, 0.9)',
-              border: `1px solid ${theme === 'dark'
-                ? 'rgba(255, 255, 255, 0.1)'
-                : 'rgba(0, 0, 0, 0.08)'}`,
-              backdropFilter: 'blur(8px)',
-              zIndex: 1300
+              right: 0,
+              zIndex: 1000,
+              width: 160
             }}
           >
-            <Box p={1}>
-              {languages.map((language, index) => (
-                <motion.div
-                  key={language.code}
-                  custom={index}
-                  variants={itemVariants}
-                  initial="hidden"
-                  animate="visible"
-                  whileHover="hover"
-                >
-                  <Box
-                    onClick={() => handleLanguageChange(language.code)}
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      padding: '10px 12px',
-                      borderRadius: '8px',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s',
-                      backgroundColor:
-                        language.code === selectedLanguage
-                          ? theme === 'dark'
-                            ? 'rgba(255, 255, 255, 0.1)'
-                            : 'rgba(0, 0, 0, 0.05)'
-                          : 'transparent',
-                      '&:hover': {
-                        backgroundColor: theme === 'dark'
-                          ? 'rgba(255, 255, 255, 0.08)'
-                          : 'rgba(0, 0, 0, 0.03)',
-                      }
-                    }}
-                  >
-                    <Box sx={{ mr: 1.5, display: 'flex', alignItems: 'center' }}>
-                      {renderFlag(language.countryCode, 20)}
-                    </Box>
-                    <Typography
-                      variant="body2"
-                      sx={{
-                        flexGrow: 1,
-                        fontWeight: language.code === selectedLanguage ? 600 : 400,
-                        color: theme === 'light'
-                          ? 'text.primary'
-                          : language.code === selectedLanguage
-                            ? 'white'
-                            : 'text.primary'
-                      }}
+            <Paper
+              elevation={3}
+              sx={{
+                borderRadius: '16px',
+                backdropFilter: 'blur(10px)',
+                backgroundColor: theme === 'dark'
+                  ? alpha('#1A1A1A', 0.9)
+                  : alpha('#FFFFFF', 0.95),
+                overflow: 'hidden',
+                border: `1px solid ${
+                  theme === 'dark'
+                    ? alpha('#ffffff', 0.1)
+                    : alpha('#000000', 0.05)
+                }`,
+                boxShadow: theme === 'dark'
+                  ? '0 10px 25px rgba(0, 0, 0, 0.3)'
+                  : '0 10px 25px rgba(0, 0, 0, 0.1)'
+              }}
+            >
+              <Box sx={{ p: 1 }}>
+                {languages.map((language, index) => {
+                  const isSelected = language.code === selectedLanguage;
+
+                  return (
+                    <motion.div
+                      key={language.code}
+                      custom={index}
+                      variants={itemVariants}
+                      initial="hidden"
+                      animate="visible"
+                      whileHover="hover"
                     >
-                      {language.name}
-                    </Typography>
-                    {language.code === selectedLanguage && (
-                      <FiCheck
-                        size={16}
-                        color={theme === 'dark' ? '#a0a0ff' : '#5050ff'}
-                      />
-                    )}
-                  </Box>
-                </motion.div>
-              ))}
-            </Box>
+                      <Box
+                        onClick={() => handleLanguageChange(language.code)}
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          padding: '10px 16px',
+                          borderRadius: '10px',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s ease',
+                          backgroundColor: isSelected
+                            ? theme === 'dark'
+                              ? alpha('#6366F1', 0.2)
+                              : alpha('#6366F1', 0.1)
+                            : 'transparent',
+                          '&:hover': {
+                            backgroundColor: isSelected
+                              ? theme === 'dark'
+                                ? alpha('#6366F1', 0.3)
+                                : alpha('#6366F1', 0.15)
+                              : theme === 'dark'
+                              ? alpha('#ffffff', 0.05)
+                              : alpha('#000000', 0.03)
+                          }
+                        }}
+                      >
+                        <Box sx={{ mr: 2, display: 'flex', alignItems: 'center' }}>
+                          {renderFlag(language.countryCode)}
+                        </Box>
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            flexGrow: 1,
+                            fontWeight: isSelected ? 600 : 400,
+                            color: isSelected
+                              ? '#6366F1'
+                              : 'text.primary'
+                          }}
+                        >
+                          {language.name}
+                        </Typography>
+                        {isSelected && (
+                          <FiCheck
+                            size={16}
+                            style={{
+                              color: '#6366F1',
+                              marginLeft: '4px'
+                            }}
+                          />
+                        )}
+                      </Box>
+                    </motion.div>
+                  );
+                })}
+              </Box>
+            </Paper>
           </motion.div>
         )}
       </AnimatePresence>

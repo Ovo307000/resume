@@ -41,14 +41,44 @@ const ProjectsPage: React.FC = () => {
     }
   }, [filter]);
 
-  // 动画变体
+  // 优化动画变体
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.2
+        staggerChildren: 0.08, // 更快的交错
+        delayChildren: 0.1,
+        when: "beforeChildren" // 先显示容器，再显示子元素
+      }
+    },
+    exit: {
+      opacity: 0,
+      transition: {
+        staggerChildren: 0.05,
+        staggerDirection: -1, // 反向交错退出，更自然
+        when: "afterChildren" // 先隐藏子元素，再隐藏容器
+      }
+    }
+  };
+
+  // 卡片动画变体
+  const cardVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.4,
+        ease: [0.4, 0.0, 0.2, 1]
+      }
+    },
+    exit: {
+      opacity: 0,
+      y: -10,
+      transition: {
+        duration: 0.3,
+        ease: [0.4, 0.0, 0.2, 1]
       }
     }
   };
@@ -64,10 +94,18 @@ const ProjectsPage: React.FC = () => {
     return icons[index];
   };
 
+  // 标签切换时的动画
+  const handleTabChange = (_, newValue) => {
+    setFilter(newValue);
+  };
+
   return (
     <PageTransition mode="fade">
-      <Box sx={{ py: 8 }}>
-        <Container maxWidth="lg">
+      <Box sx={{
+        py: { xs: 4, sm: 6, md: 8 },  // 响应式垂直padding
+        minHeight: '100vh' // 确保页面至少占满整个视口高度
+      }}>
+        <Container maxWidth="lg" sx={{ px: { xs: 2, sm: 3, md: 4 } }}> {/* 在不同设备上优化容器内边距 */}
           {/* 页面标题 */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}
@@ -80,21 +118,24 @@ const ProjectsPage: React.FC = () => {
             />
           </motion.div>
 
-          {/* 项目筛选 */}
+          {/* 项目筛选 - 移动端优化 */}
           <Box
             sx={{
               display: 'flex',
               justifyContent: 'center',
-              mb: 6
+              mb: { xs: 4, sm: 5, md: 6 }, // 响应式margin
+              px: { xs: 0, sm: 2 } // 小屏幕减少内边距
             }}
           >
             <Box
               sx={{
-                width: { xs: '100%', sm: 'auto' },
-                px: 1,
-                py: 1,
-                borderRadius: '50px',
+                width: '100%', // 在所有设备上都使用100%宽度
+                maxWidth: { xs: '100%', sm: '600px' }, // 在小屏幕上限制最大宽度
+                px: { xs: 0.5, sm: 1 }, // 减小小屏幕上的内边距
+                py: { xs: 0.5, sm: 1 },
+                borderRadius: { xs: '16px', sm: '50px' }, // 在小屏幕上减小圆角
                 backdropFilter: 'blur(10px)',
+                WebkitBackdropFilter: 'blur(10px)',
                 backgroundColor: alpha(
                   theme === 'dark' ? muiTheme.palette.background.paper : muiTheme.palette.background.paper,
                   theme === 'dark' ? 0.2 : 0.3
@@ -103,18 +144,28 @@ const ProjectsPage: React.FC = () => {
                   theme === 'dark' ? muiTheme.palette.common.white : muiTheme.palette.common.black,
                   0.05
                 )}`,
+                transition: 'all 0.3s ease',
+                boxShadow: theme === 'dark'
+                  ? '0 8px 20px rgba(0, 0, 0, 0.2)'
+                  : '0 8px 20px rgba(0, 0, 0, 0.08)',
+                overflow: 'hidden' // 确保内容不溢出
               }}
             >
               <Tabs
                 value={filter}
-                onChange={(_, newValue) => setFilter(newValue)}
-                variant="fullWidth"
+                onChange={handleTabChange}
+                variant="scrollable" // 在移动端使用可滚动选项卡
+                scrollButtons="auto" // 自动显示滚动按钮
+                allowScrollButtonsMobile // 允许在移动设备上显示滚动按钮
                 indicatorColor="primary"
                 textColor="primary"
                 sx={{
                   '& .MuiTab-root': {
-                    borderRadius: '50px',
-                    minHeight: '48px',
+                    borderRadius: { xs: '8px', sm: '50px' }, // 在小屏幕上减小圆角
+                    minHeight: { xs: '40px', sm: '48px' }, // 在小屏幕上减小高度
+                    minWidth: { xs: '80px', sm: '120px' }, // 调整最小宽度
+                    fontSize: { xs: '0.8rem', sm: '0.875rem' }, // 调整字体大小
+                    px: { xs: 1, sm: 2 }, // 在小屏幕上减小内边距
                     transition: 'all 0.3s ease',
                     '&.Mui-selected': {
                       background: alpha(muiTheme.palette.primary.main, 0.1),
@@ -124,6 +175,9 @@ const ProjectsPage: React.FC = () => {
                   '& .MuiTabs-indicator': {
                     display: 'none', // 隐藏默认指示器，使用自定义背景代替
                   },
+                  '& .MuiSvgIcon-root': {
+                    fontSize: { xs: '1rem', sm: '1.25rem' } // 调整图标大小
+                  }
                 }}
               >
                 <Tab
@@ -158,31 +212,33 @@ const ProjectsPage: React.FC = () => {
             </Box>
           </Box>
 
-          {/* 项目列表 */}
+          {/* 项目列表 - 优化网格布局 */}
           <AnimatePresence mode="wait">
             <motion.div
               key={filter}
               initial="hidden"
               animate="visible"
+              exit="exit"
               variants={containerVariants}
-              exit={{ opacity: 0 }}
             >
-              <Grid container spacing={4}>
+              <Grid container spacing={{ xs: 2, sm: 3, md: 4 }}> {/* 响应式间距 */}
                 {filteredProjects.map((project, index) => (
-                  <Grid item xs={12} md={6} lg={4} key={index}>
-                    <ProjectCard
-                      name={project.name}
-                      nameZh={project.nameZh}
-                      description={project.description}
-                      descriptionZh={project.descriptionZh}
-                      longDescription={project.longDescription}
-                      technologies={project.technologies}
-                      imageUrl={project.imageUrl}
-                      url={project.url}
-                      githubUrl={project.githubUrl}
-                      category={project.category}
-                      index={index}
-                    />
+                  <Grid item xs={12} sm={6} md={6} lg={4} key={`project-${project.name}-${index}`}> {/* 调整列数：手机单列，平板/小桌面双列，大桌面三列 */}
+                    <motion.div variants={cardVariants}>
+                      <ProjectCard
+                        name={project.name}
+                        nameZh={project.nameZh}
+                        description={project.description}
+                        descriptionZh={project.descriptionZh}
+                        longDescription={project.longDescription}
+                        technologies={project.technologies}
+                        imageUrl={project.imageUrl}
+                        url={project.url}
+                        githubUrl={project.githubUrl}
+                        category={project.category}
+                        index={index}
+                      />
+                    </motion.div>
                   </Grid>
                 ))}
               </Grid>
@@ -196,9 +252,9 @@ const ProjectsPage: React.FC = () => {
               intensity="light"
               containerSx={{
                 borderRadius: '16px',
-                p: { xs: 3, md: 4 },
-                mt: 4,
-                mb: 6,
+                p: { xs: 2, sm: 3, md: 4 }, // 响应式padding
+                mt: { xs: 2, sm: 3, md: 4 }, // 修复这里的未定义变量 'a'
+                mb: { xs: 4, sm: 5, md: 6 },
                 textAlign: 'center'
               }}
             >

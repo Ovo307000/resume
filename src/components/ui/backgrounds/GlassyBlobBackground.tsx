@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { Box } from '@mui/material';
+import React, { useEffect, useState, useRef } from 'react';
+import { Box, SxProps, Theme } from '@mui/material';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '../../../contexts/ThemeContext';
 
@@ -10,6 +10,8 @@ interface ColorBlob {
   size: number;
   color: string;
   duration: number;
+  delay: number; // 添加延迟属性，使色块出现更加错开
+  path: { x: string; y: string }[]; // 定义色块运动路径
 }
 
 export interface GlassyBlobBackgroundProps {
@@ -17,7 +19,7 @@ export interface GlassyBlobBackgroundProps {
   intensity?: 'light' | 'medium' | 'strong';
   blurAmount?: number;
   colorSet?: 'default' | 'primary' | 'rainbow' | 'cool' | 'warm';
-  containerSx?: any;
+  containerSx?: SxProps<Theme>;
   blobCount?: number;
   animate?: boolean;
   minSize?: number;
@@ -28,6 +30,7 @@ export interface GlassyBlobBackgroundProps {
 /**
  * 可复用的玻璃彩球背景组件
  * 提供各种自定义选项，可用于多种场景如页面背景、卡片、按钮等
+ * 优化版本：更流畅的动画和更好的屏幕覆盖
  */
 const GlassyBlobBackground: React.FC<GlassyBlobBackgroundProps> = ({
   children,
@@ -35,14 +38,16 @@ const GlassyBlobBackground: React.FC<GlassyBlobBackgroundProps> = ({
   blurAmount = 60,
   colorSet = 'default',
   containerSx = {},
-  blobCount = 4,
+  blobCount = 6, // 增加默认色块数量
   animate = true,
-  minSize = 100,
-  maxSize = 300,
+  minSize = 180, // 增大最小尺寸
+  maxSize = 450, // 增大最大尺寸
   glassEffect = true
 }) => {
   const { theme } = useTheme();
   const [blobs, setBlobs] = useState<ColorBlob[]>([]);
+  const updateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isFirstRenderRef = useRef(true);
 
   // 根据颜色集获取颜色
   const getColors = () => {
@@ -93,52 +98,101 @@ const GlassyBlobBackground: React.FC<GlassyBlobBackgroundProps> = ({
   useEffect(() => {
     const colors = getColors();
 
+    // 定义一个创建更复杂运动路径的函数
+    const createComplexPath = () => {
+      // 生成5-7个点的路径
+      const pointCount = Math.floor(Math.random() * 3) + 5;
+      const path = [];
+
+      for (let i = 0; i < pointCount; i++) {
+        // 生成在屏幕更大范围内的随机点，确保能够覆盖整个容器
+        const x = `${(Math.random() * 120) - 10}%`; // -10% 到 110%
+        const y = `${(Math.random() * 120) - 10}%`; // -10% 到 110%
+        path.push({ x, y });
+      }
+
+      // 确保路径是闭合的，最后一个点回到第一个点附近
+      const firstPoint = path[0];
+      const lastX = parseInt(firstPoint.x) + (Math.random() * 20 - 10);
+      const lastY = parseInt(firstPoint.y) + (Math.random() * 20 - 10);
+      path.push({ x: `${lastX}%`, y: `${lastY}%` });
+
+      return path;
+    };
+
     const generateBlobs = () => {
       const newBlobs: ColorBlob[] = [];
 
       for (let i = 0; i < blobCount; i++) {
+        // 创建初始位置在屏幕外围的彩色块，让它们"飘"进来
+        const startX = Math.random() > 0.5 ? -10 : 110; // 从左边或右边
+        const startY = Math.random() * 100;
+
+        // 生成平滑的运动路径
+        const path = createComplexPath();
+
+        // 延迟是为了让色块错开出现，创造更自然的效果
+        const delay = isFirstRenderRef.current ? i * 0.4 : 0;
+
         newBlobs.push({
           id: i,
-          x: Math.random() * 100, // 随机位置 (0-100%)
-          y: Math.random() * 100,
+          x: startX,
+          y: startY,
           size: Math.random() * (maxSize - minSize) + minSize,
           color: colors[Math.floor(Math.random() * colors.length)],
-          duration: Math.random() * 20 + 40 // 动画时长40-60秒，减少变化幅度
+          duration: Math.random() * 30 + 70, // 70-100秒，更长的动画周期
+          delay,
+          path: path
         });
       }
 
       setBlobs(newBlobs);
+      isFirstRenderRef.current = false;
     };
 
     generateBlobs();
 
     // 动画开启时，每隔一段时间更新一个彩色块以保持视觉新鲜感
-    let interval: NodeJS.Timeout | null = null;
-
     if (animate) {
-      // 增加更新间隔时间，减少频繁变化
-      interval = setInterval(() => {
+      updateTimeoutRef.current = setInterval(() => {
         const colors = getColors();
         const updatedBlobs = [...blobs];
+
+        if (updatedBlobs.length === 0) return;
+
+        // 随机选择一个色块来更新
         const randomIndex = Math.floor(Math.random() * blobs.length);
 
-        if (updatedBlobs[randomIndex]) {
-          // 缓慢过渡到新位置，而不是直接替换
-          updatedBlobs[randomIndex] = {
-            ...updatedBlobs[randomIndex],
-            x: Math.random() * 100,
-            y: Math.random() * 100,
-            color: colors[Math.floor(Math.random() * colors.length)],
-            duration: Math.random() * 20 + 40
-          };
+        // 创建一个新的色块，准备从屏幕外"飘"进来
+        const startX = Math.random() > 0.5 ? -10 : 110; // 从左边或右边
+        const startY = Math.random() * 100;
 
-          setBlobs(updatedBlobs);
-        }
-      }, 15000); // 增加到15秒，减少突兀变化
+        // 更新现有色块的内容，但保持同一个ID
+        const existingBlob = updatedBlobs[randomIndex];
+
+        // 新的色块
+        const newBlob = {
+          id: existingBlob.id,
+          x: startX,
+          y: startY,
+          size: Math.random() * (maxSize - minSize) + minSize,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          duration: Math.random() * 30 + 70,
+          delay: 0,
+          path: createComplexPath()
+        };
+
+        // 将旧色块替换为新色块，保持数组长度不变
+        updatedBlobs[randomIndex] = newBlob;
+
+        setBlobs(updatedBlobs);
+      }, 18000); // 每18秒更新一个色块
     }
 
     return () => {
-      if (interval) clearInterval(interval);
+      if (updateTimeoutRef.current) {
+        clearInterval(updateTimeoutRef.current);
+      }
     };
   }, [blobCount, colorSet, intensity, minSize, maxSize, animate]);
 
@@ -161,7 +215,8 @@ const GlassyBlobBackground: React.FC<GlassyBlobBackgroundProps> = ({
           right: 0,
           bottom: 0,
           zIndex: 0,
-          opacity: 0.9
+          opacity: 0.9,
+          overflow: 'visible' // 允许色块溢出容器，创造更好的边缘过渡
         }}
       >
         <AnimatePresence>
@@ -177,25 +232,22 @@ const GlassyBlobBackground: React.FC<GlassyBlobBackgroundProps> = ({
               animate={{
                 opacity: 1,
                 scale: 1,
-                x: animate
-                  ? [`${blob.x}%`, `${(blob.x + 10) % 100}%`, `${(blob.x + 20) % 100}%`, `${blob.x}%`]
-                  : `${blob.x}%`,
-                y: animate
-                  ? [`${blob.y}%`, `${(blob.y + 8) % 100}%`, `${(blob.y + 16) % 100}%`, `${blob.y}%`]
-                  : `${blob.y}%`
+                x: animate ? blob.path.map(p => p.x) : `${blob.x}%`,
+                y: animate ? blob.path.map(p => p.y) : `${blob.y}%`
               }}
               exit={{
                 opacity: 0,
                 scale: 0.8,
-                transition: { duration: 1.5 }
+                transition: { duration: 3.5 } // 增加退出动画时长，更加平滑
               }}
               transition={{
                 duration: blob.duration,
+                delay: blob.delay,
                 repeat: Infinity,
-                repeatType: 'mirror', // 使用mirror而不是reverse，更加平滑
+                repeatType: 'loop', // 使用loop确保色块沿着整个路径移动
                 ease: 'easeInOut',
-                opacity: { duration: 2 }, // 淡入淡出效果
-                scale: { duration: 2 }    // 缩放效果
+                opacity: { duration: 3 }, // 更长的淡入淡出效果
+                scale: { duration: 3 }    // 更长的缩放效果
               }}
               style={{
                 position: 'absolute',

@@ -19,8 +19,8 @@ import { useTheme } from '../../contexts/ThemeContext';
 import GlassyBlobBackground from '../../components/ui/backgrounds/GlassyBlobBackground';
 import PageTitle from '../../components/ui/common/PageTitle';
 import SkillDetail from '../../components/ui/SkillDetail';
-import TechTagGroup, { TechItem } from '../../components/ui/common/TechTagGroup';
 import SkillBarGroup from '../../components/ui/skills/SkillBarGroup';
+import TagSphere from '../../components/ui/skills/TagSphere';
 import { Skill } from '../../types/skill';
 
 interface SkillsPageProps {
@@ -256,13 +256,13 @@ const SkillsPage: React.FC<SkillsPageProps> = ({ data }) => {
     );
   };
 
-  // 渲染技术池
+  // 渲染技术池 - 使用3D标签云
   const renderTechPool = () => {
     // 获取所有技能并按熟练度排序
     const allSkills = generateSkills();
 
-    // 将Skills转换为TechItem格式
-    const techItems: TechItem[] = allSkills.map(skill => ({
+    // 将Skills转换为Tag格式
+    const techTags = allSkills.map(skill => ({
       name: skill.name,
       icon: skill.icon,
       url: skill.url,
@@ -270,14 +270,12 @@ const SkillsPage: React.FC<SkillsPageProps> = ({ data }) => {
     }));
 
     return (
-      <TechTagGroup
-        techItems={techItems}
-        initiallyExpanded={false}
-        maxVisibleItems={20}
-        animate={true}
+      <TagSphere
+        tags={techTags}
+        radius={200}
+        initialSpeed={0.7}
+        animated={true}
         enableSizing={true}
-        collapsible={true}
-        showToggle={true}
       />
     );
   };
@@ -430,17 +428,16 @@ const SkillsPage: React.FC<SkillsPageProps> = ({ data }) => {
           >
             技能标签云
           </Typography>
-          <GlassyBlobBackground
-            colorSet="cool"
-            intensity="light"
-            containerSx={{
+          <Box
+            sx={{
               borderRadius: '16px',
-              p: { xs: 3, md: 4 },
-              mb: 6
+              mb: 6,
+              height: 'auto',
+              overflow: 'hidden'
             }}
           >
             {renderTechPool()}
-          </GlassyBlobBackground>
+          </Box>
         </motion.div>
 
         {/* 技能标签切换器 */}
@@ -496,25 +493,25 @@ const SkillsPage: React.FC<SkillsPageProps> = ({ data }) => {
             >
               <Tab
                 icon={getCategoryIcon(0)}
-                label={t('skills.overview')}
+                label={t('skills.tabs.overview', '概览')}
                 iconPosition="start"
                 sx={{ textTransform: 'none', fontSize: '0.9rem' }}
               />
               <Tab
                 icon={getCategoryIcon(1)}
-                label={t('skills.programmingLanguages')}
+                label={t('skills.tabs.programmingLanguages', '编程语言')}
                 iconPosition="start"
                 sx={{ textTransform: 'none', fontSize: '0.9rem' }}
               />
               <Tab
                 icon={getCategoryIcon(2)}
-                label={t('skills.devFrameworks')}
+                label={t('skills.tabs.frameworks', '框架')}
                 iconPosition="start"
                 sx={{ textTransform: 'none', fontSize: '0.9rem' }}
               />
               <Tab
                 icon={getCategoryIcon(3)}
-                label={t('skills.devTools')}
+                label={t('skills.tabs.tools', '工具')}
                 iconPosition="start"
                 sx={{ textTransform: 'none', fontSize: '0.9rem' }}
               />

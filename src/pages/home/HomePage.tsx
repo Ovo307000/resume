@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Container, Typography, Grid, Snackbar, Alert, Grow } from '@mui/material';
+import { Box, Container, Typography, Grid } from '@mui/material';
 import { motion } from 'framer-motion';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useTranslation } from 'react-i18next';
-import { FiArrowRight, FiGithub, FiMail, FiPhone, FiDownload, FiCopy, FiCheck } from 'react-icons/fi';
+import { FiArrowRight, FiGithub, FiMail, FiPhone, FiDownload, FiCopy } from 'react-icons/fi';
 import { SiWechat } from 'react-icons/si';
 import GlassPanel from '../../components/ui/glass/GlassPanel';
 import { FaJava, FaDocker } from 'react-icons/fa';
@@ -161,13 +161,12 @@ const HomePage: React.FC<HomePageProps> = ({ data }) => {
 
   // 处理社交链接点击
   const handleSocialClick = (e: React.MouseEvent<HTMLElement>, link: SocialLink) => {
-    // 如果是复制功能
     if (link.needCopy && link.value) {
-      e.preventDefault();
-      e.stopPropagation();
-      handleCopyToClipboard(link.value, link.label);
+      e.preventDefault(); // 阻止默认行为
+      copyToClipboard(link.value, link.label);
+    } else if (link.onClick) {
+      link.onClick();
     }
-    // 如果不是复制功能，让默认的导航行为执行
   };
 
   return (
@@ -397,7 +396,7 @@ const HomePage: React.FC<HomePageProps> = ({ data }) => {
                           href={!link.needCopy ? link.url : undefined}
                           target={!link.needCopy && link.url?.startsWith('http') ? "_blank" : undefined}
                           rel={!link.needCopy && link.url?.startsWith('http') ? "noopener noreferrer" : undefined}
-                          onClick={(e) => handleSocialClick(e, link)}
+                          onClick={(e: React.MouseEvent<HTMLElement>) => handleSocialClick(e, link)}
                           sx={{
                             width: 42,
                             height: 42,
@@ -471,77 +470,132 @@ const HomePage: React.FC<HomePageProps> = ({ data }) => {
           {[
             {
               icon: <FaJava size={36} />,
-              value: '5',
-              label: t('home.stats.experience', '年Java经验'),
-              tooltip: '5年企业级Java开发经验，精通Spring Boot框架'
+              value: '3+',
+              label: t('home.stats.experience', '年开发经验'),
+              tooltip: '3年以上开发经验，精通Java后端开发，熟练掌握常用设计模式，专注构建高性能、高可用系统',
+              color: theme === 'dark' ? '#ff9d00' : '#ff6d00', // 橙色系
+              gradient: theme === 'dark'
+                ? 'linear-gradient(135deg, rgba(255, 157, 0, 0.15), rgba(255, 109, 0, 0.05))'
+                : 'linear-gradient(135deg, rgba(255, 157, 0, 0.1), rgba(255, 109, 0, 0.02))'
             },
             {
               icon: <SiSpring size={36} />,
-              value: '20+',
-              label: t('home.stats.projects', '个项目经验'),
-              tooltip: '参与或主导过20多个大中型项目的设计与开发'
+              value: '5+',
+              label: t('home.stats.frameworks', '种技术栈'),
+              tooltip: '精通Spring全家桶、MyBatis/Plus、React、Vue等框架，同时熟悉Redis、MySQL、MongoDB等数据库技术',
+              color: theme === 'dark' ? '#4caf50' : '#2e7d32', // 绿色系
+              gradient: theme === 'dark'
+                ? 'linear-gradient(135deg, rgba(76, 175, 80, 0.15), rgba(46, 125, 50, 0.05))'
+                : 'linear-gradient(135deg, rgba(76, 175, 80, 0.1), rgba(46, 125, 50, 0.02))'
             },
             {
               icon: <SiMysql size={36} />,
-              value: '10+',
-              label: t('home.stats.databases', '个数据库项目'),
-              tooltip: '精通MySQL、Redis等多种数据库的设计优化和性能调优'
+              value: '2',
+              label: t('home.stats.projects', '个企业项目'),
+              tooltip: '设计并实现Sky-Take-Out外卖系统与Lease公寓租赁平台等企业级项目，拥有完整的项目开发生命周期经验',
+              color: theme === 'dark' ? '#2196f3' : '#1565c0', // 蓝色系
+              gradient: theme === 'dark'
+                ? 'linear-gradient(135deg, rgba(33, 150, 243, 0.15), rgba(21, 101, 192, 0.05))'
+                : 'linear-gradient(135deg, rgba(33, 150, 243, 0.1), rgba(21, 101, 192, 0.02))'
             },
             {
               icon: <FaDocker size={36} />,
               value: '3+',
-              label: t('home.stats.deployments', '年容器部署经验'),
-              tooltip: '3年以上Docker容器化部署经验，熟悉CI/CD流程'
+              label: t('home.stats.deployments', '种DevOps工具'),
+              tooltip: '熟练使用Linux、Docker、Git等DevOps工具，掌握容器化部署与自动化流程，确保系统高效稳定运行',
+              color: theme === 'dark' ? '#9c27b0' : '#6a1b9a', // 紫色系
+              gradient: theme === 'dark'
+                ? 'linear-gradient(135deg, rgba(156, 39, 176, 0.15), rgba(106, 27, 154, 0.05))'
+                : 'linear-gradient(135deg, rgba(156, 39, 176, 0.1), rgba(106, 27, 154, 0.02))'
             }
           ].map((stat, index) => (
             <Grid item xs={6} md={3} key={index}>
               <CustomTooltip title={stat.tooltip} placement="top">
-                <div>
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{
+                    duration: 0.5,
+                    delay: index * 0.1,
+                    type: "spring",
+                    stiffness: 100
+                  }}
+                  whileHover={{
+                    y: -8,
+                    scale: 1.02,
+                    transition: { duration: 0.2 }
+                  }}
+                >
                   <GlassPanel sx={{
-                    p: 3,
+                    p: { xs: 2, md: 3 },
                     height: '100%',
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
                     textAlign: 'center',
+                    position: 'relative',
+                    borderRadius: '16px',
+                    overflow: 'hidden',
+                    background: stat.gradient,
+                    border: `1px solid ${theme === 'dark'
+                      ? `rgba(255, 255, 255, 0.08)`
+                      : `rgba(0, 0, 0, 0.05)`}`,
                     '&:hover': {
-                      transform: 'translateY(-5px)',
-                      boxShadow: theme === 'dark'
-                        ? '0 10px 30px rgba(0, 0, 0, 0.3)'
-                        : '0 10px 30px rgba(0, 0, 0, 0.1)',
+                      boxShadow: `0 8px 25px ${stat.color}30`,
+                      border: `1px solid ${stat.color}40`,
+                      transform: 'translateY(-8px)'
                     },
-                    transition: 'all 0.3s ease'
+                    transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
                   }}>
                     <Box
                       sx={{
-                        color: theme === 'dark' ? '#a0a0ff' : '#5050ff',
-                        mb: 2
+                        color: stat.color,
+                        mb: 2,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: { xs: 60, md: 70 },
+                        height: { xs: 60, md: 70 },
+                        borderRadius: '50%',
+                        background: theme === 'dark'
+                          ? `rgba(255, 255, 255, 0.05)`
+                          : `rgba(0, 0, 0, 0.03)`,
+                        border: `1px solid ${stat.color}30`,
+                        boxShadow: `0 4px 15px ${stat.color}20`,
+                        transition: 'all 0.3s ease'
                       }}
                     >
                       {stat.icon}
                     </Box>
+
                     <Typography
-                      variant="h4"
-                      component="div"
+                      variant="h3"
                       sx={{
-                        fontSize: { xs: '1.8rem', md: '2.2rem' },
                         fontWeight: 700,
-                        mb: 1
+                        fontSize: { xs: '1.8rem', md: '2.2rem' },
+                        backgroundImage: `linear-gradient(90deg, ${stat.color}, ${stat.color}aa)`,
+                        backgroundClip: 'text',
+                        color: 'transparent',
+                        WebkitBackgroundClip: 'text',
+                        mb: 1,
+                        transition: 'all 0.3s ease',
+                        letterSpacing: '-0.02em'
                       }}
                     >
                       {stat.value}
                     </Typography>
+
                     <Typography
-                      variant="body1"
                       sx={{
-                        color: theme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)',
-                        fontWeight: 500
+                        color: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.7)',
+                        fontWeight: 500,
+                        fontSize: { xs: '0.95rem', md: '1rem' }
                       }}
                     >
                       {stat.label}
                     </Typography>
                   </GlassPanel>
-                </div>
+                </motion.div>
               </CustomTooltip>
             </Grid>
           ))}

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import {
   Box,
   Typography,
@@ -10,15 +11,21 @@ import {
   CardContent,
   CardActions,
   Button,
-  Tooltip
+  Tooltip,
+  IconButton,
+  useMediaQuery,
+  Dialog,
+  DialogContent,
+  DialogTitle
 } from '@mui/material';
-import { motion } from 'framer-motion';
-import { FiGithub, FiExternalLink, FiInfo, FiEye } from 'react-icons/fi';
+import { AnimatePresence } from 'framer-motion';
+import { FiGithub, FiInfo, FiEye, FiExternalLink, FiMaximize2, FiX } from 'react-icons/fi';
 import { useTheme } from '../../../contexts/ThemeContext';
 import { useLanguage } from '../../../hooks/useLanguage';
 import { useTranslation } from 'react-i18next';
 import ProjectDetail from './ProjectDetail';
 import TechTagGroup from '../common/TechTagGroup';
+import TechnologyTag from './TechnologyTag';
 
 interface ProjectCardProps {
   name: string;
@@ -31,7 +38,7 @@ interface ProjectCardProps {
   url: string;
   githubUrl?: string;
   category?: string;
-  index: number;
+  index?: number;
 }
 
 const ProjectCard: React.FC<ProjectCardProps> = ({
@@ -44,14 +51,18 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
   imageUrl,
   url,
   githubUrl,
-  category,
-  index
+  category
 }) => {
   const { theme } = useTheme();
   const muiTheme = useMuiTheme();
   const { language } = useLanguage();
   const { t } = useTranslation();
   const [showDetail, setShowDetail] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  // 新增：检测是否为移动设备
+  const isMobile = useMediaQuery(muiTheme.breakpoints.down('sm'));
+  const isTablet = useMediaQuery(muiTheme.breakpoints.down('md'));
 
   const getLocalizedName = () => {
     return language === 'zh' ? nameZh : name;
@@ -59,19 +70,6 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
 
   const getLocalizedDescription = () => {
     return language === 'zh' ? descriptionZh : description;
-  };
-
-  const cardVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.5,
-        delay: index * 0.1,
-        ease: [0.25, 0.1, 0.25, 1.0]
-      }
-    }
   };
 
   const handleOpenDetail = () => {
@@ -82,133 +80,90 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
     setShowDetail(false);
   };
 
+  // 获取响应式尺寸的技术标签数量
+  const getVisibleTechCount = () => {
+    if (isMobile) return 2; // 手机屏幕显示2个
+    if (isTablet) return 3; // 平板屏幕显示3个
+    return 4; // 桌面显示4个
+  };
+
+  // 计算可见和隐藏的技术标签
+  const visibleTechCount = getVisibleTechCount();
+  const visibleTechnologies = technologies.slice(0, visibleTechCount);
+  const hiddenTechnologiesCount = technologies.length - visibleTechCount;
+
+  // 处理外部链接点击
+  const handleLinkClick = (e: React.MouseEvent, link?: string) => {
+    e.stopPropagation(); // 阻止事件冒泡
+    if (link) {
+      window.open(link, '_blank', 'noopener,noreferrer');
+    }
+  };
+
   return (
     <>
       <motion.div
-        variants={cardVariants}
-        initial="hidden"
-        animate="visible"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: index * 0.1 }}
+        style={{ height: '100%' }}
       >
         <Card
+          onClick={handleOpenDetail}
           sx={{
             height: '100%',
             display: 'flex',
             flexDirection: 'column',
             borderRadius: '16px',
             overflow: 'hidden',
-            boxShadow: theme === 'dark'
-              ? '0 8px 20px rgba(0,0,0,0.3)'
-              : '0 8px 20px rgba(0,0,0,0.1)',
-            background: theme === 'dark'
-              ? alpha(muiTheme.palette.background.paper, 0.6)
-              : alpha(muiTheme.palette.background.paper, 0.8),
+            cursor: longDescription ? 'pointer' : 'default',
+            backgroundColor: theme === 'dark'
+              ? 'rgba(30, 30, 40, 0.6)'
+              : 'rgba(255, 255, 255, 0.8)',
             backdropFilter: 'blur(10px)',
-            border: `1px solid ${alpha(
-              theme === 'dark' ? muiTheme.palette.common.white : muiTheme.palette.common.black,
-              0.05
-            )}`,
-            transition: 'all 0.3s ease',
+            border: `1px solid ${theme === 'dark'
+              ? 'rgba(255, 255, 255, 0.1)'
+              : 'rgba(0, 0, 0, 0.05)'}`,
+            boxShadow: theme === 'dark'
+              ? '0 4px 20px rgba(0, 0, 0, 0.4)'
+              : '0 4px 20px rgba(0, 0, 0, 0.1)',
+            transition: 'all 0.3s ease-in-out',
             '&:hover': {
+              transform: 'translateY(-4px)',
               boxShadow: theme === 'dark'
-                ? '0 12px 24px rgba(0,0,0,0.4)'
-                : '0 12px 24px rgba(0,0,0,0.15)',
-              borderColor: alpha(muiTheme.palette.primary.main, theme === 'dark' ? 0.6 : 0.4),
-              transform: 'scale(1.01)',
+                ? '0 8px 30px rgba(0, 0, 0, 0.6)'
+                : '0 8px 30px rgba(0, 0, 0, 0.15)',
+              '& .project-image': {
+                transform: 'scale(1.05)'
+              }
             }
           }}
         >
-          <Box
+          {/* 项目图片 */}
+          <CardMedia
+            component="img"
+            height="200"
+            image={imageUrl}
+            alt={language === 'en' ? name : nameZh}
+            className="project-image"
             sx={{
-              position: 'relative',
-              cursor: 'pointer',
-              overflow: 'hidden'
+              transition: 'transform 0.3s ease-in-out',
+              objectFit: 'cover'
             }}
-            onClick={handleOpenDetail}
-          >
-            <CardMedia
-              component="img"
-              height="180"
-              image={imageUrl}
-              alt={getLocalizedName()}
-              sx={{
-                objectFit: 'cover',
-                transition: 'transform 0.5s ease',
-                '&:hover': {
-                  transform: 'scale(1.05)'
-                }
-              }}
-            />
-            {category && (
-              <Chip
-                label={t(`projects.filters.${category}`, category)}
-                size="small"
-                sx={{
-                  position: 'absolute',
-                  top: 12,
-                  right: 12,
-                  backgroundColor: theme === 'dark'
-                    ? 'rgba(0, 0, 0, 0.6)'
-                    : 'rgba(255, 255, 255, 0.8)',
-                  backdropFilter: 'blur(4px)',
-                  borderRadius: '12px',
-                  fontSize: '0.7rem',
-                  fontWeight: 500,
-                  color: theme === 'dark' ? 'white' : 'text.primary',
-                  textTransform: 'capitalize'
-                }}
-              />
-            )}
+          />
 
-            <Box
-              sx={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                opacity: 0,
-                transition: 'all 0.3s ease',
-                '&:hover': {
-                  opacity: 1
-                }
-              }}
-            >
-              <Button
-                variant="contained"
-                color="primary"
-                startIcon={<FiEye />}
-                sx={{
-                  borderRadius: '30px',
-                  textTransform: 'none',
-                  fontWeight: 500,
-                  backgroundColor: alpha(muiTheme.palette.primary.main, 0.9),
-                  boxShadow: '0 4px 10px rgba(0,0,0,0.3)'
-                }}
-              >
-                View Details
-              </Button>
-            </Box>
-          </Box>
-
+          {/* 项目内容 */}
           <CardContent sx={{ flexGrow: 1, p: 3 }}>
             <Typography
               variant="h6"
-              component="h2"
               gutterBottom
-              fontWeight="bold"
               sx={{
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                display: '-webkit-box',
-                WebkitLineClamp: 1,
-                WebkitBoxOrient: 'vertical'
+                fontWeight: 600,
+                fontSize: '1.25rem',
+                mb: 1
               }}
             >
-              {getLocalizedName()}
+              {language === 'en' ? name : nameZh}
             </Typography>
 
             <Typography
@@ -216,153 +171,216 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
               color="text.secondary"
               sx={{
                 mb: 2,
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
+                minHeight: '3em',
                 display: '-webkit-box',
                 WebkitLineClamp: 2,
                 WebkitBoxOrient: 'vertical',
-                minHeight: '2.5rem'
+                overflow: 'hidden',
+                textOverflow: 'ellipsis'
               }}
             >
-              {getLocalizedDescription()}
+              {language === 'en' ? description : descriptionZh}
             </Typography>
 
-            <TechTagGroup
-              techItems={technologies.map(tech => ({ name: tech }))}
-              showToggle={false}
-              animate={true}
-              variant="small"
-              collapsible={technologies.length > 3}
-              maxVisibleItems={3}
-              initiallyExpanded={false}
-            />
-          </CardContent>
-
-          <CardActions sx={{
-            p: 2,
-            pt: 0,
-            display: 'flex',
-            justifyContent: 'space-between',
-            flexWrap: { xs: 'wrap', sm: 'nowrap' },
-            gap: { xs: 1, sm: 0 }
-          }}>
+            {/* 技术标签 */}
             <Box sx={{
               display: 'flex',
-              gap: 1.5,
-              width: { xs: '100%', sm: 'auto' },
-              justifyContent: { xs: 'center', sm: 'flex-start' }
+              flexWrap: 'wrap',
+              gap: 1,
+              mb: 2
             }}>
-              <Tooltip title={t('projects.viewDetail', 'View Details')}>
-                <Button
-                  size="small"
-                  variant="outlined"
-                  color="primary"
-                  onClick={handleOpenDetail}
-                  startIcon={<FiInfo size={16} />}
-                  sx={{
-                    borderRadius: '20px',
-                    textTransform: 'none',
-                    minWidth: { xs: '40px', sm: '0' },
-                    px: { xs: 1.5, sm: 2 },
-                    py: { xs: 0.75, sm: 0.5 },
-                    fontWeight: 500,
-                    '&:hover': {
-                      transform: 'translateY(-3px)',
-                      transition: 'transform 0.2s ease'
-                    }
-                  }}
-                >
-                  <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
-                    Details
-                  </Box>
-                </Button>
-              </Tooltip>
-
-              <Tooltip title={t('projects.viewProject', 'View Project')}>
-                <Button
-                  size="small"
-                  variant="contained"
-                  color="primary"
-                  component="a"
-                  href={url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  startIcon={<FiExternalLink size={16} />}
-                  sx={{
-                    borderRadius: '20px',
-                    textTransform: 'none',
-                    minWidth: { xs: '40px', sm: '0' },
-                    px: { xs: 1.5, sm: 2 },
-                    py: { xs: 0.75, sm: 0.5 },
-                    fontWeight: 500,
-                    '&:hover': {
-                      transform: 'translateY(-3px)',
-                      transition: 'transform 0.2s ease'
-                    }
-                  }}
-                >
-                  <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
-                    Visit
-                  </Box>
-                </Button>
-              </Tooltip>
+              {technologies.map((tech, i) => (
+                <TechnologyTag key={i} name={tech} />
+              ))}
             </Box>
 
-            {githubUrl && (
+            {/* 链接按钮 */}
+            {(url || githubUrl) && (
               <Box sx={{
-                width: { xs: '100%', sm: 'auto' },
                 display: 'flex',
-                justifyContent: { xs: 'center', sm: 'flex-end' },
-                mt: { xs: 1, sm: 0 }
+                justifyContent: 'flex-end',
+                gap: 1,
+                mt: 'auto'
               }}>
-                <Tooltip title={t('projects.viewCode', 'View Source Code')}>
-                  <Button
+                {githubUrl && (
+                  <IconButton
+                    onClick={(e) => handleLinkClick(e, githubUrl)}
                     size="small"
-                    variant="outlined"
-                    color="secondary"
-                    component="a"
-                    href={githubUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    startIcon={<FiGithub size={16} />}
                     sx={{
-                      borderRadius: '20px',
-                      textTransform: 'none',
-                      minWidth: { xs: '40px', sm: '0' },
-                      px: { xs: 1.5, sm: 2 },
-                      py: { xs: 0.75, sm: 0.5 },
-                      fontWeight: 500,
+                      color: theme === 'dark' ? '#fff' : '#000',
+                      backgroundColor: alpha(
+                        theme === 'dark' ? '#fff' : '#000',
+                        0.05
+                      ),
                       '&:hover': {
-                        transform: 'translateY(-3px)',
-                        transition: 'transform 0.2s ease'
+                        backgroundColor: alpha(
+                          theme === 'dark' ? '#fff' : '#000',
+                          0.1
+                        )
                       }
                     }}
                   >
-                    <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
-                      Code
-                    </Box>
-                  </Button>
-                </Tooltip>
+                    <FiGithub />
+                  </IconButton>
+                )}
+                {url && (
+                  <IconButton
+                    onClick={(e) => handleLinkClick(e, url)}
+                    size="small"
+                    sx={{
+                      color: theme === 'dark' ? '#fff' : '#000',
+                      backgroundColor: alpha(
+                        theme === 'dark' ? '#fff' : '#000',
+                        0.05
+                      ),
+                      '&:hover': {
+                        backgroundColor: alpha(
+                          theme === 'dark' ? '#fff' : '#000',
+                          0.1
+                        )
+                      }
+                    }}
+                  >
+                    <FiExternalLink />
+                  </IconButton>
+                )}
               </Box>
             )}
-          </CardActions>
+          </CardContent>
         </Card>
       </motion.div>
 
-      {showDetail && (
-        <ProjectDetail
-          name={name}
-          nameZh={nameZh}
-          description={description}
-          descriptionZh={descriptionZh}
-          longDescription={longDescription}
-          technologies={technologies}
-          imageUrl={imageUrl}
-          url={url}
-          githubUrl={githubUrl}
-          onClose={handleCloseDetail}
-        />
-      )}
+      {/* 项目详情对话框 */}
+      <Dialog
+        open={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+        maxWidth="md"
+        fullWidth
+        sx={{
+          '& .MuiDialog-paper': {
+            borderRadius: '20px',
+            backgroundColor: theme === 'dark'
+              ? 'rgba(30, 30, 40, 0.95)'
+              : 'rgba(255, 255, 255, 0.95)',
+            backdropFilter: 'blur(10px)',
+            border: `1px solid ${theme === 'dark'
+              ? 'rgba(255, 255, 255, 0.1)'
+              : 'rgba(0, 0, 0, 0.05)'}`,
+          }
+        }}
+      >
+        <DialogTitle sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          p: 3
+        }}>
+          <Typography variant="h5" component="div" sx={{ fontWeight: 600 }}>
+            {language === 'en' ? name : nameZh}
+          </Typography>
+          <IconButton
+            onClick={() => setIsDialogOpen(false)}
+            sx={{
+              color: theme === 'dark' ? '#fff' : '#000',
+              '&:hover': {
+                backgroundColor: alpha(
+                  theme === 'dark' ? '#fff' : '#000',
+                  0.1
+                )
+              }
+            }}
+          >
+            <FiX />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent sx={{ p: 3 }}>
+          {/* 项目图片 */}
+          <Box
+            component="img"
+            src={imageUrl}
+            alt={language === 'en' ? name : nameZh}
+            sx={{
+              width: '100%',
+              height: 'auto',
+              borderRadius: '12px',
+              mb: 3
+            }}
+          />
+
+          {/* 项目描述 */}
+          <Typography variant="body1" paragraph>
+            {longDescription && (language === 'en'
+              ? longDescription.en
+              : longDescription.zh)}
+          </Typography>
+
+          {/* 技术标签 */}
+          <Box sx={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: 1,
+            mb: 3
+          }}>
+            {technologies.map((tech, i) => (
+              <TechnologyTag key={i} name={tech} />
+            ))}
+          </Box>
+
+          {/* 链接按钮 */}
+          {(url || githubUrl) && (
+            <Box sx={{
+              display: 'flex',
+              justifyContent: 'flex-end',
+              gap: 2
+            }}>
+              {githubUrl && (
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                  <IconButton
+                    onClick={(e) => handleLinkClick(e, githubUrl)}
+                    sx={{
+                      color: theme === 'dark' ? '#fff' : '#000',
+                      backgroundColor: alpha(
+                        theme === 'dark' ? '#fff' : '#000',
+                        0.05
+                      ),
+                      '&:hover': {
+                        backgroundColor: alpha(
+                          theme === 'dark' ? '#fff' : '#000',
+                          0.1
+                        )
+                      }
+                    }}
+                  >
+                    <FiGithub />
+                  </IconButton>
+                </motion.div>
+              )}
+              {url && (
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                  <IconButton
+                    onClick={(e) => handleLinkClick(e, url)}
+                    sx={{
+                      color: theme === 'dark' ? '#fff' : '#000',
+                      backgroundColor: alpha(
+                        theme === 'dark' ? '#fff' : '#000',
+                        0.05
+                      ),
+                      '&:hover': {
+                        backgroundColor: alpha(
+                          theme === 'dark' ? '#fff' : '#000',
+                          0.1
+                        )
+                      }
+                    }}
+                  >
+                    <FiExternalLink />
+                  </IconButton>
+                </motion.div>
+              )}
+            </Box>
+          )}
+        </DialogContent>
+      </Dialog>
     </>
   );
 };

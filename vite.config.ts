@@ -11,7 +11,8 @@ export default defineConfig({
         target: 'http://localhost:5000',
         changeOrigin: true,
         secure: false
-      }
-    }
+      },
+    },
+    allowedHosts: ['localhost', '127.0.0.1', '0.0.0.0', '*.ngrok-free.app']
   }
 })

@@ -243,8 +243,26 @@ const ContactPage: React.FC<ContactPageProps> = ({ data }) => {
                       backgroundColor: 'transparent'
                     }}
                   >
-                    <Typography variant="h5" gutterBottom>
-                      {t('contact.contactInfo')}
+                    <Typography
+                      variant="h5"
+                      gutterBottom
+                      sx={{
+                        fontWeight: 600,
+                        mb: 2
+                      }}
+                    >
+                      {t('contact.getInTouch', '联系方式')}
+                    </Typography>
+                    <Typography
+                      variant="body1"
+                      color="text.secondary"
+                      paragraph
+                      sx={{
+                        mb: 3,
+                        maxWidth: '90%'
+                      }}
+                    >
+                      {t('contact.reachOut', '您可以通过以下方式联系我，我会尽快回复您的消息。')}
                     </Typography>
 
                     <Box sx={{ mt: 3 }}>
@@ -252,7 +270,7 @@ const ContactPage: React.FC<ContactPageProps> = ({ data }) => {
                         <motion.div
                           key={index}
                           variants={itemVariants}
-                          whileHover={{ x: 5 }}
+                          whileHover={{ x: 5, transition: { type: 'spring', stiffness: 400 } }}
                         >
                           <Box
                             sx={{
@@ -261,10 +279,6 @@ const ContactPage: React.FC<ContactPageProps> = ({ data }) => {
                               mb: 3,
                               p: 2,
                               borderRadius: 2,
-                              transition: 'all 0.3s',
-                              '&:hover': {
-                                bgcolor: theme === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)',
-                              }
                             }}
                           >
                             <Box
@@ -290,7 +304,7 @@ const ContactPage: React.FC<ContactPageProps> = ({ data }) => {
                               </Typography>
                               {method.needCopy ? (
                                 <CopyableLink
-                                  value={method.value}
+                                  value={method.value || ''}
                                   label={method.title}
                                   copyIcon={method.copyIcon}
                                   linkColor={method.color}
@@ -298,8 +312,8 @@ const ContactPage: React.FC<ContactPageProps> = ({ data }) => {
                                 />
                               ) : (
                                 <CopyableLink
-                                  value={method.value}
-                                  to={method.link}
+                                  value={method.value || ''}
+                                  to={method.link || ''}
                                   isExternal={method.title === t('contact.github')}
                                   externalIcon={<FiExternalLink size={16} />}
                                   linkColor={method.color}
@@ -336,11 +350,26 @@ const ContactPage: React.FC<ContactPageProps> = ({ data }) => {
                       backgroundColor: 'transparent'
                     }}
                   >
-                    <Typography variant="h5" gutterBottom>
-                      {t('contact.sendMessage')}
+                    <Typography
+                      variant="h5"
+                      gutterBottom
+                      sx={{
+                        fontWeight: 600,
+                        mb: 2
+                      }}
+                    >
+                      {t('contact.sendMessage', '发送消息')}
                     </Typography>
-                    <Typography variant="body2" color="text.secondary" paragraph>
-                      {t('contact.fillForm')}
+                    <Typography
+                      variant="body1"
+                      color="text.secondary"
+                      paragraph
+                      sx={{
+                        mb: 3,
+                        maxWidth: '90%'
+                      }}
+                    >
+                      {t('contact.fillForm', '填写下面的表单，我会尽快回复您的消息。')}
                     </Typography>
 
                     <Box component="form" onSubmit={handleSubmit} sx={{ mt: 3 }}>

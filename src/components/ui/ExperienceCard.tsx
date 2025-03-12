@@ -6,7 +6,7 @@ import GlassPanel from './glass/GlassPanel';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useTranslation } from 'react-i18next';
 import { alpha } from '@mui/material/styles';
-import TechTag from './common/TechTag';
+import TechTagGroup from './common/TechTagGroup';
 
 export interface ExperienceCardProps {
   title: string;
@@ -165,7 +165,7 @@ const ExperienceCard: React.FC<ExperienceCardProps> = ({
         )}
 
         {/* 技术栈 */}
-        {technologies.length > 0 && (
+        {technologies && technologies.length > 0 && (
           <Box>
             <Typography
               variant="subtitle2"
@@ -175,17 +175,15 @@ const ExperienceCard: React.FC<ExperienceCardProps> = ({
               <FiCode size={14} color={muiTheme.palette.primary.main} />
               {t('about.technologies', '技术栈')}
             </Typography>
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.8 }}>
-              {technologies.map((tech, index) => (
-                <TechTag
-                  key={index}
-                  label={tech}
-                  variant="small"
-                  animate={false}
-                  index={index}
-                />
-              ))}
-            </Box>
+            <TechTagGroup
+              techItems={technologies.map(tech => ({ name: tech }))}
+              variant="small"
+              showToggle={false}
+              animate={false}
+              initiallyExpanded={true}
+              collapsible={technologies.length > 8}
+              maxVisibleItems={8}
+            />
           </Box>
         )}
       </GlassPanel>

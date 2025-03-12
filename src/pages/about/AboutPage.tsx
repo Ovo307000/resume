@@ -29,7 +29,6 @@ import ExperienceCard from '../../components/ui/ExperienceCard';
 import TraitCard from '../../components/ui/TraitCard';
 import MobileAboutCard from '../../components/ui/MobileAboutCard';
 import SkillBarGroup from '../../components/ui/skills/SkillBarGroup';
-import EnhancedTechTags from '../../components/ui/skills/EnhancedTechTags';
 import { Skill } from '../../types/skill';
 
 interface AboutPageProps {
@@ -99,45 +98,10 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
     },
     {
       name: 'TypeScript',
-      level: 78,
+      level: 70,
       category: 'frontend',
       icon: <SiTypescript size={20} />,
       url: 'https://www.typescriptlang.org/'
-    },
-    {
-      name: 'Spring',
-      level: 88,
-      category: 'backend',
-      icon: <SiSpring size={20} />,
-      url: 'https://spring.io/'
-    },
-    {
-      name: 'Spring Boot',
-      level: 88,
-      category: 'backend',
-      icon: <SiSpring size={20} />,
-      url: 'https://spring.io/projects/spring-boot'
-    },
-    {
-      name: 'Spring MVC',
-      level: 85,
-      category: 'backend',
-      icon: <SiSpring size={20} />,
-      url: 'https://docs.spring.io/spring-framework/reference/web/webmvc.html'
-    },
-    {
-      name: 'Spring JPA',
-      level: 82,
-      category: 'backend',
-      icon: <SiSpring size={20} />,
-      url: 'https://spring.io/projects/spring-data-jpa'
-    },
-    {
-      name: 'RESTAPI',
-      level: 85,
-      category: 'backend',
-      icon: <FiServer size={20} />,
-      url: 'https://restfulapi.net/'
     },
     // 前端技术
     {
@@ -161,6 +125,42 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
       icon: <SiTailwindcss size={20} />,
       url: 'https://tailwindcss.com/'
     },
+    // 框架
+    {
+      name: 'Spring',
+      level: 88,
+      category: 'backend',
+      icon: <SiSpring size={20} />,
+      url: 'https://spring.io/'
+    },
+    {
+      name: 'Spring MVC',
+      level: 85,
+      category: 'backend',
+      icon: <SiSpring size={20} />,
+      url: 'https://docs.spring.io/spring-framework/docs/current/reference/html/web/webmvc.html'
+    },
+    {
+      name: 'Spring Boot',
+      level: 85,
+      category: 'backend',
+      icon: <SiSpring size={20} />,
+      url: 'https://spring.io/projects/spring-boot'
+    },
+    {
+      name: 'Spring JPA',
+      level: 80,
+      category: 'backend',
+      icon: <SiSpring size={20} />,
+      url: 'https://spring.io/projects/spring-data-jpa'
+    },
+    {
+      name: 'REST API',
+      level: 85,
+      category: 'backend',
+      icon: <FiServer size={20} />,
+      url: 'https://restfulapi.net/'
+    },
     // 构建工具
     {
       name: 'Maven',
@@ -176,7 +176,6 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
       icon: <SiGradle size={20} />,
       url: 'https://gradle.org/'
     },
-
     // 数据库
     {
       name: 'MySQL',
@@ -187,7 +186,7 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
     },
     {
       name: 'PostgreSQL',
-      level: 78,
+      level: 85,
       category: 'database',
       icon: <DiPostgresql size={20} />,
       url: 'https://www.postgresql.org/'
@@ -206,7 +205,6 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
       icon: <DiRedis size={20} />,
       url: 'https://redis.io/'
     },
-
     // DevOps & 工具
     {
       name: 'Docker',
@@ -224,7 +222,7 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
     },
     {
       name: 'Git',
-      level: 90,
+      level: 85,
       category: 'tool',
       icon: <DiGit size={20} />,
       url: 'https://git-scm.com/'
@@ -238,31 +236,53 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
     }
   ];
 
-  // 工作经验
-  const experiences = [
+  // 教育经历
+  const educations = [
     {
-      title: "Java 后端开发工程师",
-      company: "某科技公司",
-      period: "2022年4月 - 至今",
-      description: "负责公司核心服务的后端开发和维护，使用Spring Boot框架开发RESTful API，参与微服务架构设计，优化系统性能，提高服务可用性。",
-      achievements: [
-        "重构遗留代码，提高系统性能30%",
-        "构建自动化测试流程，减少80%的回归测试时间",
-        "设计并实现了分布式缓存解决方案"
-      ],
-      technologies: ["Java", "Spring Boot", "MySQL", "Redis", "Docker"]
+      title: "计算机科学与技术",
+      company: "安徽财经大学",
+      period: "2024年3月 - 至今",
+      description: "本科专业学习，主要研究方向包括软件工程、数据库系统、计算机网络和分布式系统等。",
+      achievements: [],
+      technologies: []
     },
     {
-      title: "Java 开发实习生",
-      company: "某网络科技有限公司",
-      period: "2021年7月 - 2022年3月",
-      description: "参与公司电商平台后端开发，负责订单模块API开发和优化，协助资深开发人员进行系统设计和代码审查。",
+      title: "软件技术",
+      company: "安徽工贸学院",
+      period: "2020年10月 - 2023年6月",
+      description: "接受专业的软件开发训练，掌握了Java编程、Web开发和数据库应用等核心技能。",
+      achievements: [],
+      technologies: []
+    }
+  ];
+
+  // 项目经历（从简历中提取）
+  const projects = [
+    {
+      title: "Sky-Take-Out",
+      company: "个人项目",
+      period: "2023",
+      description: "苍穹外卖是专门为餐饮企业定制的软件产品，包括系统管理后台和小程序端应用两部分。系统管理后台主要提供给餐饮企业内部员工使用，可以对餐厅的分类、菜品、套餐、订单、员工等进行管理维护。小程序端主要提供给消费者使用，可以在线浏览菜品、添加购物车、下单、支付等。",
       achievements: [
-        "独立开发订单管理模块，获得导师好评",
-        "参与性能优化，帮助系统支持双倍并发量",
-        "编写详细的技术文档，降低新人学习成本"
+        "实现了移动端的菜品浏览、购物车、下单、支付等功能",
+        "开发了后台管理系统的菜品、订单、员工管理等功能",
+        "使用WebSocket实现来单语音播报功能",
+        "集成阿里云OSS进行图片存储"
       ],
-      technologies: ["Java", "Spring MVC", "MyBatis", "MySQL"]
+      technologies: ["Spring Boot", "SpringMVC", "Redis", "MySQL", "Docker", "Nginx", "WebSocket", "阿里云OSS", "Git", "Maven"]
+    },
+    {
+      title: "Lease",
+      company: "个人项目",
+      period: "2022",
+      description: "尚庭公寓是一个公寓租赁平台项目，包含移动端和后台管理系统。移动端面向广大用户，提供找房、看房预约、租约管理等功能，后台管理系统面向管理员，提供公寓（房源）管理、租赁管理、用户管理等功能。",
+      achievements: [
+        "实现了公寓和房间信息的管理功能",
+        "开发了用户账户管理功能",
+        "构建了看房预约和租约管理流程",
+        "使用SpringBoot和MyBatis-Plus提高开发效率"
+      ],
+      technologies: ["Spring Boot", "SpringMVC", "MyBatis/Plus", "Redis", "MySQL", "MinIO", "Docker", "Git", "Maven"]
     }
   ];
 
@@ -392,7 +412,8 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
           title={t('about.aboutMe', '关于我')}
           icon={<FiUser size={22} />}
           delay={0}
-          isPc={true} // PC端使用
+          isPc={true}
+          variant="elevated" // 使用凸起效果
         >
           <Typography variant="body2" paragraph>
             {data.summary}
@@ -412,7 +433,8 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
           title={t('about.skillsTitle', '技能')}
           icon={<FiZap size={22} />}
           delay={0.1}
-          isPc={true} // PC端使用
+          isPc={true}
+          variant="default" // 使用默认样式
         >
           <Box ref={refs.skillRef}>
             <motion.div
@@ -423,48 +445,6 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
               {/* 技能条技能展示 */}
               <Box sx={{ mb: 3 }}>
                 {renderFullSkillBars()}
-              </Box>
-
-              {/* 添加技能标签组 */}
-              <Box sx={{ mt: 4 }}>
-                <Typography
-                  variant="subtitle1"
-                  color="primary"
-                  sx={{ mb: 2, fontWeight: 600, opacity: 0.8 }}
-                >
-                  {t('about.technicalSkills', '技术技能')}
-                </Typography>
-
-                <EnhancedTechTags
-                  title={t('about.frontendTech', '前端技术')}
-                  skills={skills}
-                  category="frontend"
-                  maxDisplayed={4}
-                  enableSizing={true}
-                  animate={true}
-                  variant="small"
-                />
-
-                <EnhancedTechTags
-                  title={t('about.backendTech', '后端技术')}
-                  skills={skills}
-                  category="backend"
-                  maxDisplayed={4}
-                  enableSizing={true}
-                  animate={true}
-                  variant="small"
-                />
-
-                <EnhancedTechTags
-                  title={t('about.toolsAndOthers', '工具和其他')}
-                  skills={skills.filter(skill =>
-                    skill.category === "tool" || skill.category === "database" || skill.category === "devops"
-                  )}
-                  maxDisplayed={4}
-                  enableSizing={true}
-                  animate={true}
-                  variant="small"
-                />
               </Box>
             </motion.div>
           </Box>
@@ -482,7 +462,8 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
           title={t('about.traitsTitle', '个人特质')}
           icon={<FiTarget size={22} />}
           delay={0.2}
-          isPc={true} // PC端使用
+          isPc={true}
+          variant="elevated" // 使用凸起效果
         >
           <Box ref={refs.traitsRef}>
             <motion.div
@@ -496,16 +477,17 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
         </MobileAboutCard>
       </motion.div>
 
-      {/* 工作经验卡片 - 使用与移动端相同的组件 */}
+      {/* 教育经历卡片 */}
       <motion.div
         variants={mobileCardItemVariants}
         style={{ marginTop: '16px' }}
       >
         <MobileAboutCard
-          title={t('about.experienceTitle', '工作经验')}
-          icon={<FiHeart size={22} />}
+          title={t('about.educationTitle', '教育经历')}
+          icon={<FiBook size={22} />}
           delay={0.3}
-          isPc={true} // PC端使用
+          isPc={true}
+          noBorder={false}
         >
           <Box ref={refs.timelineRef}>
             <motion.div
@@ -514,15 +496,53 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
               variants={timelineVariants}
             >
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                {experiences.map((experience, index) => (
+                {educations.map((education, index) => (
                   <motion.div key={index} variants={timelineItemVariants}>
                     <ExperienceCard
-                      title={experience.title}
-                      company={experience.company}
-                      period={experience.period}
-                      description={experience.description}
-                      achievements={experience.achievements}
-                      technologies={experience.technologies}
+                      title={education.title}
+                      company={education.company}
+                      period={education.period}
+                      description={education.description}
+                      achievements={education.achievements}
+                      technologies={education.technologies}
+                      isMobile={false} // PC端保留卡片原样式
+                    />
+                  </motion.div>
+                ))}
+              </Box>
+            </motion.div>
+          </Box>
+        </MobileAboutCard>
+      </motion.div>
+
+      {/* 项目经历卡片 */}
+      <motion.div
+        variants={mobileCardItemVariants}
+        style={{ marginTop: '16px' }}
+      >
+        <MobileAboutCard
+          title={t('about.projectsTitle', '项目经历')}
+          icon={<FiServer size={22} />}
+          delay={0.4}
+          isPc={true}
+          noBorder={true} // 移除边框，让时间线更突出
+        >
+          <Box>
+            <motion.div
+              initial="hidden"
+              animate="visible"
+              variants={timelineVariants}
+            >
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                {projects.map((project, index) => (
+                  <motion.div key={index} variants={timelineItemVariants}>
+                    <ExperienceCard
+                      title={project.title}
+                      company={project.company}
+                      period={project.period}
+                      description={project.description}
+                      achievements={project.achievements}
+                      technologies={project.technologies}
                       isMobile={false} // PC端保留卡片原样式
                     />
                   </motion.div>
@@ -602,27 +622,6 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
     );
   };
 
-  // 修改移动端技能卡片内容
-  const renderMobileSkillCard = () => (
-    <motion.div variants={mobileCardItemVariants}>
-      <MobileAboutCard
-        title={t('about.skillsTitle', '技能')}
-        icon={<FiZap size={22} />}
-        delay={0.1}
-      >
-        <Box ref={refs.skillRef}>
-          <motion.div
-            initial="hidden"
-            animate={controls.skillBar}
-            variants={skillVariants}
-          >
-            {renderMobileSkillBars()}
-          </motion.div>
-        </Box>
-      </MobileAboutCard>
-    </motion.div>
-  );
-
   // 替换之前的技能卡片渲染
   const mobileContent = () => (
     <motion.div
@@ -636,6 +635,7 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
           title={t('about.aboutMe', '关于我')}
           icon={<FiUser size={22} />}
           delay={0}
+          variant="elevated" // 使用凸起效果
         >
           <Typography variant="body2" paragraph>
             {data.summary}
@@ -647,7 +647,24 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
       </motion.div>
 
       {/* 技能卡片 */}
-      {renderMobileSkillCard()}
+      <motion.div variants={mobileCardItemVariants}>
+        <MobileAboutCard
+          title={t('about.skillsTitle', '技能')}
+          icon={<FiZap size={22} />}
+          delay={0.1}
+          variant="default" // 使用默认效果
+        >
+          <Box ref={refs.skillRef}>
+            <motion.div
+              initial="hidden"
+              animate={controls.skillBar}
+              variants={skillVariants}
+            >
+              {renderMobileSkillBars()}
+            </motion.div>
+          </Box>
+        </MobileAboutCard>
+      </motion.div>
 
       {/* 个人特质卡片 */}
       <motion.div variants={mobileCardItemVariants}>
@@ -655,6 +672,7 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
           title={t('about.traitsTitle', '个人特质')}
           icon={<FiTarget size={22} />}
           delay={0.2}
+          variant="subtle" // 使用轻微效果
         >
           <Box ref={refs.traitsRef}>
             <motion.div
@@ -662,7 +680,8 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
               animate={controls.traits}
               variants={traitsVariants}
             >
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              {/* 移动端特质栏使用更紧凑的布局 */}
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
                 {traits.map((trait, index) => (
                   <motion.div variants={traitItemVariants} key={index}>
                     <TraitCard
@@ -678,12 +697,13 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
         </MobileAboutCard>
       </motion.div>
 
-      {/* 工作经验卡片 */}
+      {/* 教育经历卡片 */}
       <motion.div variants={mobileCardItemVariants}>
         <MobileAboutCard
-          title={t('about.experienceTitle', '工作经验')}
-          icon={<FiHeart size={22} />}
+          title={t('about.educationTitle', '教育经历')}
+          icon={<FiBook size={22} />}
           delay={0.3}
+          noBorder={true} // 移除左侧边框
         >
           <Box ref={refs.timelineRef}>
             <motion.div
@@ -691,16 +711,50 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
               animate={controls.timeline}
               variants={timelineVariants}
             >
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                {experiences.map((experience, index) => (
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                {educations.map((education, index) => (
                   <motion.div key={index} variants={timelineItemVariants}>
                     <ExperienceCard
-                      title={experience.title}
-                      company={experience.company}
-                      period={experience.period}
-                      description={experience.description}
-                      achievements={experience.achievements}
-                      technologies={experience.technologies}
+                      title={education.title}
+                      company={education.company}
+                      period={education.period}
+                      description={education.description}
+                      achievements={education.achievements}
+                      technologies={education.technologies}
+                      isMobile={true}
+                    />
+                  </motion.div>
+                ))}
+              </Box>
+            </motion.div>
+          </Box>
+        </MobileAboutCard>
+      </motion.div>
+
+      {/* 项目经历卡片 */}
+      <motion.div variants={mobileCardItemVariants}>
+        <MobileAboutCard
+          title={t('about.projectsTitle', '项目经历')}
+          icon={<FiServer size={22} />}
+          delay={0.4}
+          noBorder={true} // 移除左侧边框
+        >
+          <Box>
+            <motion.div
+              initial="hidden"
+              animate="visible"
+              variants={timelineVariants}
+            >
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                {projects.map((project, index) => (
+                  <motion.div key={index} variants={timelineItemVariants}>
+                    <ExperienceCard
+                      title={project.title}
+                      company={project.company}
+                      period={project.period}
+                      description={project.description}
+                      achievements={project.achievements}
+                      technologies={project.technologies}
                       isMobile={true}
                     />
                   </motion.div>
@@ -754,12 +808,12 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
             // 移动端布局 - 使用专门的移动端卡片组件
             mobileContent()
           ) : (
-            // 桌面端布局 - 使用原有的栅格布局
+            // 桌面端布局 - 使用优化的栅格布局
             <Grid container spacing={6}>
-              <Grid item xs={12} md={4}>
+              <Grid item xs={12} md={5}> {/* 增加左侧列宽度 */}
                 {renderLeftColumn()}
               </Grid>
-              <Grid item xs={12} md={8}>
+              <Grid item xs={12} md={7}> {/* 相应减少右侧列宽度 */}
                 {renderRightColumn()}
               </Grid>
             </Grid>

@@ -1,5 +1,14 @@
 import React from 'react';
-import { Box, Container, Grid, Typography, Link as MuiLink, IconButton, Stack, Divider, alpha } from '@mui/material';
+import {
+  Box,
+  Container,
+  Grid,
+  Typography,
+  Link as MuiLink,
+  IconButton,
+  Divider as MuiDivider,
+  alpha
+} from '@mui/material';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -20,8 +29,8 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { useTranslation } from 'react-i18next';
 // 导入全局复制通知Hook
 import { useCopyNotification } from '../../contexts/CopyNotificationContext';
+import CopyableLink from '../ui/common/CopyableLink';
 // 暂时注释掉未使用的组件
-// import CopyableLink from '../ui/common/CopyableLink';
 // import { useNotificationsContext } from '../ui/common/NotificationsProvider';
 
 interface FooterProps {
@@ -32,6 +41,17 @@ interface FooterProps {
     githubUsername?: string;
     wechat?: string;
   };
+}
+
+// 联系方式链接类型
+interface ContactLink {
+  name: string;
+  icon: React.ReactNode;
+  value?: string;
+  url?: string;
+  needCopy: boolean;
+  copyIcon?: React.ReactNode;
+  color?: string;
 }
 
 /**
@@ -61,34 +81,38 @@ const Footer = ({ data = {} }: FooterProps) => {
   ];
 
   // 社交媒体链接
-  const contactLinks = [
+  const contactLinks: ContactLink[] = [
     {
       name: t('footer.contactEmail'),
       icon: <FiMail size={18} color="#ea4335" />,
       value: data.email,
       copyIcon: <FiCopy size={14} />,
-      needCopy: true
+      needCopy: true,
+      color: '#ea4335'
     },
     {
       name: t('footer.contactPhone'),
       icon: <FiPhone size={18} color="#34a853" />,
       value: data.phone,
       copyIcon: <FiCopy size={14} />,
-      needCopy: true
+      needCopy: true,
+      color: '#34a853'
     },
     {
       name: 'GitHub',
       icon: <FiGithub size={18} color={theme === 'dark' ? '#fff' : '#333'} />,
       url: data.github?.startsWith('http') ? data.github : githubUsername ? `https://github.com/${githubUsername}` : undefined,
       value: githubUsername || data.github,
-      needCopy: false
+      needCopy: false,
+      color: theme === 'dark' ? '#fff' : '#333'
     },
     {
       name: 'WeChat',
       icon: <SiWechat size={18} color="#07C160" />,
       value: data.wechat,
       copyIcon: <FiCopy size={14} />,
-      needCopy: true
+      needCopy: true,
+      color: '#07C160'
     }
   ].filter(link => link.value);
 
@@ -102,6 +126,14 @@ const Footer = ({ data = {} }: FooterProps) => {
         delay: 0.2,
         duration: 0.5
       }
+    }
+  };
+
+  // 联系方式链接悬停动画
+  const contactLinkHoverVariants = {
+    hover: {
+      x: 5,
+      transition: { type: 'spring', stiffness: 400 }
     }
   };
 
@@ -206,157 +238,71 @@ const Footer = ({ data = {} }: FooterProps) => {
               <Grid container spacing={2}>
                 {contactLinks.map((link) => (
                   <Grid item xs={12} sm={6} key={link.name}>
-                    <Stack
-                      direction="row"
-                      spacing={1.5}
-                      alignItems="center"
+                    <motion.div
+                      variants={contactLinkHoverVariants}
+                      whileHover="hover"
                     >
-                      <Box>{link.icon}</Box>
-                      <Box sx={{ flex: 1 }}>
-                        <Typography
-                          variant="body2"
-                          color="text.secondary"
-                          sx={{ fontSize: '0.8rem', mb: 0.3 }}
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          p: 1.5,
+                          borderRadius: 2,
+                        }}
+                      >
+                        <Box
+                          sx={{
+                            width: 36,
+                            height: 36,
+                            borderRadius: '50%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            bgcolor: theme === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)',
+                            color: link.color || (theme === 'dark' ? '#6366F1' : '#4F46E5'),
+                            mr: 2,
+                            flexShrink: 0
+                          }}
                         >
-                          {link.name}
-                        </Typography>
+                          {link.icon}
+                        </Box>
 
-                        {link.needCopy ? (
+                        <Box>
                           <Typography
                             variant="body2"
                             color="text.secondary"
-                            sx={{
-                              fontSize: '0.9rem',
-                              fontWeight: 500,
-                              position: 'relative',
-                              display: 'inline-block',
-                              cursor: 'pointer',
-                              transition: 'all 0.3s ease',
-                              p: '2px 0',
-                              '&:hover': {
-                                color: 'primary.main',
-                              },
-                              '&::after': {
-                                content: '""',
-                                position: 'absolute',
-                                bottom: 0,
-                                left: 0,
-                                width: '100%',
-                                height: '1.5px',
-                                background: theme === 'dark'
-                                  ? 'linear-gradient(90deg, rgba(99, 102, 241, 0.2) 0%, rgba(99, 102, 241, 0.6) 50%, rgba(99, 102, 241, 0.2) 100%)'
-                                  : 'linear-gradient(90deg, rgba(99, 102, 241, 0.1) 0%, rgba(99, 102, 241, 0.4) 50%, rgba(99, 102, 241, 0.1) 100%)',
-                                transform: 'scaleX(0)',
-                                transformOrigin: 'right',
-                                transition: 'transform 0.4s cubic-bezier(0.45, 0.05, 0.55, 0.95)',
-                                boxShadow: theme === 'dark'
-                                  ? '0 0 8px rgba(99, 102, 241, 0.3)'
-                                  : '0 0 5px rgba(99, 102, 241, 0.2)',
-                                borderRadius: '1px'
-                              },
-                              '&:hover::after': {
-                                transform: 'scaleX(1)',
-                                transformOrigin: 'left'
-                              }
-                            }}
-                            onClick={() => {
-                              // 使用全局复制通知
-                              if (link.value) {
-                                copyToClipboard(link.value, link.name);
-                              }
-                            }}
+                            sx={{ fontSize: '0.8rem', mb: 0.3 }}
                           >
-                            {link.value}
-                            <Box
-                              component="span"
-                              sx={{
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                ml: 0.5,
-                                opacity: 0,
-                                transform: 'translateX(-5px)',
-                                transition: 'opacity 0.3s ease, transform 0.3s ease',
-                                '.MuiTypography-root:hover &': {
-                                  opacity: 0.7,
-                                  transform: 'translateX(0)'
-                                }
-                              }}
-                            >
-                              {link.copyIcon}
-                            </Box>
+                            {link.name}
                           </Typography>
-                        ) : (
-                          <Typography
-                            variant="body2"
-                            component={Link}
-                            to={link.url || '#'}
-                            target={link.url?.startsWith('http') ? "_blank" : undefined}
-                            rel={link.url?.startsWith('http') ? "noopener noreferrer" : undefined}
-                            color="text.secondary"
-                            sx={{
-                              fontSize: '0.9rem',
-                              fontWeight: 500,
-                              textDecoration: 'none',
-                              transition: 'all 0.3s ease',
-                              position: 'relative',
-                              display: 'inline-block',
-                              p: '2px 0',
-                              '&:hover': {
-                                color: 'primary.main',
-                              },
-                              '&::after': {
-                                content: '""',
-                                position: 'absolute',
-                                bottom: 0,
-                                left: 0,
-                                width: '100%',
-                                height: '1.5px',
-                                background: theme === 'dark'
-                                  ? 'linear-gradient(90deg, rgba(99, 102, 241, 0.2) 0%, rgba(99, 102, 241, 0.6) 50%, rgba(99, 102, 241, 0.2) 100%)'
-                                  : 'linear-gradient(90deg, rgba(99, 102, 241, 0.1) 0%, rgba(99, 102, 241, 0.4) 50%, rgba(99, 102, 241, 0.1) 100%)',
-                                transform: 'scaleX(0)',
-                                transformOrigin: 'right',
-                                transition: 'transform 0.4s cubic-bezier(0.45, 0.05, 0.55, 0.95)',
-                                boxShadow: theme === 'dark'
-                                  ? '0 0 8px rgba(99, 102, 241, 0.3)'
-                                  : '0 0 5px rgba(99, 102, 241, 0.2)',
-                                borderRadius: '1px'
-                              },
-                              '&:hover::after': {
-                                transform: 'scaleX(1)',
-                                transformOrigin: 'left'
-                              }
-                            }}
-                          >
-                            {link.value}
-                            <Box
-                              component="span"
-                              sx={{
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                ml: 0.5,
-                                opacity: 0,
-                                transform: 'translateX(-5px)',
-                                transition: 'opacity 0.3s ease, transform 0.3s ease',
-                                '.MuiTypography-root:hover &': {
-                                  opacity: 0.7,
-                                  transform: 'translateX(0)'
-                                }
-                              }}
-                            >
-                              <FiExternalLink size={12} />
-                            </Box>
-                          </Typography>
-                        )}
+
+                          {link.needCopy ? (
+                            <CopyableLink
+                              value={link.value || ''}
+                              label={link.name}
+                              copyIcon={link.copyIcon || <FiCopy size={14} />}
+                              linkColor={link.color || (theme === 'dark' ? '#6366F1' : '#4F46E5')}
+                              onCopy={(text, label) => copyToClipboard(text, label)}
+                            />
+                          ) : (
+                            <CopyableLink
+                              value={link.value || ''}
+                              to={link.url || '#'}
+                              isExternal={link.url?.startsWith('http')}
+                              externalIcon={<FiExternalLink size={14} />}
+                              linkColor={link.color || (theme === 'dark' ? '#6366F1' : '#4F46E5')}
+                            />
+                          )}
+                        </Box>
                       </Box>
-                    </Stack>
+                    </motion.div>
                   </Grid>
                 ))}
               </Grid>
             </Grid>
           </Grid>
 
-          <Divider sx={{ my: 3, opacity: 0.2 }} />
+          <MuiDivider sx={{ my: 3, opacity: 0.2 }} />
 
           <Box
             sx={{

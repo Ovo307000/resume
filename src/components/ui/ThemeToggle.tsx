@@ -1,78 +1,38 @@
 import React from 'react';
-import { Box, IconButton } from '@mui/material';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { FiSun, FiMoon } from 'react-icons/fi';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useTranslation } from 'react-i18next';
-import CustomTooltip from './common/CustomTooltip';
+import IconButton from './common/IconButton';
+import { SxProps, Theme } from '@mui/material';
 
 interface ThemeToggleProps {
   size?: 'small' | 'medium' | 'large';
+  sx?: SxProps<Theme>;
 }
 
 /**
  * 主题切换按钮组件
  * 提供日/夜间模式切换功能，带有流畅动画效果
+ * 使用统一的IconButton组件实现
  */
-const ThemeToggle: React.FC<ThemeToggleProps> = ({ size = 'medium' }) => {
+const ThemeToggle: React.FC<ThemeToggleProps> = ({ size = 'medium', sx }) => {
   const { theme, toggleTheme } = useTheme();
   const { t } = useTranslation();
   const isDark = theme === 'dark';
 
-  // 根据size属性计算尺寸
-  const getSize = () => {
+  // 根据size属性计算图标尺寸
+  const getIconSize = () => {
     switch (size) {
-      case 'small':
-        return {
-          button: { width: 36, height: 36, borderRadius: '10px' },
-          icon: 18
-        };
-      case 'large':
-        return {
-          button: { width: 48, height: 48, borderRadius: '14px' },
-          icon: 24
-        };
-      default:
-        return {
-          button: { width: 42, height: 42, borderRadius: '12px' },
-          icon: 22
-        };
+      case 'small': return 18;
+      case 'large': return 24;
+      default: return 22;
     }
   };
 
-  const sizes = getSize();
+  const iconSize = getIconSize();
 
-  // 获取按钮样式
-  const getButtonStyle = () => {
-    // 日间模式下的样式优化
-    if (theme === 'light') {
-      return {
-        backgroundColor: 'rgba(240, 240, 245, 0.6)',
-        border: '1px solid rgba(0, 0, 0, 0.08)',
-        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
-        '&:hover': {
-          backgroundColor: 'rgba(230, 230, 240, 0.8)'
-        }
-      };
-    }
-
-    // 暗黑模式下的样式
-    return {
-      backgroundColor: 'rgba(255, 255, 255, 0.06)',
-      '&:hover': {
-        backgroundColor: 'rgba(255, 255, 255, 0.1)'
-      }
-    };
-  };
-
-  // 动画变体
-  const buttonVariants = {
-    initial: { scale: 0.8, opacity: 0 },
-    animate: { scale: 1, opacity: 1, transition: { duration: 0.3 } },
-    tap: { scale: 0.9 },
-    hover: { scale: 1.05 }
-  };
-
+  // 动画变体 - 增强图标切换效果
   const iconVariants = {
     initial: { scale: 0, rotate: -30, opacity: 0 },
     animate: {
@@ -93,56 +53,48 @@ const ThemeToggle: React.FC<ThemeToggleProps> = ({ size = 'medium' }) => {
     }
   };
 
+  // 图标颜色 - 更加鲜明
+  const getIconColor = () => {
+    return isDark
+      ? '#FFD700' // 金黄色在暗色模式
+      : '#FF9500'; // 橙色在亮色模式
+  };
+
+  const iconColor = getIconColor();
+
   return (
-    <CustomTooltip title={isDark ? t('common.switchToLight') : t('common.switchToDark')} arrow placement="bottom">
-      <Box>
-        <motion.div
-          initial="initial"
-          animate="animate"
-          whileHover="hover"
-          whileTap="tap"
-          variants={buttonVariants}
-        >
-          <IconButton
-            onClick={toggleTheme}
-            aria-label={isDark ? t('common.switchToLight') : t('common.switchToDark')}
-            sx={{
-              ...sizes.button,
-              padding: 0,
-              transition: 'all 0.3s ease',
-              color: isDark ? '#FFD700' : '#FF9500', // 金黄色在暗色模式，橙色在亮色模式
-              ...getButtonStyle()
-            }}
-          >
-            <AnimatePresence mode="wait">
-              {isDark ? (
-                <motion.div
-                  key="moon"
-                  variants={iconVariants}
-                  initial="initial"
-                  animate="animate"
-                  exit="exit"
-                  style={{ display: 'flex' }}
-                >
-                  <FiMoon size={sizes.icon} />
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="sun"
-                  variants={iconVariants}
-                  initial="initial"
-                  animate="animate"
-                  exit="exit"
-                  style={{ display: 'flex' }}
-                >
-                  <FiSun size={sizes.icon} />
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </IconButton>
-        </motion.div>
-      </Box>
-    </CustomTooltip>
+    <IconButton
+      onClick={toggleTheme}
+      tooltipText={isDark ? t('theme.switchToLight') : t('theme.switchToDark')}
+      size={size}
+      sx={sx}
+      ariaLabel={isDark ? t('theme.switchToLight') : t('theme.switchToDark')}
+      icon={
+        <AnimatePresence mode="wait" initial={false}>
+          {isDark ? (
+            <motion.div
+              key="moon"
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              variants={iconVariants}
+            >
+              <FiMoon size={iconSize} color={iconColor} />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="sun"
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              variants={iconVariants}
+            >
+              <FiSun size={iconSize} color={iconColor} />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      }
+    />
   );
 };
 

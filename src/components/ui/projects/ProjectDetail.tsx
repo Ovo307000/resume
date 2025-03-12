@@ -8,10 +8,11 @@ import {
   Button,
   IconButton,
   Dialog,
-  DialogContent
+  DialogContent,
+  CircularProgress
 } from '@mui/material';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiGithub, FiExternalLink, FiX, FiMaximize, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
+import { FiGithub, FiExternalLink, FiX, FiMaximize, FiChevronLeft, FiChevronRight, FiZoomIn } from 'react-icons/fi';
 import { useTheme } from '../../../contexts/ThemeContext';
 import { useLanguage } from '../../../hooks/useLanguage';
 import { useTranslation } from 'react-i18next';
@@ -47,22 +48,32 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
   const { language } = useLanguage();
   const { t } = useTranslation();
   const [imagePreview, setImagePreview] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   useEffect(() => {
     const handleEscKey = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
+        if (imagePreview) {
+          closeImagePreview();
+        } else {
         onClose();
+        }
       }
     };
 
     document.addEventListener('keydown', handleEscKey);
     document.body.style.overflow = 'hidden';
 
+    // 预加载图片
+    const img = new Image();
+    img.src = imageUrl;
+    img.onload = () => setImageLoaded(true);
+
     return () => {
       document.removeEventListener('keydown', handleEscKey);
       document.body.style.overflow = 'auto';
     };
-  }, [onClose]);
+  }, [onClose, imagePreview, imageUrl]);
 
   const getLocalizedName = () => {
     return language === 'zh' ? nameZh : name;
@@ -72,103 +83,105 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
     return language === 'zh' ? descriptionZh : description;
   };
 
+  // 更流畅的背景动画
   const backdropVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: { duration: 0.4, ease: 'easeInOut' }
+      transition: { duration: 0.3, ease: [0.4, 0.0, 0.2, 1] }
     },
     exit: {
       opacity: 0,
-      transition: { delay: 0.2, duration: 0.4, ease: 'easeInOut' }
+      transition: { duration: 0.2, ease: [0.4, 0.0, 0.2, 1] }
     }
   };
 
+  // 更优雅的内容动画
   const contentVariants = {
     hidden: {
       opacity: 0,
-      scale: 0.95,
-      y: 20
+      scale: 0.98,
+      y: 10
     },
     visible: {
       opacity: 1,
       scale: 1,
       y: 0,
       transition: {
-        duration: 0.5,
+        duration: 0.4,
         type: "spring",
         damping: 25,
-        stiffness: 300,
-        mass: 0.5
+        stiffness: 400,
+        when: "beforeChildren",
+        staggerChildren: 0.05
       }
     },
     exit: {
       opacity: 0,
-      scale: 0.95,
-      y: 10,
+      scale: 0.96,
+      y: 5,
       transition: {
-        duration: 0.3,
-        ease: [0.4, 0, 0.2, 1] // Material UI recommended easing
+        duration: 0.2,
+        ease: [0.4, 0.0, 0.2, 1]
       }
     }
   };
 
+  // 优化图片动画
   const imageVariants = {
     hidden: {
       opacity: 0,
-      scale: 1.1,
+      scale: 1.05,
     },
     visible: {
       opacity: 1,
       scale: 1,
       transition: {
-        delay: 0.1,
-        duration: 0.6,
-        ease: [0.4, 0, 0.2, 1]
+        duration: 0.5,
+        ease: [0.4, 0.0, 0.2, 1]
       }
     },
     exit: {
       opacity: 0,
-      scale: 1.05,
+      scale: 1.02,
       transition: {
-        duration: 0.3,
-        ease: 'easeOut'
+        duration: 0.2,
+        ease: [0.4, 0.0, 0.2, 1]
       }
     }
   };
 
-  const itemVariants = {
+  // 文字内容的交错动画
+  const textVariants = {
     hidden: { opacity: 0, y: 15 },
-    visible: (i: number) => ({
+    visible: {
       opacity: 1,
       y: 0,
       transition: {
-        delay: 0.5 + (i * 0.05),
-        duration: 0.4,
-        ease: 'easeOut'
+        duration: 0.3,
+        ease: [0.4, 0.0, 0.2, 1]
       }
-    }),
+    },
     exit: {
       opacity: 0,
-      y: 10,
+      y: 5,
       transition: { duration: 0.2 }
     }
   };
 
+  // 图片预览动画
   const previewVariants = {
-    hidden: { opacity: 0, scale: 0.9 },
+    hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      scale: 1,
       transition: {
-        duration: 0.4,
-        ease: [0.4, 0, 0.2, 1]
+        duration: 0.3,
+        ease: [0.4, 0.0, 0.2, 1]
       }
     },
     exit: {
       opacity: 0,
-      scale: 0.95,
-      transition: { duration: 0.3 }
+      transition: { duration: 0.2 }
     }
   };
 
@@ -196,12 +209,14 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
             right: 0,
             bottom: 0,
             backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            backdropFilter: 'blur(8px)',
+            backdropFilter: 'blur(10px)',
+            WebkitBackdropFilter: 'blur(10px)',
             zIndex: 1000,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            padding: 16
+            padding: 16,
+            overflow: 'hidden'
           }}
           onClick={onClose}
         >
@@ -229,6 +244,7 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
                   ? alpha(muiTheme.palette.background.paper, 0.85)
                   : alpha(muiTheme.palette.background.paper, 0.95),
                 backdropFilter: 'blur(16px)',
+                WebkitBackdropFilter: 'blur(16px)',
                 border: `1px solid ${alpha(
                   theme === 'dark'
                     ? muiTheme.palette.common.white
@@ -236,10 +252,11 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
                   0.1
                 )}`,
                 boxShadow: theme === 'dark'
-                  ? '0 20px 50px rgba(0, 0, 0, 0.5)'
-                  : '0 20px 50px rgba(0, 0, 0, 0.2)'
+                  ? '0 25px 50px rgba(0, 0, 0, 0.5)'
+                  : '0 25px 50px rgba(0, 0, 0, 0.2)'
               }}
             >
+              {/* 控制按钮 */}
               <Box
                 sx={{
                   position: 'absolute',
@@ -250,6 +267,14 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
                   gap: 1
                 }}
               >
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{
+                    opacity: 1,
+                    scale: 1,
+                    transition: { delay: 0.3, duration: 0.2 }
+                }}
+              >
                 <IconButton
                   onClick={openImagePreview}
                   sx={{
@@ -258,14 +283,27 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
                     borderRadius: '50%',
                     backgroundColor: alpha(muiTheme.palette.common.white, 0.2),
                     backdropFilter: 'blur(4px)',
+                      WebkitBackdropFilter: 'blur(4px)',
                     color: theme === 'dark' ? 'white' : 'black',
                     '&:hover': {
                       backgroundColor: alpha(muiTheme.palette.common.white, 0.3),
+                        transform: 'scale(1.1)',
+                        transition: 'all 0.2s ease'
                     }
                   }}
                 >
-                  <FiMaximize size={18} />
+                    <FiZoomIn size={18} />
                 </IconButton>
+                </motion.div>
+
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{
+                    opacity: 1,
+                    scale: 1,
+                    transition: { delay: 0.4, duration: 0.2 }
+                  }}
+                >
                 <IconButton
                   onClick={onClose}
                   sx={{
@@ -274,26 +312,53 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
                     borderRadius: '50%',
                     backgroundColor: alpha(muiTheme.palette.common.white, 0.2),
                     backdropFilter: 'blur(4px)',
+                      WebkitBackdropFilter: 'blur(4px)',
                     color: theme === 'dark' ? 'white' : 'black',
                     '&:hover': {
                       backgroundColor: alpha(muiTheme.palette.common.white, 0.3),
+                        transform: 'scale(1.1)',
+                        transition: 'all 0.2s ease'
                     }
                   }}
                 >
                   <FiX size={18} />
                 </IconButton>
+                </motion.div>
               </Box>
 
+              {/* 图片部分 */}
               <Box
                 sx={{
                   position: 'relative',
                   width: '100%',
-                  height: {xs: '200px', sm: '300px'},
+                  height: {xs: '200px', sm: '350px', md: '400px'},
                   overflow: 'hidden',
                   cursor: 'pointer'
                 }}
                 onClick={openImagePreview}
               >
+                {/* 加载指示器 */}
+                {!imageLoaded && (
+                  <Box
+                    sx={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: '100%',
+                      height: '100%',
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      backgroundColor: alpha(
+                        muiTheme.palette.background.paper,
+                        theme === 'dark' ? 0.4 : 0.2
+                      )
+                    }}
+                  >
+                    <CircularProgress color="primary" />
+                  </Box>
+                )}
+
                 <motion.div
                   variants={imageVariants}
                   initial="hidden"
@@ -301,7 +366,9 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
                   exit="exit"
                   style={{
                     width: '100%',
-                    height: '100%'
+                    height: '100%',
+                    opacity: imageLoaded ? 1 : 0,
+                    transition: 'opacity 0.5s ease'
                   }}
                 >
                   <Box
@@ -312,14 +379,18 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
                       width: '100%',
                       height: '100%',
                       objectFit: 'cover',
-                      filter: theme === 'dark' ? 'brightness(0.8)' : 'brightness(1)',
-                      transition: 'transform 0.5s ease',
+                      filter: theme === 'dark' ? 'brightness(0.85)' : 'brightness(1)',
+                      transition: 'transform 0.6s ease, filter 0.3s ease',
                       '&:hover': {
-                        transform: 'scale(1.03)'
+                        transform: 'scale(1.03)',
+                        filter: 'brightness(1.1)'
                       }
                     }}
+                    onLoad={() => setImageLoaded(true)}
                   />
                 </motion.div>
+
+                {/* 图片渐变覆盖 */}
                 <Box
                   sx={{
                     position: 'absolute',
@@ -327,17 +398,17 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
                     left: 0,
                     right: 0,
                     height: '100%',
-                    background: `linear-gradient(to bottom, transparent 50%, ${
-                      theme === 'dark'
-                        ? alpha(muiTheme.palette.background.paper, 0.95)
-                        : alpha(muiTheme.palette.background.paper, 0.9)
-                    } 100%)`,
+                    background: `linear-gradient(180deg,
+                      transparent 40%,
+                      ${alpha(muiTheme.palette.background.paper, theme === 'dark' ? 0.4 : 0.3)} 70%,
+                      ${alpha(muiTheme.palette.background.paper, theme === 'dark' ? 0.95 : 0.9)} 100%)`,
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'flex-end',
                     padding: {xs: 3, sm: 4}
                   }}
                 >
+                  <motion.div variants={textVariants}>
                   <Typography
                     variant="h3"
                     fontWeight="bold"
@@ -349,10 +420,13 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
                   >
                     {getLocalizedName()}
                   </Typography>
+                  </motion.div>
                 </Box>
               </Box>
 
+              {/* 内容部分 */}
               <Box sx={{ p: {xs: 3, sm: 4}, pt: 3 }}>
+                <motion.div variants={textVariants} custom={1}>
                 <Typography
                   variant="h6"
                   color="primary.main"
@@ -361,7 +435,9 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
                 >
                   {getLocalizedDescription()}
                 </Typography>
+                </motion.div>
 
+                <motion.div variants={textVariants} custom={2}>
                 <Typography
                   variant="body1"
                   sx={{
@@ -375,7 +451,9 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
                 >
                   {longDescription}
                 </Typography>
+                </motion.div>
 
+                <motion.div variants={textVariants} custom={3}>
                 <Box sx={{ mb: 2 }}>
                   <Typography
                     variant="subtitle1"
@@ -407,7 +485,9 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
                   maxVisibleItems={8}
                   initiallyExpanded={true}
                 />
+                </motion.div>
 
+                <motion.div variants={textVariants} custom={4}>
                 <Box sx={{
                   display: 'flex',
                   gap: 2,
@@ -477,12 +557,14 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
                     </Button>
                   )}
                 </Box>
+                </motion.div>
               </Box>
             </Box>
           </motion.div>
         </motion.div>
       </AnimatePresence>
 
+      {/* 优化图片预览功能 */}
       <AnimatePresence>
         {imagePreview && (
           <motion.div
@@ -501,8 +583,9 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              backgroundColor: 'rgba(0,0,0,0.9)',
-              backdropFilter: 'blur(8px)'
+              backgroundColor: 'rgba(0,0,0,0.95)',
+              backdropFilter: 'blur(10px)',
+              WebkitBackdropFilter: 'blur(10px)'
             }}
             onClick={closeImagePreview}
           >
@@ -514,6 +597,14 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
                 zIndex: 10
               }}
             >
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{
+                  opacity: 1,
+                  scale: 1,
+                  transition: { delay: 0.2, duration: 0.2 }
+              }}
+            >
               <IconButton
                 onClick={closeImagePreview}
                 sx={{
@@ -521,12 +612,17 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
                   color: 'white',
                   '&:hover': {
                     backgroundColor: alpha(muiTheme.palette.common.black, 0.7),
+                      transform: 'scale(1.1)',
+                      transition: 'all 0.2s ease'
                   }
                 }}
               >
                 <FiX size={24} />
               </IconButton>
+              </motion.div>
             </Box>
+
+            {/* 图片预览 */}
             <motion.img
               src={imageUrl}
               alt={getLocalizedName()}
@@ -537,11 +633,16 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
                 borderRadius: '8px',
                 boxShadow: '0 8px 32px rgba(0,0,0,0.5)'
               }}
-              initial={{ opacity: 0, scale: 0.8 }}
+              initial={{ opacity: 0, scale: 0.9 }}
               animate={{
                 opacity: 1,
                 scale: 1,
                 transition: { delay: 0.1, duration: 0.4 }
+              }}
+              exit={{
+                opacity: 0,
+                scale: 0.95,
+                transition: { duration: 0.2 }
               }}
             />
           </motion.div>

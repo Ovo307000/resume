@@ -5,7 +5,7 @@ import AnimatedLink from './AnimatedLink';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface CopyableLinkProps {
-  value: string;
+  value: string | undefined;
   label?: string; // 用于复制成功消息
   to?: string; // 跳转链接
   copyIcon?: React.ReactNode;
