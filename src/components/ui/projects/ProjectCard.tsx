@@ -3,39 +3,36 @@ import { motion } from 'framer-motion';
 import {
   Box,
   Typography,
-  Chip,
   alpha,
   useTheme as useMuiTheme,
   Card,
   CardMedia,
   CardContent,
-  CardActions,
-  Button,
-  Tooltip,
   IconButton,
   useMediaQuery,
   Dialog,
   DialogContent,
   DialogTitle
 } from '@mui/material';
-import { AnimatePresence } from 'framer-motion';
-import { FiGithub, FiInfo, FiEye, FiExternalLink, FiMaximize2, FiX } from 'react-icons/fi';
+import { FiGithub, FiExternalLink, FiX } from 'react-icons/fi';
 import { useTheme } from '../../../contexts/ThemeContext';
 import { useLanguage } from '../../../hooks/useLanguage';
-import { useTranslation } from 'react-i18next';
-import ProjectDetail from './ProjectDetail';
-import TechTagGroup from '../common/TechTagGroup';
-import TechnologyTag from './TechnologyTag';
+import { TechnologyTag } from './TechnologyTag';
+
+interface LocalizedText {
+  en: string;
+  zh: string;
+}
 
 interface ProjectCardProps {
   name: string;
-  nameZh: string;
+  nameZh?: string;
   description: string;
-  descriptionZh: string;
-  longDescription: string;
-  technologies: string[];
+  descriptionZh?: string;
+  longDescription?: LocalizedText | string;
+  technologies?: string[];
   imageUrl: string;
-  url: string;
+  url?: string;
   githubUrl?: string;
   category?: string;
   index?: number;
@@ -43,54 +40,31 @@ interface ProjectCardProps {
 
 const ProjectCard: React.FC<ProjectCardProps> = ({
   name,
-  nameZh,
+  nameZh = name,
   description,
-  descriptionZh,
+  descriptionZh = description,
   longDescription,
-  technologies,
+  technologies = [],
   imageUrl,
-  url,
+  url = '',
   githubUrl,
-  category
+  // category,
+  index = 0
 }) => {
   const { theme } = useTheme();
   const muiTheme = useMuiTheme();
   const { language } = useLanguage();
-  const { t } = useTranslation();
-  const [showDetail, setShowDetail] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   // 新增：检测是否为移动设备
   const isMobile = useMediaQuery(muiTheme.breakpoints.down('sm'));
   const isTablet = useMediaQuery(muiTheme.breakpoints.down('md'));
 
-  const getLocalizedName = () => {
-    return language === 'zh' ? nameZh : name;
-  };
-
-  const getLocalizedDescription = () => {
-    return language === 'zh' ? descriptionZh : description;
-  };
-
   const handleOpenDetail = () => {
-    setShowDetail(true);
+    if (longDescription) {
+      setIsDialogOpen(true);
+    }
   };
-
-  const handleCloseDetail = () => {
-    setShowDetail(false);
-  };
-
-  // 获取响应式尺寸的技术标签数量
-  const getVisibleTechCount = () => {
-    if (isMobile) return 2; // 手机屏幕显示2个
-    if (isTablet) return 3; // 平板屏幕显示3个
-    return 4; // 桌面显示4个
-  };
-
-  // 计算可见和隐藏的技术标签
-  const visibleTechCount = getVisibleTechCount();
-  const visibleTechnologies = technologies.slice(0, visibleTechCount);
-  const hiddenTechnologiesCount = technologies.length - visibleTechCount;
 
   // 处理外部链接点击
   const handleLinkClick = (e: React.MouseEvent, link?: string) => {
@@ -99,6 +73,29 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
       window.open(link, '_blank', 'noopener,noreferrer');
     }
   };
+
+  // 处理长描述文本，增强容错处理
+  const getLongDescription = () => {
+    if (!longDescription) return '';
+
+    if (typeof longDescription === 'string') {
+      return longDescription;
+    }
+
+    if (typeof longDescription === 'object') {
+      const currentLanguage = language as keyof LocalizedText;
+      const fallbackLanguage: keyof LocalizedText = 'en';
+
+      return longDescription[currentLanguage] ||
+             longDescription[fallbackLanguage] ||
+             '';
+    }
+
+    return '';
+  };
+
+  // 检查是否应该启用点击以显示详情
+  const hasDetails = !!longDescription;
 
   return (
     <>
@@ -109,14 +106,14 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
         style={{ height: '100%' }}
       >
         <Card
-          onClick={handleOpenDetail}
+          onClick={hasDetails ? handleOpenDetail : undefined}
           sx={{
             height: '100%',
             display: 'flex',
             flexDirection: 'column',
             borderRadius: '16px',
             overflow: 'hidden',
-            cursor: longDescription ? 'pointer' : 'default',
+            cursor: hasDetails ? 'pointer' : 'default',
             backgroundColor: theme === 'dark'
               ? 'rgba(30, 30, 40, 0.6)'
               : 'rgba(255, 255, 255, 0.8)',
@@ -309,9 +306,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
 
           {/* 项目描述 */}
           <Typography variant="body1" paragraph>
-            {longDescription && (language === 'en'
-              ? longDescription.en
-              : longDescription.zh)}
+            {getLongDescription()}
           </Typography>
 
           {/* 技术标签 */}

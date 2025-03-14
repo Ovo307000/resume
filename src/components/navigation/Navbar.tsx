@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Box, useScrollTrigger } from '@mui/material';
+import React from 'react';
+import { useScrollTrigger, useMediaQuery, useTheme as useMuiTheme } from '@mui/material';
 import { useLocation } from 'react-router-dom';
 import DesktopNavbar from './desktop/DesktopNavbar';
 import MobileNavbar from './mobile/MobileNavbar';
@@ -7,12 +7,18 @@ import { useNavRoutes, isRouteActive } from './common/routes';
 
 /**
  * 导航栏组件
- * 根据滚动位置自动隐藏/显示，并在滚动一定距离后变为紧凑模式
+ * 根据滚动位置自动调整紧凑模式，使用sticky定位确保始终置顶
+ * 根据屏幕尺寸自动切换桌面版或移动版导航栏
+ * 移动版导航栏使用侧边抽屉展示导航项，提高空间利用率
  */
 const Navbar: React.FC = () => {
   const location = useLocation();
   const routes = useNavRoutes();
-  const [navbarHeight, setNavbarHeight] = useState(84);
+  const muiTheme = useMuiTheme();
+
+  // 使用媒体查询判断是否为移动设备
+  // 这里确保在中等尺寸屏幕以下显示移动导航栏
+  const isMobile = useMediaQuery(muiTheme.breakpoints.down('md'));
 
   // 使用改进的滚动钩子，获取滚动状态
   const threshold = 100; // 滚动阈值
@@ -26,13 +32,6 @@ const Navbar: React.FC = () => {
   // 判断是否处于紧凑模式（滚动超过阈值）
   const isCompact = trigger;
 
-  // 当滚动状态变化时，更新导航栏高度
-  useEffect(() => {
-    // 导航栏高度，默认84px，紧凑模式下为64px
-    const height = isCompact ? 64 : 84;
-    setNavbarHeight(height);
-  }, [isCompact]);
-
   // 检查路由是否活跃
   const checkIsActive = (path: string): boolean => {
     return isRouteActive(location.pathname, path);
@@ -40,24 +39,20 @@ const Navbar: React.FC = () => {
 
   return (
     <>
-      {/* 占位盒子，保证内容不被导航栏遮挡 */}
-      <Box
-        sx={{
-          height: `${navbarHeight}px`,
-          transition: 'height 0.3s ease'
-        }}
-      />
-
-      <DesktopNavbar
-        routes={routes}
-        isActive={checkIsActive}
-        isCompact={isCompact}
-      />
-      <MobileNavbar
-        routes={routes}
-        isActive={checkIsActive}
-        isCompact={isCompact}
-      />
+      {/* 直接渲染导航栏，不需要占位盒子，sticky定位会自动处理 */}
+      {isMobile ? (
+        <MobileNavbar
+          routes={routes}
+          showLanguageSelector={true}
+          isActive={checkIsActive}
+        />
+      ) : (
+        <DesktopNavbar
+          routes={routes}
+          isActive={checkIsActive}
+          isCompact={isCompact}
+        />
+      )}
     </>
   );
 };

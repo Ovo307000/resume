@@ -48,6 +48,9 @@ const EducationTimelineItem: React.FC<EducationTimelineItemProps> = ({
   const language = i18n.language as keyof LocalizedText;
   const fallbackLanguage: keyof LocalizedText = 'en';
 
+  // 修正移动设备问题 - 移到顶部来确保在所有使用之前定义
+  const isMobile = useMediaQuery(muiTheme.breakpoints.down('md'));
+
   // 获取本地化文本
   const getLocalizedText = (text?: LocalizedText): string => {
     if (!text) return '';
@@ -166,9 +169,6 @@ const EducationTimelineItem: React.FC<EducationTimelineItemProps> = ({
     } : {}
   };
 
-  // 修正移动设备问题
-  const isMobile = useMediaQuery(muiTheme.breakpoints.down('md'));
-
   return (
     <Box
       sx={{
@@ -218,9 +218,9 @@ const EducationTimelineItem: React.FC<EducationTimelineItemProps> = ({
         <Box
           sx={{
             position: 'absolute',
-            left: '20px',
+            left: '24px', // 调整位置，使其对齐更好
             top: 0,
-            bottom: 0,
+            bottom: '-20px', // 延长一点，确保连接是完整的
             width: '2px',
             display: { xs: 'block', md: isAlternate ? 'none' : 'block' },
             backgroundColor: theme === 'dark'
@@ -231,6 +231,38 @@ const EducationTimelineItem: React.FC<EducationTimelineItemProps> = ({
         />
       ) : null}
 
+      {/* 移动设备时显示时间点 */}
+      {(!isAlternate || isMobile) && (
+        <Box
+          sx={{
+            position: 'absolute',
+            left: '24px', // 确保与线对齐
+            top: '30px',
+            transform: 'translateX(-50%)',
+            zIndex: 2
+          }}
+        >
+          <motion.div
+            variants={dotVariants}
+            initial="initial"
+            animate="animate"
+          >
+            <Box
+              sx={{
+                width: 14,
+                height: 14,
+                borderRadius: '50%',
+                backgroundColor: isDark ? 'primary.main' : 'primary.main',
+                border: `3px solid ${isDark ? '#1E1E28' : '#FFFFFF'}`,
+                boxShadow: isDark
+                  ? '0 0 0 3px rgba(99, 102, 241, 0.3)'
+                  : '0 0 0 3px rgba(99, 102, 241, 0.2)'
+              }}
+            />
+          </motion.div>
+        </Box>
+      )}
+
       {/* 内容卡片 */}
       <Box
         sx={{
@@ -239,7 +271,7 @@ const EducationTimelineItem: React.FC<EducationTimelineItemProps> = ({
           pr: isAlternate && !isMobile && isEven ? { xs: 0, md: 4 } : 0,
           pl: isAlternate && !isMobile ?
             (!isEven ? { xs: 0, md: 4 } : 0) :
-            { xs: 5, sm: 6, md: isAlternate ? 0 : 6 }, // 添加左侧padding给垂直时间轴
+            { xs: 5, sm: 5.5, md: isAlternate ? 0 : 5.5 }, // 调整左侧padding，确保内容不会太靠近时间轴
           ml: isAlternate && !isMobile && !isEven ? 'auto' : 0
         }}
       >

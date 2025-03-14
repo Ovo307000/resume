@@ -32,3 +32,16 @@ export const isRouteActive = (currentPath: string, routePath: string): boolean =
   // 其他页面
   return routePath !== '/' && currentPath.startsWith(routePath);
 };
+
+/**
+ * 获取i18n导航标题
+ * 包含菜单和设置等标题
+ */
+export const getNavTitles = () => {
+  const { t } = useTranslation();
+
+  return {
+    menu: t('header.menu', 'Menu'),  // 导航菜单标题
+    settings: t('header.settings', 'Settings'),  // 设置区域标题
+  };
+};

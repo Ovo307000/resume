@@ -1,7 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import {
-  Typography,
   Box,
   Container,
   useMediaQuery,
@@ -10,8 +9,9 @@ import {
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../contexts/ThemeContext';
 import PageTransition from '../../components/ui/transitions/PageTransition';
-import EducationTimelineItem from '../../components/ui/education/EducationTimelineItem';
 import PageTitle from '../../components/ui/common/PageTitle';
+import EducationTimelineDesktop from '../../components/ui/education/EducationTimelineDesktop';
+import EducationTimelineMobile from '../../components/ui/education/EducationTimelineMobile';
 
 interface LocalizedText {
   en: string;
@@ -38,7 +38,7 @@ interface EducationPageProps {
 }
 
 /**
- * 教育经历页面组件 - 优化移动端显示
+ * 教育经历页面组件 - 使用专门的桌面和移动端组件
  * 展示学校经历、活动、成就和技能
  */
 const EducationPage: React.FC<EducationPageProps> = ({ data }) => {
@@ -46,9 +46,8 @@ const EducationPage: React.FC<EducationPageProps> = ({ data }) => {
   const { theme } = useTheme();
   const muiTheme = useMuiTheme();
 
-  // 检测是否为移动设备
-  const isMobile = useMediaQuery(muiTheme.breakpoints.down('sm'));
-  const isTablet = useMediaQuery(muiTheme.breakpoints.down('md'));
+  // 检测是否为移动设备 - 使用md断点以获得更好的体验
+  const isMobile = useMediaQuery(muiTheme.breakpoints.down('md'));
 
   return (
     <PageTransition mode="fade">
@@ -67,48 +66,15 @@ const EducationPage: React.FC<EducationPageProps> = ({ data }) => {
             <PageTitle
               title={t('education.title', '教育经历')}
               subtitle={t('education.subtitle', '我的学习旅程和获得的技能')}
-              centered
             />
           </motion.div>
 
-          {/* 教育经历时间线 - 使用新组件 */}
-          <Box
-            sx={{
-              position: 'relative',
-              mt: { xs: 4, md: 6 },
-              '&::before': !isMobile ? {
-                content: '""',
-                position: 'absolute',
-                top: 0,
-                bottom: 0,
-                left: '50%',
-                width: '2px',
-                backgroundColor: theme === 'dark'
-                  ? 'rgba(255, 255, 255, 0.1)'
-                  : 'rgba(0, 0, 0, 0.06)',
-                transform: 'translateX(-50%)',
-                zIndex: 1
-              } : {}
-            }}
-          >
-            {data.map((education, index) => (
-              <Box
-                key={index}
-                sx={{
-                  mb: { xs: 3, sm: 4 },
-                  '&:last-child': {
-                    mb: 0
-                  }
-                }}
-              >
-                <EducationTimelineItem
-                  education={education}
-                  index={index}
-                  isAlternate={!isMobile}
-                />
-              </Box>
-            ))}
-          </Box>
+          {/* 根据屏幕尺寸渲染相应的时间线组件 */}
+          {isMobile ? (
+            <EducationTimelineMobile educationList={data} />
+          ) : (
+            <EducationTimelineDesktop educationList={data} />
+          )}
         </Container>
       </Box>
     </PageTransition>
