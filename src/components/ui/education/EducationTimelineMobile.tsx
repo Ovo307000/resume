@@ -1,9 +1,15 @@
 import React from 'react';
-import { Box, Typography, Paper, Chip, List, ListItem, ListItemText } from '@mui/material';
+import { Box, useMediaQuery, useTheme as useMuiTheme, Typography } from '@mui/material';
+import Timeline from '@mui/lab/Timeline';
+import TimelineItem from '@mui/lab/TimelineItem';
+import TimelineSeparator from '@mui/lab/TimelineSeparator';
+import TimelineConnector from '@mui/lab/TimelineConnector';
+import TimelineContent from '@mui/lab/TimelineContent';
+import TimelineDot from '@mui/lab/TimelineDot';
 import { motion } from 'framer-motion';
-import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../../contexts/ThemeContext';
-import { FiCalendar, FiAward, FiActivity, FiCode, FiTarget, FiBookOpen } from 'react-icons/fi';
+import { alpha } from '@mui/material/styles';
+import EducationCardContent from './EducationCardContent';
 
 interface LocalizedText {
   en: string;
@@ -26,311 +32,174 @@ interface Education {
 }
 
 interface EducationTimelineMobileProps {
-  educationList: Education[];
+  educations?: Education[];
+  expandedCards?: string[];
+  toggleCardExpansion?: (id: string) => void;
 }
 
 /**
- * 移动端教育经历时间线组件
- * 使用垂直布局设计，简洁明了
+ * 移动端教育时间线组件
+ * 使用 MUI Timeline 组件展示教育经历
  */
 const EducationTimelineMobile: React.FC<EducationTimelineMobileProps> = ({
-  educationList
+  educations = [],
+  expandedCards = [],
+  toggleCardExpansion = () => {}
 }) => {
-  const { t, i18n } = useTranslation();
   const { theme } = useTheme();
   const isDark = theme === 'dark';
-  const language = i18n.language as keyof LocalizedText;
-  const fallbackLanguage: keyof LocalizedText = 'en';
+  const muiTheme = useMuiTheme();
+  const isMobile = useMediaQuery(muiTheme.breakpoints.down('sm'));
 
-  // 获取本地化文本
-  const getLocalizedText = (text?: LocalizedText): string => {
-    if (!text) return '';
-    return text[language] || text[fallbackLanguage] || '';
+  console.log("Mobile timeline educations data:", educations); // 调试日志
+
+  // 定义主色和次色
+  const primaryColor = isDark ? '#7c4dff' : '#4c8cff';
+  const secondaryColor = isDark ? '#fb8c00' : '#ff5722';
+
+  // 卡片动画变体
+  const cardVariants = {
+    hidden: {
+      opacity: 0,
+      x: -20
+    },
+    visible: (i: number) => ({
+      opacity: 1,
+      x: 0,
+      transition: {
+        delay: i * 0.1,
+        duration: 0.4,
+        ease: "easeOut"
+      }
+    })
   };
 
-  // 从LocalizedText数组中获取本地化文本数组
-  const getLocalizedArray = (array?: LocalizedText[]): string[] => {
-    if (!array) return [];
-    return array.map(item => getLocalizedText(item));
+  // 时间点动画变体
+  const dotVariants = {
+    hidden: {
+      scale: 0,
+      opacity: 0
+    },
+    visible: (i: number) => ({
+      scale: 1,
+      opacity: 1,
+      transition: {
+        delay: i * 0.1 + 0.1,
+        duration: 0.3,
+        type: "spring",
+        stiffness: 300
+      }
+    })
   };
 
-  // 渲染列表项
-  const renderListItems = (
-    items: string[],
-    icon: React.ReactNode,
-    color: string
-  ) => {
-    if (items.length === 0) return null;
-
+  // 如果没有教育数据，显示提示信息
+  if (!educations || educations.length === 0) {
     return (
-      <List disablePadding sx={{ mt: 2 }}>
-        {items.map((item, idx) => (
-          <ListItem
-            key={idx}
-            disablePadding
-            alignItems="flex-start"
-            sx={{ mb: 1.5, pl: 0 }}
-          >
-            <Box
-              sx={{
-                mr: 1.5,
-                color,
-                display: 'flex',
-                alignItems: 'flex-start',
-                pt: 0.5
-              }}
-            >
-              {icon}
-            </Box>
-            <ListItemText
-              primary={item}
-              primaryTypographyProps={{
-                variant: 'body2',
-                color: 'text.primary',
-                sx: { lineHeight: 1.5 }
-              }}
-            />
-          </ListItem>
-        ))}
-      </List>
+      <Box sx={{ textAlign: 'center', mt: 4, px: 2 }}>
+        <Typography variant="body1" color="text.secondary">
+          暂无教育经历数据
+        </Typography>
+      </Box>
     );
-  };
-
-  // 卡片样式
-  const cardStyle = {
-    p: 3,
-    borderRadius: 3,
-    position: 'relative',
-    background: isDark
-      ? 'linear-gradient(145deg, rgba(30, 30, 40, 0.8), rgba(35, 35, 45, 0.8))'
-      : 'linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(240, 240, 250, 0.9))',
-    backdropFilter: 'blur(10px)',
-    border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)'}`,
-    boxShadow: isDark
-      ? '0 4px 20px rgba(0, 0, 0, 0.2)'
-      : '0 4px 20px rgba(0, 0, 0, 0.05)',
-    overflow: 'hidden',
-  };
+  }
 
   return (
     <Box
       sx={{
+        width: '100%',
         position: 'relative',
-        mt: 4,
-        // 左侧的时间轴线
-        '&::before': {
-          content: '""',
-          position: 'absolute',
-          top: 20,
-          bottom: 0,
-          left: 20,
-          width: 2,
-          backgroundColor: theme === 'dark'
-            ? 'rgba(255, 255, 255, 0.1)'
-            : 'rgba(0, 0, 0, 0.06)',
-          zIndex: 0
-        }
+        pb: 2,
+        pl: { xs: 0, sm: 2 }
       }}
     >
-      {educationList.map((education, index) => {
-        // 卡片动画变体
-        const cardVariants = {
-          initial: {
-            opacity: 0,
-            y: 20,
-          },
-          animate: {
-            opacity: 1,
-            y: 0,
-            transition: {
-              duration: 0.5,
-              delay: index * 0.1
-            }
-          }
-        };
-
-        // 时间点变体
-        const dotVariants = {
-          initial: { scale: 0 },
-          animate: {
-            scale: 1,
-            transition: {
-              delay: index * 0.1 + 0.2,
-              type: 'spring',
-              stiffness: 300,
-              damping: 15
-            }
-          }
-        };
-
-        return (
-          <Box
-            key={index}
+      <Timeline position="right" sx={{ p: 0, m: 0 }}>
+        {educations.map((education, index) => (
+          <TimelineItem
+            key={`timeline-mobile-${index}`}
             sx={{
-              position: 'relative',
-              pl: 5, // 为左侧的时间点留出空间
-              mb: index === educationList.length - 1 ? 0 : 6
+              minHeight: 'auto',
+              '&:before': {
+                display: 'none'  // 隐藏左侧空间
+              }
             }}
           >
-            {/* 时间点 */}
-            <Box
-              sx={{
-                position: 'absolute',
-                left: 20,
-                top: 30,
-                transform: 'translateX(-50%)',
-                zIndex: 2
-              }}
-            >
+            <TimelineSeparator>
               <motion.div
                 variants={dotVariants}
-                initial="initial"
-                animate="animate"
+                initial="hidden"
+                animate="visible"
+                custom={index}
               >
-                <Box
+                <TimelineDot
                   sx={{
-                    width: 16,
-                    height: 16,
-                    borderRadius: '50%',
-                    backgroundColor: isDark ? 'primary.main' : 'primary.main',
-                    border: `3px solid ${isDark ? '#1E1E28' : '#FFFFFF'}`,
-                    boxShadow: isDark
-                      ? '0 0 0 3px rgba(99, 102, 241, 0.3)'
-                      : '0 0 0 3px rgba(99, 102, 241, 0.2)'
+                    bgcolor: primaryColor,
+                    boxShadow: `0 0 10px ${alpha(primaryColor, 0.5)}`,
+                    my: 0.5,
+                    width: 14,
+                    height: 14,
+                    border: 'none'
                   }}
                 />
               </motion.div>
-            </Box>
 
-            {/* 垂直时间轴上的时间点背景 */}
-            <Box
+              {index < educations.length - 1 && (
+                <TimelineConnector
+                  sx={{
+                    minHeight: '80px',
+                    width: 3,
+                    background: `linear-gradient(180deg, ${primaryColor} 0%, ${secondaryColor} 100%)`,
+                    boxShadow: `0 0 6px ${alpha(primaryColor, 0.3)}`
+                  }}
+                />
+              )}
+            </TimelineSeparator>
+
+            <TimelineContent
               sx={{
-                position: 'absolute',
-                left: 20,
-                top: 30,
-                transform: 'translateX(-50%)',
-                zIndex: 1,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: 24,
-                height: 24,
-                borderRadius: '50%',
-                backgroundColor: theme === 'dark' ? '#1E1E28' : '#FFFFFF',
-                border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'}`,
-                boxShadow: isDark
-                  ? '0 4px 8px rgba(0, 0, 0, 0.2)'
-                  : '0 4px 8px rgba(0, 0, 0, 0.05)'
-              }}
-            />
-
-            {/* 内容卡片 */}
-            <motion.div
-              variants={cardVariants}
-              initial="initial"
-              animate="animate"
-              style={{
-                width: '100%'
+                p: 0,
+                pl: 2,
+                pb: 4,
+                pr: { xs: 1, sm: 2 }
               }}
             >
-              <Paper elevation={0} sx={cardStyle}>
-                {/* 学校和日期 */}
-                <Box sx={{ display: 'flex', flexDirection: 'column', mb: 2 }}>
-                  <Typography
-                    variant="h5"
-                    component="h3"
-                    sx={{
-                      fontWeight: 600,
-                      color: isDark ? 'primary.light' : 'primary.main',
-                      mb: 0.5,
-                      fontSize: { xs: '1.25rem', sm: '1.5rem' }
-                    }}
-                  >
-                    {education.institution}
-                  </Typography>
-
-                  <Typography
-                    variant="h6"
-                    component="h4"
-                    sx={{
-                      fontWeight: 500,
-                      mb: 1.5,
-                      fontSize: { xs: '1rem', sm: '1.25rem' }
-                    }}
-                  >
-                    {education.area}
-                  </Typography>
-
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-                    <FiCalendar size={16} style={{ marginRight: 8 }} />
-                    <Typography variant="body2" color="text.secondary">
-                      {getLocalizedText(education.displayDate)}
-                      {education.isOngoing && (
-                        <Chip
-                          label={t('education.current')}
-                          size="small"
-                          color="primary"
-                          sx={{ ml: 1, height: 20, fontSize: '0.7rem' }}
-                        />
-                      )}
-                    </Typography>
-                  </Box>
+              <motion.div
+                variants={cardVariants}
+                initial="hidden"
+                animate="visible"
+                custom={index}
+                whileHover={{
+                  y: -3,
+                  boxShadow: isDark
+                    ? '0 12px 20px rgba(0, 0, 0, 0.2)'
+                    : '0 12px 18px rgba(0, 0, 0, 0.1)'
+                }}
+                transition={{ duration: 0.2 }}
+              >
+                <Box
+                  sx={{
+                    p: 2.5,
+                    borderRadius: '12px',
+                    bgcolor: isDark ? 'rgba(255, 255, 255, 0.04)' : 'rgba(255, 255, 255, 0.8)',
+                    backdropFilter: 'blur(8px)',
+                    boxShadow: isDark
+                      ? '0 8px 16px rgba(0, 0, 0, 0.15)'
+                      : '0 8px 16px rgba(0, 0, 0, 0.08)',
+                    border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.03)'}`
+                  }}
+                >
+                  <EducationCardContent
+                    education={education}
+                    cardId={`mobile-${index}`}
+                    expandedCards={expandedCards}
+                    toggleCardExpansion={toggleCardExpansion}
+                    isTimelineView={true}
+                  />
                 </Box>
-
-                {/* 描述 */}
-                {education.description && (
-                  <Typography
-                    variant="body2"
-                    color="text.primary"
-                    sx={{
-                      mb: 2,
-                      lineHeight: 1.6,
-                      opacity: 0.9
-                    }}
-                  >
-                    {getLocalizedText(education.description)}
-                  </Typography>
-                )}
-
-                {/* 活动 */}
-                {renderListItems(
-                  getLocalizedArray(education.activities),
-                  <FiActivity size={16} />,
-                  isDark ? '#F59E0B' : '#D97706'
-                )}
-
-                {/* 成就 */}
-                {renderListItems(
-                  getLocalizedArray(education.achievements),
-                  <FiAward size={16} />,
-                  isDark ? '#10B981' : '#059669'
-                )}
-
-                {/* 技能 */}
-                {renderListItems(
-                  getLocalizedArray(education.skills),
-                  <FiCode size={16} />,
-                  isDark ? '#8B5CF6' : '#7C3AED'
-                )}
-
-                {/* 当前关注 */}
-                {renderListItems(
-                  getLocalizedArray(education.currentFocus),
-                  <FiBookOpen size={16} />,
-                  isDark ? '#EC4899' : '#DB2777'
-                )}
-
-                {/* 目标 */}
-                {renderListItems(
-                  getLocalizedArray(education.goals),
-                  <FiTarget size={16} />,
-                  isDark ? '#3B82F6' : '#2563EB'
-                )}
-              </Paper>
-            </motion.div>
-          </Box>
-        );
-      })}
+              </motion.div>
+            </TimelineContent>
+          </TimelineItem>
+        ))}
+      </Timeline>
     </Box>
   );
 };

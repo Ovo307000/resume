@@ -8,43 +8,47 @@ export const getThemeOptions = (mode: PaletteMode): ThemeOptions => {
       mode,
       ...(mode === 'light'
         ? {
-            // 亮色模式
+            // 亮色模式 - 更新为新的配色方案
             primary: {
-              light: '#4F46E5',  // 对应 Tailwind 的 primary.light
-              main: '#4338CA',   // 对应 Tailwind 的 primary.DEFAULT
-              dark: '#3730A3',   // 对应 Tailwind 的 primary.dark
+              light: '#6366F1',  // 更亮的蓝紫色
+              main: '#4F46E5',   // 靛蓝色
+              dark: '#4338CA',   // 深靛蓝色
               contrastText: '#ffffff',
             },
             secondary: {
-              main: '#10B981',   // 对应 Tailwind 的 accent.green
+              light: '#A78BFA', // 淡紫色
+              main: '#8B5CF6',  // 紫色
+              dark: '#7C3AED',  // 深紫色
+              contrastText: '#ffffff',
             },
             error: {
-              main: '#EF4444',   // 对应 Tailwind 的 accent.red
+              main: '#EF4444',   // 红色
             },
             info: {
-              main: '#3B82F6',   // 对应 Tailwind 的 accent.blue
+              main: '#3B82F6',   // 蓝色
             },
             background: {
               default: '#ffffff',
               paper: '#ffffff',
             },
             text: {
-              primary: '#1f2937',  // 对应 Tailwind 的 gray-800
-              secondary: '#4b5563', // 对应 Tailwind 的 gray-600
+              primary: '#1f2937',  // 深灰色
+              secondary: '#4b5563', // 中灰色
             },
             divider: 'rgba(0, 0, 0, 0.12)',
           }
         : {
             // 暗色模式 - 优化暗色调色板
             primary: {
-              light: '#818CF8', // 更亮的紫色
-              main: '#6366F1',
-              dark: '#4F46E5',
+              light: '#818CF8', // 更亮的蓝紫色
+              main: '#6366F1',  // 蓝紫色
+              dark: '#4F46E5',  // 靛蓝色
               contrastText: '#ffffff',
             },
             secondary: {
-              main: '#34D399', // 更亮的绿色
-              dark: '#10B981',
+              light: '#C4B5FD', // 更亮的紫色
+              main: '#A78BFA',  // 紫色
+              dark: '#8B5CF6',  // 深紫色
               contrastText: '#ffffff',
             },
             error: {
@@ -57,13 +61,13 @@ export const getThemeOptions = (mode: PaletteMode): ThemeOptions => {
             },
             background: {
               // 更新背景颜色为更深的黑色
-              default: '#121212',  // 对应 Tailwind 的 dark.bg
-              paper: '#1E1E1E',    // 对应 Tailwind 的 dark.card
+              default: '#121212',  // 深黑色
+              paper: '#1E1E1E',    // 稍亮的黑色
             },
             text: {
               // 更新文本颜色以提高暗色模式下的可读性
-              primary: '#e5e7eb',  // 对应 Tailwind 的 gray-200
-              secondary: '#9ca3af', // 对应 Tailwind 的 gray-400
+              primary: '#e5e7eb',  // 亮灰色
+              secondary: '#9ca3af', // 中灰色
             },
             divider: 'rgba(255, 255, 255, 0.12)',
             action: {
@@ -114,8 +118,9 @@ export const getThemeOptions = (mode: PaletteMode): ThemeOptions => {
         styleOverrides: {
           root: {
             textTransform: 'none',
-            borderRadius: '0.5rem',
+            borderRadius: '0.75rem', // 增加圆角
             fontWeight: 500,
+            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
             ...(mode === 'dark' && {
               color: '#e5e7eb',
             }),
@@ -125,30 +130,53 @@ export const getThemeOptions = (mode: PaletteMode): ThemeOptions => {
               borderColor: 'rgba(255, 255, 255, 0.23)',
               '&:hover': {
                 borderColor: 'rgba(255, 255, 255, 0.4)',
+                transform: 'translateY(-2px)',
+                boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
               },
             }),
+            '&:hover': {
+              transform: 'translateY(-2px)',
+              boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+            },
           },
           contained: {
-            boxShadow: mode === 'dark' ? '0 4px 6px -1px rgba(0, 0, 0, 0.2)' : '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+            boxShadow: mode === 'dark'
+              ? '0 4px 6px -1px rgba(0, 0, 0, 0.2)'
+              : '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+            '&:hover': {
+              transform: 'translateY(-2px)',
+              boxShadow: mode === 'dark'
+                ? '0 6px 12px -1px rgba(0, 0, 0, 0.3)'
+                : '0 6px 12px -1px rgba(0, 0, 0, 0.15)',
+            },
           },
         },
       },
       MuiCard: {
         styleOverrides: {
           root: {
-            borderRadius: '0.75rem',
+            borderRadius: '1rem', // 增加圆角
             boxShadow: mode === 'light'
               ? '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)'
               : '0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.15)',
+            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
             ...(mode === 'dark' && {
               backgroundColor: '#1E1E1E',
             }),
+            '&:hover': {
+              transform: 'translateY(-4px)',
+              boxShadow: mode === 'light'
+                ? '0 15px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.08)'
+                : '0 15px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.2)',
+            },
           },
         },
       },
       MuiPaper: {
         styleOverrides: {
           root: {
+            borderRadius: '0.75rem', // 统一圆角
+            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
             ...(mode === 'dark' && {
               backgroundColor: '#1E1E1E',
             }),
@@ -159,8 +187,12 @@ export const getThemeOptions = (mode: PaletteMode): ThemeOptions => {
         styleOverrides: {
           root: {
             boxShadow: 'none',
+            backdropFilter: 'blur(10px)', // 添加模糊效果
             ...(mode === 'dark' && {
               backgroundColor: 'rgba(18, 18, 18, 0.8)',
+            }),
+            ...(mode === 'light' && {
+              backgroundColor: 'rgba(255, 255, 255, 0.8)',
             }),
           },
         },
@@ -168,9 +200,15 @@ export const getThemeOptions = (mode: PaletteMode): ThemeOptions => {
       MuiChip: {
         styleOverrides: {
           root: {
+            borderRadius: '8px', // 更圆润的圆角
+            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
             ...(mode === 'dark' && {
               color: '#e5e7eb',
             }),
+            '&:hover': {
+              transform: 'translateY(-2px)',
+              boxShadow: '0 4px 8px rgba(0, 0, 0, 0.15)',
+            },
           },
           outlined: {
             ...(mode === 'dark' && {
@@ -182,19 +220,33 @@ export const getThemeOptions = (mode: PaletteMode): ThemeOptions => {
       MuiIconButton: {
         styleOverrides: {
           root: {
+            transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
             ...(mode === 'dark' && {
               color: '#e5e7eb',
             }),
+            '&:hover': {
+              transform: 'scale(1.1)',
+              backgroundColor: mode === 'dark'
+                ? 'rgba(255, 255, 255, 0.08)'
+                : 'rgba(0, 0, 0, 0.04)',
+            },
           },
         },
       },
       MuiLink: {
         styleOverrides: {
           root: {
+            transition: 'color 0.2s ease',
             ...(mode === 'dark' && {
-              color: '#60A5FA',
+              color: '#818CF8', // 更新为新的配色
               '&:hover': {
-                color: '#93C5FD',
+                color: '#A5B4FC',
+              },
+            }),
+            ...(mode === 'light' && {
+              color: '#4F46E5', // 更新为新的配色
+              '&:hover': {
+                color: '#6366F1',
               },
             }),
           },
@@ -203,8 +255,13 @@ export const getThemeOptions = (mode: PaletteMode): ThemeOptions => {
       MuiDialog: {
         styleOverrides: {
           paper: {
+            borderRadius: '1rem', // 增加圆角
+            backdropFilter: 'blur(10px)', // 添加模糊效果
             ...(mode === 'dark' && {
-              backgroundColor: '#1E1E1E',
+              backgroundColor: 'rgba(30, 30, 30, 0.95)',
+            }),
+            ...(mode === 'light' && {
+              backgroundColor: 'rgba(255, 255, 255, 0.95)',
             }),
           },
         },
@@ -221,9 +278,30 @@ export const getThemeOptions = (mode: PaletteMode): ThemeOptions => {
       MuiLinearProgress: {
         styleOverrides: {
           root: {
+            borderRadius: '4px', // 圆角进度条
             ...(mode === 'dark' && {
               backgroundColor: 'rgba(255, 255, 255, 0.08)',
             }),
+          },
+        },
+      },
+      // 添加滚动条样式
+      MuiCssBaseline: {
+        styleOverrides: {
+          '*::-webkit-scrollbar': {
+            width: '8px',
+            height: '8px',
+          },
+          '*::-webkit-scrollbar-track': {
+            background: mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)',
+            borderRadius: '6px',
+          },
+          '*::-webkit-scrollbar-thumb': {
+            backgroundColor: mode === 'dark' ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)',
+            borderRadius: '6px',
+            '&:hover': {
+              backgroundColor: mode === 'dark' ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.3)',
+            },
           },
         },
       },

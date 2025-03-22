@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Box, useTheme as useMuiTheme, alpha } from '@mui/material';
+import { Box, useTheme as useMuiTheme } from '@mui/material';
 import { motion } from 'framer-motion';
 import { useTheme } from '../../../contexts/ThemeContext';
 
@@ -74,16 +74,6 @@ const GlassyBackground: React.FC<GlassyBackgroundProps> = ({
     opacity: 0.02,
     gradient: true,
     pattern: 'noise'
-  },
-  glassPanelProps = {
-    blur: 10,
-    saturation: 1.1,
-    opacity: 0.8,
-    border: true,
-    borderColor: 'rgba(255,255,255,0.1)',
-    borderWidth: 1,
-    borderRadius: 24,
-    boxShadow: true
   },
   fixed = false,
   wrapContent = false,

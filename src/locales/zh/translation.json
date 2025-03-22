@@ -153,15 +153,26 @@
   "projects": {
     "title": "项目",
     "subtitle": "展示我近期的工作和合作项目",
+    "filterHeading": "浏览项目分类",
+    "viewDetails": "查看详情",
+    "visitSite": "访问网站",
+    "viewCode": "查看代码",
+    "viewDemo": "查看演示",
+    "technologies": "使用技术",
     "filters": {
       "all": "全部",
       "web": "网页",
       "mobile": "移动",
       "other": "其他"
     },
+    "categories": {
+      "web": "网页开发",
+      "mobile": "移动应用",
+      "desktop": "桌面应用",
+      "backend": "后端开发",
+      "other": "其他项目"
+    },
     "viewProject": "查看项目",
-    "technologies": "技术栈：",
-    "viewCode": "查看代码",
     "portfolio": {
       "description": "一个使用React和Material UI构建的现代化个人作品集网站。"
     },

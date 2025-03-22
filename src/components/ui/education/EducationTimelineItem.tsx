@@ -1,9 +1,9 @@
-import React from 'react';
-import { Box, Typography, Paper, Chip, List, ListItem, ListItemText, useTheme as useMuiTheme, useMediaQuery } from '@mui/material';
-import { motion } from 'framer-motion';
+import React, { useState } from 'react';
+import { Box, Typography, Paper, Chip, List, ListItem, ListItemText, useTheme as useMuiTheme, useMediaQuery, alpha } from '@mui/material';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../../contexts/ThemeContext';
-import { FiCalendar, FiAward, FiActivity, FiCode, FiTarget, FiBookOpen } from 'react-icons/fi';
+import { FiCalendar, FiAward, FiActivity, FiCode, FiTarget, FiBookOpen, FiChevronDown, FiChevronUp } from 'react-icons/fi';
 
 interface LocalizedText {
   en: string;
@@ -32,8 +32,9 @@ interface EducationTimelineItemProps {
 }
 
 /**
- * 教育经历时间线项目组件
+ * 现代化教育经历时间线项目组件
  * 展示学校、专业、日期等信息，支持交替布局
+ * 添加卡片展开/收起功能和流畅过渡动画
  */
 const EducationTimelineItem: React.FC<EducationTimelineItemProps> = ({
   education,
@@ -47,6 +48,9 @@ const EducationTimelineItem: React.FC<EducationTimelineItemProps> = ({
   const isEven = index % 2 === 0;
   const language = i18n.language as keyof LocalizedText;
   const fallbackLanguage: keyof LocalizedText = 'en';
+
+  // 添加展开/折叠状态
+  const [isExpanded, setIsExpanded] = useState(false);
 
   // 修正移动设备问题 - 移到顶部来确保在所有使用之前定义
   const isMobile = useMediaQuery(muiTheme.breakpoints.down('md'));
@@ -95,6 +99,19 @@ const EducationTimelineItem: React.FC<EducationTimelineItemProps> = ({
     }
   };
 
+  // 内容动画变体
+  const contentVariants = {
+    hidden: { opacity: 0, height: 0 },
+    visible: {
+      opacity: 1,
+      height: 'auto',
+      transition: {
+        duration: 0.4,
+        ease: [0.04, 0.62, 0.23, 0.98]
+      }
+    }
+  };
+
   // 渲染列表项
   const renderListItems = (
     items: string[],
@@ -139,7 +156,7 @@ const EducationTimelineItem: React.FC<EducationTimelineItemProps> = ({
 
   // 卡片样式
   const cardStyle = {
-    p: { xs: 2, sm: 3 },
+    p: { xs: 2.5, sm: 3 },
     borderRadius: 3,
     position: 'relative',
     background: isDark
@@ -151,6 +168,13 @@ const EducationTimelineItem: React.FC<EducationTimelineItemProps> = ({
       ? '0 4px 20px rgba(0, 0, 0, 0.2)'
       : '0 4px 20px rgba(0, 0, 0, 0.05)',
     overflow: 'hidden',
+    transition: 'all 0.3s ease',
+    '&:hover': {
+      boxShadow: isDark
+        ? '0 6px 25px rgba(0, 0, 0, 0.3)'
+        : '0 6px 25px rgba(0, 0, 0, 0.1)',
+      transform: 'translateY(-2px)'
+    },
     '&::after': isAlternate && !isMobile ? {
       content: '""',
       position: 'absolute',
@@ -169,6 +193,15 @@ const EducationTimelineItem: React.FC<EducationTimelineItemProps> = ({
     } : {}
   };
 
+  // 计算是否有详细内容可以展开
+  const hasExpandableContent = (
+    (education.activities && education.activities.length > 0) ||
+    (education.achievements && education.achievements.length > 0) ||
+    (education.skills && education.skills.length > 0) ||
+    (education.currentFocus && education.currentFocus.length > 0) ||
+    (education.goals && education.goals.length > 0)
+  );
+
   return (
     <Box
       sx={{
@@ -181,7 +214,7 @@ const EducationTimelineItem: React.FC<EducationTimelineItemProps> = ({
         my: { xs: 4, sm: 5, md: 6 }
       }}
     >
-      {/* 时间点 - 仅在交替布局且非移动设备时显示 */}
+      {/* 桌面端时间点部分 */}
       {isAlternate && !isMobile && (
         <Box
           sx={{
@@ -189,7 +222,7 @@ const EducationTimelineItem: React.FC<EducationTimelineItemProps> = ({
             left: '50%',
             top: '30px',
             transform: 'translateX(-50%)',
-            zIndex: 2
+            zIndex: 3,
           }}
         >
           <motion.div
@@ -199,14 +232,14 @@ const EducationTimelineItem: React.FC<EducationTimelineItemProps> = ({
           >
             <Box
               sx={{
-                width: 16,
-                height: 16,
+                width: 18,
+                height: 18,
                 borderRadius: '50%',
                 backgroundColor: isDark ? 'primary.main' : 'primary.main',
                 border: `3px solid ${isDark ? '#1E1E28' : '#FFFFFF'}`,
                 boxShadow: isDark
-                  ? '0 0 0 3px rgba(99, 102, 241, 0.3)'
-                  : '0 0 0 3px rgba(99, 102, 241, 0.2)'
+                  ? '0 0 0 4px rgba(99, 102, 241, 0.4)'
+                  : '0 0 0 4px rgba(99, 102, 241, 0.3)'
               }}
             />
           </motion.div>
@@ -218,28 +251,28 @@ const EducationTimelineItem: React.FC<EducationTimelineItemProps> = ({
         <Box
           sx={{
             position: 'absolute',
-            left: '24px', // 调整位置，使其对齐更好
+            left: 24, // 精确定位，确保与时间点和主时间线完美对齐
             top: 0,
             bottom: '-20px', // 延长一点，确保连接是完整的
-            width: '2px',
+            width: 4, // 加粗与主时间线保持一致
             display: { xs: 'block', md: isAlternate ? 'none' : 'block' },
-            backgroundColor: theme === 'dark'
-              ? 'rgba(255, 255, 255, 0.1)'
-              : 'rgba(0, 0, 0, 0.06)',
+            backgroundColor: isDark
+              ? 'rgba(124, 77, 255, 0.2)' // 使用淡紫色，更协调
+              : 'rgba(76, 140, 255, 0.15)', // 使用淡蓝色，更协调
             zIndex: 0
           }}
         />
       ) : null}
 
-      {/* 移动设备时显示时间点 */}
+      {/* 移动端时间点部分 */}
       {(!isAlternate || isMobile) && (
         <Box
           sx={{
             position: 'absolute',
-            left: '24px', // 确保与线对齐
+            left: 24,
             top: '30px',
             transform: 'translateX(-50%)',
-            zIndex: 2
+            zIndex: 3,
           }}
         >
           <motion.div
@@ -249,14 +282,14 @@ const EducationTimelineItem: React.FC<EducationTimelineItemProps> = ({
           >
             <Box
               sx={{
-                width: 14,
-                height: 14,
+                width: 18,
+                height: 18,
                 borderRadius: '50%',
                 backgroundColor: isDark ? 'primary.main' : 'primary.main',
                 border: `3px solid ${isDark ? '#1E1E28' : '#FFFFFF'}`,
                 boxShadow: isDark
-                  ? '0 0 0 3px rgba(99, 102, 241, 0.3)'
-                  : '0 0 0 3px rgba(99, 102, 241, 0.2)'
+                  ? '0 0 0 4px rgba(99, 102, 241, 0.4)'
+                  : '0 0 0 4px rgba(99, 102, 241, 0.3)'
               }}
             />
           </motion.div>
@@ -266,13 +299,10 @@ const EducationTimelineItem: React.FC<EducationTimelineItemProps> = ({
       {/* 内容卡片 */}
       <Box
         sx={{
-          width: isAlternate && !isMobile ? '50%' : '100%',
-          maxWidth: isAlternate && !isMobile ? undefined : { xs: '100%', sm: '95%', md: '85%' },
-          pr: isAlternate && !isMobile && isEven ? { xs: 0, md: 4 } : 0,
-          pl: isAlternate && !isMobile ?
-            (!isEven ? { xs: 0, md: 4 } : 0) :
-            { xs: 5, sm: 5.5, md: isAlternate ? 0 : 5.5 }, // 调整左侧padding，确保内容不会太靠近时间轴
-          ml: isAlternate && !isMobile && !isEven ? 'auto' : 0
+          width: isAlternate && !isMobile ? { md: '47%', lg: '44%', xl: '40%' } : '100%',
+          ml: (!isAlternate || isMobile) ? { xs: 6, sm: 7 } : (isEven || isMobile) ? 0 : 'auto',
+          pl: (!isAlternate || isMobile) ? 0 : (!isEven && !isMobile) ? { md: 4, lg: 6 } : 0,
+          pr: (!isAlternate || isMobile) ? 0 : (isEven && !isMobile) ? { md: 4, lg: 6 } : 0,
         }}
       >
         <motion.div
@@ -283,42 +313,12 @@ const EducationTimelineItem: React.FC<EducationTimelineItemProps> = ({
             position: 'relative'
           }}
         >
-          {/* 垂直时间轴上的时间点 */}
-          {(!isAlternate || isMobile) && (
-            <Box
-              sx={{
-                position: 'absolute',
-                left: '-43px',
-                top: '30px',
-                zIndex: 1,
-                display: { xs: 'flex', md: isAlternate ? 'none' : 'flex' },
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: 24,
-                height: 24,
-                borderRadius: '50%',
-                backgroundColor: theme === 'dark' ? '#1E1E28' : '#FFFFFF',
-                border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'}`,
-                boxShadow: isDark
-                  ? '0 4px 8px rgba(0, 0, 0, 0.2)'
-                  : '0 4px 8px rgba(0, 0, 0, 0.05)'
-              }}
-            >
-              <Box
-                sx={{
-                  width: 12,
-                  height: 12,
-                  borderRadius: '50%',
-                  backgroundColor: isDark ? 'primary.main' : 'primary.main',
-                  boxShadow: isDark
-                    ? '0 0 0 2px rgba(99, 102, 241, 0.3)'
-                    : '0 0 0 2px rgba(99, 102, 241, 0.2)'
-                }}
-              />
-            </Box>
-          )}
-
-          <Paper elevation={0} sx={cardStyle}>
+          <Paper
+            elevation={0}
+            sx={cardStyle}
+            component={motion.div}
+            whileHover={hasExpandableContent ? { y: -3 } : undefined}
+          >
             {/* 学校和日期 */}
             <Box sx={{ display: 'flex', flexDirection: 'column', mb: 2 }}>
               <Typography
@@ -327,7 +327,8 @@ const EducationTimelineItem: React.FC<EducationTimelineItemProps> = ({
                 sx={{
                   fontWeight: 600,
                   color: isDark ? 'primary.light' : 'primary.main',
-                  mb: 0.5
+                  mb: 0.5,
+                  lineHeight: 1.3
                 }}
               >
                 {education.institution}
@@ -338,25 +339,33 @@ const EducationTimelineItem: React.FC<EducationTimelineItemProps> = ({
                 component="h4"
                 sx={{
                   fontWeight: 500,
-                  mb: 1.5
+                  mb: 1.5,
+                  fontSize: { xs: '1.1rem', sm: '1.25rem' }
                 }}
               >
                 {education.area}
               </Typography>
 
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-                <FiCalendar size={16} style={{ marginRight: 8 }} />
-                <Typography variant="body2" color="text.secondary">
-                  {getLocalizedText(education.displayDate)}
+                <FiCalendar size={16} style={{ marginRight: 8, opacity: 0.8 }} />
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <Typography variant="body2" color="text.secondary">
+                    {getLocalizedText(education.displayDate)}
+                  </Typography>
                   {education.isOngoing && (
                     <Chip
                       label={t('education.current')}
                       size="small"
                       color="primary"
-                      sx={{ ml: 1, height: 20, fontSize: '0.7rem' }}
+                      sx={{
+                        ml: 1,
+                        height: 20,
+                        fontSize: '0.7rem',
+                        bgcolor: isDark ? '#6366F1' : '#4F46E5'
+                      }}
                     />
                   )}
-                </Typography>
+                </Box>
               </Box>
             </Box>
 
@@ -367,14 +376,106 @@ const EducationTimelineItem: React.FC<EducationTimelineItemProps> = ({
                 color="text.primary"
                 sx={{
                   mb: 2,
-                  lineHeight: 1.6,
-                  opacity: 0.9
+                  lineHeight: 1.7,
+                  opacity: 0.9,
+                  fontSize: '0.95rem'
                 }}
               >
                 {getLocalizedText(education.description)}
               </Typography>
             )}
 
+            {/* 可展开的内容部分 */}
+            {hasExpandableContent && (
+              <>
+                <Box
+                  onClick={() => setIsExpanded(!isExpanded)}
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    mt: 2,
+                    mb: isExpanded ? 1 : 0,
+                    py: 0.8,
+                    borderRadius: '10px',
+                    cursor: 'pointer',
+                    bgcolor: isDark ? alpha('#ffffff', 0.05) : alpha('#000000', 0.03),
+                    transition: 'all 0.2s ease',
+                    '&:hover': {
+                      bgcolor: isDark ? alpha('#ffffff', 0.08) : alpha('#000000', 0.05),
+                    }
+                  }}
+                >
+                  <Typography variant="body2" sx={{ mr: 1, fontWeight: 500 }}>
+                    {isExpanded ? t('education.showLess') : t('education.showMore')}
+                  </Typography>
+                  <motion.div
+                    animate={{ rotate: isExpanded ? 180 : 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    {isExpanded ? <FiChevronUp size={16} /> : <FiChevronDown size={16} />}
+                  </motion.div>
+                </Box>
+
+                <AnimatePresence initial={false}>
+                  {isExpanded && (
+                    <motion.div
+                      variants={contentVariants}
+                      initial="hidden"
+                      animate="visible"
+                      exit="hidden"
+                    >
+                      <Box
+                        sx={{
+                          mt: 2,
+                          pt: 2,
+                          borderTop: `1px solid ${isDark ? alpha('#ffffff', 0.05) : alpha('#000000', 0.05)}`
+                        }}
+                      >
+                        {/* 活动 */}
+                        {renderListItems(
+                          getLocalizedArray(education.activities),
+                          <FiActivity size={16} />,
+                          isDark ? '#F59E0B' : '#D97706'
+                        )}
+
+                        {/* 成就 */}
+                        {renderListItems(
+                          getLocalizedArray(education.achievements),
+                          <FiAward size={16} />,
+                          isDark ? '#10B981' : '#059669'
+                        )}
+
+                        {/* 技能 */}
+                        {renderListItems(
+                          getLocalizedArray(education.skills),
+                          <FiCode size={16} />,
+                          isDark ? '#8B5CF6' : '#7C3AED'
+                        )}
+
+                        {/* 当前关注 */}
+                        {renderListItems(
+                          getLocalizedArray(education.currentFocus),
+                          <FiBookOpen size={16} />,
+                          isDark ? '#EC4899' : '#DB2777'
+                        )}
+
+                        {/* 目标 */}
+                        {renderListItems(
+                          getLocalizedArray(education.goals),
+                          <FiTarget size={16} />,
+                          isDark ? '#3B82F6' : '#2563EB'
+                        )}
+                      </Box>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </>
+            )}
+
+            {/* 如果没有可展开内容，正常显示所有信息 */}
+            {!hasExpandableContent && (
+              <>
             {/* 活动 */}
             {renderListItems(
               getLocalizedArray(education.activities),
@@ -408,6 +509,8 @@ const EducationTimelineItem: React.FC<EducationTimelineItemProps> = ({
               getLocalizedArray(education.goals),
               <FiTarget size={16} />,
               isDark ? '#3B82F6' : '#2563EB'
+                )}
+              </>
             )}
           </Paper>
         </motion.div>

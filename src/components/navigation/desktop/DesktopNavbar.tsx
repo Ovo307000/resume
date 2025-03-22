@@ -5,12 +5,12 @@ import {
   Container,
   Toolbar
 } from '@mui/material';
-import { Link } from 'react-router-dom';
-import { motion, useMotionValue, useTransform, useSpring } from 'framer-motion';
+import { useMotionValue, useTransform, useSpring } from 'framer-motion';
 import { useTheme } from '../../../contexts/ThemeContext';
-import ThemeToggle from '../../ui/ThemeToggle';
-import LanguageSelector from '../../ui/language/LanguageSelector';
 import LogoAvatar from '../../ui/LogoAvatar';
+import NavButton from '../../ui/NavButton';
+import { FiSun, FiMoon } from 'react-icons/fi';
+import LanguageSelector from '../../ui/language/LanguageSelector';
 
 interface NavRoute {
   path: string;
@@ -27,9 +27,10 @@ interface NavbarProps {
  * 桌面导航栏组件
  * 添加粘性跟随和平滑过渡动画
  * 导航栏始终固定在顶部，滚动时切换为紧凑模式
+ * 使用统一的导航样式，保持与移动端一致的视觉效果
  */
 const DesktopNavbar: React.FC<NavbarProps> = ({ routes, isActive, isCompact = false }) => {
-  const { theme } = useTheme();
+  const { theme, toggleTheme } = useTheme();
 
   // 监听滚动位置，用于平滑过渡效果
   const scrollY = useMotionValue(0);
@@ -72,7 +73,8 @@ const DesktopNavbar: React.FC<NavbarProps> = ({ routes, isActive, isCompact = fa
         transition: 'background 0.3s ease-in-out, box-shadow 0.3s ease-in-out',
         display: { xs: 'none', md: 'block' }, // 确保md及以上宽度显示桌面导航栏
         width: '100%', // 确保导航栏占满宽度
-        zIndex: 1100 // 确保始终在最顶层
+        zIndex: 1100, // 确保始终在最顶层
+        top: 0
       }}
     >
       <Container maxWidth="lg">
@@ -92,49 +94,30 @@ const DesktopNavbar: React.FC<NavbarProps> = ({ routes, isActive, isCompact = fa
           {/* Navigation Links */}
           <Box sx={{ display: 'flex', mx: 'auto' }}>
             {routes.map((route) => (
-              <motion.div
+              <NavButton
                 key={route.path}
-                whileHover={{ y: -3 }}
-                whileTap={{ y: 0 }}
-              >
-                <Box
-                  component={Link}
-                  to={route.path}
-                  sx={{
-                    px: 2,
-                    py: 1,
-                    mx: 1,
-                    color: isActive(route.path)
-                      ? (theme === 'dark' ? '#a0a0ff' : '#5050ff')
-                      : 'text.primary',
-                    fontWeight: isActive(route.path) ? 600 : 400,
-                    textDecoration: 'none',
-                    position: 'relative',
-                  }}
-                >
-                  {route.label}
-                  <Box
-                    sx={{
-                      position: 'absolute',
-                      bottom: -4,
-                      left: '50%',
-                      width: isActive(route.path) ? '20px' : '0px',
-                      height: '3px',
-                      backgroundColor: theme === 'dark' ? '#a0a0ff' : '#5050ff',
-                      borderRadius: '3px',
-                      transform: 'translateX(-50%)',
-                      transition: 'width 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
-                    }}
-                  />
-                </Box>
-              </motion.div>
+                to={route.path}
+                label={route.label}
+                variant="link"
+                size={isCompact ? "small" : "medium"}
+                isActive={isActive(route.path)}
+                sx={{ mx: 0.7 }}
+                colorMode="gradient"
+              />
             ))}
           </Box>
 
-          {/* Right Side Utils */}
+          {/* Right Side Utils - 与移动端统一尺寸 */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <ThemeToggle />
-            <LanguageSelector size="small" variant="icon" />
+            <NavButton
+              icon={theme === 'dark' ? <FiSun size={18} /> : <FiMoon size={18} />}
+              variant="icon"
+              size="small"
+              tooltipText={theme === 'dark' ? "切换到亮色模式" : "切换到暗色模式"}
+              onClick={toggleTheme}
+              colorMode="accent"
+            />
+            <LanguageSelector size="small" />
           </Box>
         </Toolbar>
       </Container>

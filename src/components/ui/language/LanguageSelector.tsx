@@ -1,12 +1,10 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Box, Typography, Paper, alpha, SxProps, Theme } from '@mui/material';
-import { AnimatePresence, motion } from 'framer-motion';
+import React, { useState } from 'react';
+import { Box, Menu, MenuItem, Typography, alpha, SxProps, Theme } from '@mui/material';
+import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../../contexts/ThemeContext';
-import { FiGlobe, FiCheck } from 'react-icons/fi';
 // 导入国旗图标库
 import { US, CN, JP } from 'country-flag-icons/react/3x2';
-import IconButton from '../common/IconButton';
 
 interface Language {
   code: string;
@@ -16,28 +14,25 @@ interface Language {
 
 interface LanguageSelectorProps {
   size?: 'small' | 'medium' | 'large';
-  sx?: SxProps<Theme>;
-  fullWidth?: boolean;
-  variant?: 'icon' | 'button';
+  compact?: boolean;  // 是否使用紧凑模式
+  sx?: SxProps<Theme>;  // 自定义样式
 }
 
 /**
- * 自定义语言选择器组件
- * 提供优雅的动画下拉效果和多语言选择
- * 使用统一的IconButton组件实现
+ * 现代化语言选择器组件
+ * 提供优雅的动画效果和多语言选择
+ * 与主题切换器视觉保持一致
  */
 const LanguageSelector: React.FC<LanguageSelectorProps> = ({
   size = 'medium',
-  sx,
-  fullWidth = false,
-  variant = 'icon'
+  compact = false,
+  sx = {}
 }) => {
   const { i18n, t } = useTranslation();
   const { theme } = useTheme();
-  const [isOpen, setIsOpen] = useState(false);
-  const [selectedLanguage, setSelectedLanguage] = useState(i18n.language || 'en');
-  const menuRef = useRef<HTMLDivElement>(null);
   const isDark = theme === 'dark';
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
 
   // 支持的语言列表 - 只保留英语、中文和日语
   const languages: Language[] = [
@@ -47,102 +42,69 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({
   ];
 
   // 当前选中的语言
-  const currentLanguage = languages.find(lang => lang.code === selectedLanguage) || languages[0];
+  const currentLanguage = languages.find(lang => lang.code === i18n.language) || languages[0];
+
+  // 尺寸映射
+  const sizeMap = {
+    small: 32,
+    medium: 38,
+    large: 44
+  };
+
+  const buttonSize = sizeMap[size];
+  // 紧凑模式下调整尺寸
+  const flagSize = compact ? buttonSize * 0.5 : buttonSize * 0.7;
+
+  // 获取统一的背景颜色
+  const getBackground = () => {
+    if (isDark) {
+      return 'rgba(32, 32, 35, 0.6)';
+    }
+    return 'rgba(255, 255, 255, 0.7)';
+  };
+
+  // 打开菜单
+  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  // 关闭菜单
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
 
   // 切换语言
-  const handleLanguageChange = (languageCode: string) => {
+  const changeLanguage = (languageCode: string) => {
     i18n.changeLanguage(languageCode);
-    setSelectedLanguage(languageCode);
-    setIsOpen(false);
+    handleClose();
   };
 
-  // 点击外部关闭菜单
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
-
-  // 菜单动画
-  const menuVariants = {
-    hidden: {
-      opacity: 0,
-      y: -5,
-      scale: 0.95,
-      transition: {
-        duration: 0.2,
-        ease: 'easeInOut'
-      }
-    },
-    visible: {
-      opacity: 1,
-      y: 0,
-      scale: 1,
-      transition: {
-        duration: 0.3,
-        ease: 'easeOut'
-      }
-    },
-    exit: {
-      opacity: 0,
-      y: -5,
-      scale: 0.95,
-      transition: {
-        duration: 0.2,
-        ease: 'easeInOut'
-      }
-    }
-  };
-
-  // 菜单项动画
-  const itemVariants = {
-    hidden: { opacity: 0, x: -10 },
-    visible: (custom: number) => ({
-      opacity: 1,
-      x: 0,
-      transition: {
-        delay: custom * 0.05,
-        duration: 0.3,
-        ease: 'easeOut'
-      }
-    }),
+  // 容器动画
+  const containerVariants = {
     hover: {
-      scale: 1.05,
-      x: 5,
-      transition: {
-        duration: 0.2,
-        ease: 'easeOut'
-      }
+      y: -2,
+      boxShadow: isDark
+        ? '0 6px 12px rgba(0, 0, 0, 0.3)'
+        : '0 6px 12px rgba(0, 0, 0, 0.1)'
+    },
+    tap: {
+      y: 0,
+      scale: 0.98,
+      boxShadow: isDark
+        ? '0 2px 5px rgba(0, 0, 0, 0.2)'
+        : '0 2px 5px rgba(0, 0, 0, 0.05)'
     }
   };
-
-  // 根据size属性计算图标尺寸
-  const getIconSize = () => {
-    switch (size) {
-      case 'small': return 18;
-      case 'large': return 24;
-      default: return 22;
-    }
-  };
-
-  const iconSize = getIconSize();
 
   // 渲染国旗图标
-  const renderFlag = (countryCode: string, size: number = 20) => {
+  const renderFlag = (countryCode: string, size: number) => {
     const props = {
-      width: size,
-      height: size * 0.75,
       title: `${countryCode} flag`,
       style: {
         borderRadius: '2px',
-        boxShadow: theme === 'light' ? '0 1px 2px rgba(0,0,0,0.2)' : '0 1px 2px rgba(0,0,0,0.3)',
+        boxShadow: isDark
+          ? '0 1px 3px rgba(0, 0, 0, 0.3)'
+          : '0 1px 3px rgba(0, 0, 0, 0.2)',
       }
     };
 
@@ -154,282 +116,183 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({
       case 'JP':
         return <JP {...props} />;
       default:
-        return <FiGlobe size={size} />;
+        return null;
     }
   };
 
-  // 渲染当前语言图标
-  const renderCurrentLanguageIcon = () => {
-    return renderFlag(currentLanguage.countryCode, iconSize);
-  };
-
-  const toggleMenu = () => {
-    setIsOpen(!isOpen);
-  };
-
-  // 使用图标按钮模式
-  if (variant === 'icon') {
-    return (
-      <Box ref={menuRef} sx={{ position: 'relative', ...sx }}>
-        <IconButton
-          onClick={toggleMenu}
-          tooltipText={t('language.select')}
-          size={size}
-          ariaLabel={t('language.select')}
-          icon={renderCurrentLanguageIcon()}
-        />
-
-        <AnimatePresence>
-          {isOpen && (
-            <motion.div
-              variants={menuVariants}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
-              style={{
-                position: 'absolute',
-                top: 'calc(100% + 8px)',
-                right: 0,
-                zIndex: 1000,
-                width: 160
-              }}
-            >
-              <Paper
-                elevation={3}
-                sx={{
-                  borderRadius: '16px',
-                  backdropFilter: 'blur(10px)',
-                  backgroundColor: isDark
-                    ? alpha('#1A1A1A', 0.9)
-                    : alpha('#FFFFFF', 0.95),
-                  overflow: 'hidden',
-                  border: `1px solid ${
-                    isDark
-                      ? alpha('#ffffff', 0.1)
-                      : alpha('#000000', 0.05)
-                  }`,
-                  boxShadow: isDark
-                    ? '0 10px 25px rgba(0, 0, 0, 0.3)'
-                    : '0 10px 25px rgba(0, 0, 0, 0.1)'
-                }}
-              >
-                <Box sx={{ p: 1 }}>
-                  {languages.map((language, index) => {
-                    const isSelected = language.code === selectedLanguage;
-
-                    return (
-                      <motion.div
-                        key={language.code}
-                        custom={index}
-                        variants={itemVariants}
-                        initial="hidden"
-                        animate="visible"
-                        whileHover="hover"
-                      >
-                        <Box
-                          onClick={() => handleLanguageChange(language.code)}
-                          sx={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            padding: '10px 16px',
-                            borderRadius: '10px',
-                            cursor: 'pointer',
-                            transition: 'all 0.2s ease',
-                            backgroundColor: isSelected
-                              ? isDark
-                                ? alpha('#6366F1', 0.2)
-                                : alpha('#6366F1', 0.1)
-                              : 'transparent',
-                            '&:hover': {
-                              backgroundColor: isSelected
-                                ? isDark
-                                  ? alpha('#6366F1', 0.3)
-                                  : alpha('#6366F1', 0.15)
-                                : isDark
-                                ? alpha('#ffffff', 0.05)
-                                : alpha('#000000', 0.03)
-                            }
-                          }}
-                        >
-                          <Box sx={{ mr: 2, display: 'flex', alignItems: 'center' }}>
-                            {renderFlag(language.countryCode)}
-                          </Box>
-                          <Typography
-                            variant="body2"
-                            sx={{
-                              flexGrow: 1,
-                              fontWeight: isSelected ? 600 : 400,
-                              color: isSelected
-                                ? '#6366F1'
-                                : 'text.primary'
-                            }}
-                          >
-                            {language.name}
-                          </Typography>
-                          {isSelected && (
-                            <FiCheck
-                              size={16}
-                              style={{
-                                color: '#6366F1',
-                                marginLeft: '4px'
-                              }}
-                            />
-                          )}
-                        </Box>
-                      </motion.div>
-                    );
-                  })}
-                </Box>
-              </Paper>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </Box>
-    );
-  }
-
-  // 使用按钮模式
   return (
-    <motion.div
-      whileHover={{ scale: 1.03 }}
-      whileTap={{ scale: 0.97 }}
-      ref={menuRef}
-      style={{ position: 'relative' }}
-    >
+    <>
       <Box
-        onClick={toggleMenu}
         sx={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: 1,
-          padding: '6px 12px',
-          borderRadius: '12px',
-          backgroundColor: alpha(isDark ? '#ffffff' : '#000000', 0.05),
-          border: `1px solid ${alpha(isDark ? '#ffffff' : '#000000', 0.1)}`,
-          boxShadow: isDark
-            ? '0 4px 10px rgba(0, 0, 0, 0.3)'
-            : '0 4px 10px rgba(0, 0, 0, 0.1)',
-          cursor: 'pointer',
-          transition: 'all 0.3s ease',
-          width: fullWidth ? '100%' : 'auto',
-          ...sx
-        }}
-      >
-        <Box sx={{ mr: 1 }}>
-          {renderCurrentLanguageIcon()}
-        </Box>
-        <Typography variant="body2">
-          {currentLanguage.name}
-        </Typography>
-      </Box>
-
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            variants={menuVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            style={{
-              position: 'absolute',
-              top: 'calc(100% + 8px)',
-              right: 0,
-              zIndex: 1000,
-              width: 160
-            }}
-          >
-            <Paper
-              elevation={3}
-              sx={{
-                borderRadius: '16px',
-                backdropFilter: 'blur(10px)',
-                backgroundColor: isDark
-                  ? alpha('#1A1A1A', 0.9)
-                  : alpha('#FFFFFF', 0.95),
-                overflow: 'hidden',
-                border: `1px solid ${
-                  isDark
-                    ? alpha('#ffffff', 0.1)
-                    : alpha('#000000', 0.05)
-                }`,
-                boxShadow: isDark
-                  ? '0 10px 25px rgba(0, 0, 0, 0.3)'
-                  : '0 10px 25px rgba(0, 0, 0, 0.1)'
-              }}
-            >
-              <Box sx={{ p: 1 }}>
-                {languages.map((language, index) => {
-                  const isSelected = language.code === selectedLanguage;
-
-                  return (
-                    <motion.div
-                      key={language.code}
-                      custom={index}
-                      variants={itemVariants}
-                      initial="hidden"
-                      animate="visible"
-                      whileHover="hover"
-                    >
-                      <Box
-                        onClick={() => handleLanguageChange(language.code)}
-                        sx={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          padding: '10px 16px',
-                          borderRadius: '10px',
-                          cursor: 'pointer',
-                          transition: 'all 0.2s ease',
-                          backgroundColor: isSelected
-                            ? isDark
-                              ? alpha('#6366F1', 0.2)
-                              : alpha('#6366F1', 0.1)
-                            : 'transparent',
-          '&:hover': {
-                            backgroundColor: isSelected
-                              ? isDark
-                                ? alpha('#6366F1', 0.3)
-                                : alpha('#6366F1', 0.15)
-                              : isDark
-                              ? alpha('#ffffff', 0.05)
-                              : alpha('#000000', 0.03)
+          position: 'relative',
+          '&:hover .tooltip': {
+            opacity: 1,
+            transform: 'translateY(0)',
+            visibility: 'visible'
           }
         }}
       >
-                        <Box sx={{ mr: 2, display: 'flex', alignItems: 'center' }}>
-                          {renderFlag(language.countryCode)}
-                        </Box>
-                        <Typography
-                          variant="body2"
-                          sx={{
-                            flexGrow: 1,
-                            fontWeight: isSelected ? 600 : 400,
-                            color: isSelected
-                              ? '#6366F1'
-                              : 'text.primary'
-                          }}
-                        >
-                          {language.name}
-                        </Typography>
-                        {isSelected && (
-                          <FiCheck
-                            size={16}
-                            style={{
-                              color: '#6366F1',
-                              marginLeft: '4px'
-                            }}
-                          />
-                        )}
-                      </Box>
-                    </motion.div>
-                  );
-                })}
+        <motion.div
+          whileHover="hover"
+          whileTap="tap"
+          variants={containerVariants}
+          style={{
+            borderRadius: '12px',
+            background: getBackground(),
+            backdropFilter: 'blur(8px)',
+            border: isDark
+              ? '1px solid rgba(255, 255, 255, 0.1)'
+              : '1px solid rgba(0, 0, 0, 0.05)',
+            boxShadow: isDark
+              ? '0 4px 10px rgba(0, 0, 0, 0.25)'
+              : '0 4px 10px rgba(0, 0, 0, 0.08)',
+            width: buttonSize,
+            height: buttonSize,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            cursor: 'pointer',
+            transition: 'all 0.3s ease',
+            '&:hover': {
+              transform: 'translateY(-2px)',
+              boxShadow: isDark
+                ? '0 6px 12px rgba(0, 0, 0, 0.3)'
+                : '0 6px 12px rgba(0, 0, 0, 0.1)',
+            },
+            ...sx  // 应用自定义样式
+          }}
+          onClick={handleClick}
+          id="language-selector-button"
+          aria-controls={open ? 'language-menu' : undefined}
+          aria-haspopup="true"
+          aria-expanded={open ? 'true' : undefined}
+          aria-label={t('language.select')}
+        >
+          <Box sx={{
+            width: flagSize,
+            height: flagSize * 0.75,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            position: 'relative'
+          }}>
+            {renderFlag(currentLanguage.countryCode, flagSize)}
+          </Box>
+        </motion.div>
+
+        {/* 自定义工具提示 */}
+        <Box
+          className="tooltip"
+          sx={{
+            position: 'absolute',
+            bottom: '-30px',
+            left: '50%',
+            transform: 'translateX(-50%) translateY(10px)',
+            backgroundColor: isDark ? 'rgba(30, 30, 40, 0.9)' : 'rgba(50, 50, 60, 0.9)',
+            color: '#fff',
+            padding: '4px 8px',
+            borderRadius: '4px',
+            fontSize: '12px',
+            opacity: 0,
+            visibility: 'hidden',
+            transition: 'all 0.3s ease',
+            zIndex: 1500,
+            whiteSpace: 'nowrap',
+            backdropFilter: 'blur(8px)',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+            border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)'}`,
+            '&::before': {
+              content: '""',
+              position: 'absolute',
+              top: '-6px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              borderWidth: '0 6px 6px',
+              borderStyle: 'solid',
+              borderColor: `transparent transparent ${isDark ? 'rgba(30, 30, 40, 0.9)' : 'rgba(50, 50, 60, 0.9)'}`
+            }
+          }}
+        >
+          {t('language.select')}
+        </Box>
+      </Box>
+
+      <Menu
+        id="language-menu"
+        anchorEl={anchorEl}
+        open={open}
+        onClose={handleClose}
+        MenuListProps={{
+          'aria-labelledby': 'language-button',
+        }}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'center',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'center',
+        }}
+        PaperProps={{
+          sx: {
+            mt: 1.5,
+            backdropFilter: 'blur(10px)',
+            backgroundColor: isDark
+              ? 'rgba(25, 25, 35, 0.8)'
+              : 'rgba(255, 255, 255, 0.8)',
+            boxShadow: isDark
+              ? '0 8px 20px rgba(0, 0, 0, 0.4)'
+              : '0 8px 20px rgba(0, 0, 0, 0.15)',
+            border: `1px solid ${
+              isDark
+                ? 'rgba(255, 255, 255, 0.08)'
+                : 'rgba(0, 0, 0, 0.05)'
+            }`,
+            overflow: 'hidden',
+            '& .MuiList-root': {
+              padding: '4px',
+            },
+          },
+        }}
+      >
+        {languages.map((lang) => (
+          <MenuItem
+            key={lang.code}
+            onClick={() => changeLanguage(lang.code)}
+            selected={lang.code === currentLanguage.code}
+            sx={{
+              borderRadius: '8px',
+              margin: '2px 0',
+              backgroundColor: lang.code === currentLanguage.code
+                ? (isDark ? alpha('#a0a0ff', 0.15) : alpha('#5050ff', 0.08))
+                : 'transparent',
+              '&:hover': {
+                backgroundColor: isDark
+                  ? 'rgba(255, 255, 255, 0.08)'
+                  : 'rgba(0, 0, 0, 0.04)',
+              },
+            }}
+          >
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+              <Box sx={{ width: 24, height: 18 }}>
+                {renderFlag(lang.countryCode, flagSize)}
               </Box>
-            </Paper>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.div>
+              <Typography
+                variant="body2"
+                sx={{
+                  fontWeight: lang.code === currentLanguage.code ? 600 : 400,
+                  color: lang.code === currentLanguage.code
+                    ? (isDark ? '#a0a0ff' : '#5050ff')
+                    : 'text.primary',
+                }}
+              >
+                {lang.name}
+              </Typography>
+            </Box>
+          </MenuItem>
+        ))}
+      </Menu>
+    </>
   );
 };
 

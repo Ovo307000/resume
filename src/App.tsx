@@ -31,21 +31,22 @@ function App() {
       <LanguageProvider>
         {/* 添加全局复制通知提供者 */}
         <CopyNotificationProvider>
+          {/* 应用自定义滚动条，放在最外层确保全局生效 */}
+          <CustomScrollbar
+            thickness={8}
+            borderRadius={6}
+            trackOpacity={0.08}
+            primaryColor="#6366F1"
+          />
           {/* 暂时移除通知提供者，解决白屏问题 */}
           <Router>
             <CssBaseline />
-            {/* 应用自定义滚动条 */}
-            <CustomScrollbar
-              thickness={8}
-              borderRadius={4}
-              trackOpacity={0.05}
-            />
             <Layout>
               <Routes>
                 <Route path="/" element={<HomePage data={resumeData.basics} />} />
                 <Route path="/about" element={<AboutPage data={resumeData.basics} />} />
                 <Route path="/skills" element={<SkillsPage data={resumeData.skills} />} />
-                <Route path="/projects" element={<ProjectsPage data={resumeData.projects} />} />
+                <Route path="/projects" element={<ProjectsPage />} />
                 <Route path="/education" element={<EducationPage data={resumeData.education} />} />
                 <Route path="/contact" element={<ContactPage data={resumeData.basics} />} />
               </Routes>

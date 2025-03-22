@@ -96,15 +96,26 @@
   },
   "projects": {
     "title": "Projects",
-    "subtitle": "A showcase of my recent work and collaborations",
+    "subtitle": "Showcasing my recent work and collaborations",
+    "filterHeading": "Browse Project Categories",
+    "viewDetails": "View Details",
+    "visitSite": "Visit Site",
+    "viewCode": "View Code",
+    "viewDemo": "View Demo",
+    "technologies": "Technologies Used",
     "filters": {
       "all": "All",
       "web": "Web",
       "mobile": "Mobile",
       "other": "Other"
     },
-    "viewProject": "View Project",
-    "technologies": "Technologies:"
+    "categories": {
+      "web": "Web Development",
+      "mobile": "Mobile Apps",
+      "desktop": "Desktop Apps",
+      "backend": "Backend",
+      "other": "Other Projects"
+    }
   },
   "contact": {
     "title": "Contact Me",

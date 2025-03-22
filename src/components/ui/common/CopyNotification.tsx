@@ -120,7 +120,6 @@ const CopyNotification = forwardRef<HTMLDivElement, CopyNotificationProps>(({
         right: 16,
         left: 'auto'
       }}
-      ref={ref}
     >
       <AnimatePresence>
         {open && (

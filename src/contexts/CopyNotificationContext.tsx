@@ -91,10 +91,8 @@ export const CopyNotificationProvider: React.FC<CopyNotificationProviderProps> =
         onClose={handleClose}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
         sx={{ mb: 2, mr: 2 }}
-        TransitionComponent={Grow}
-        TransitionProps={{ timeout: 300 }}
       >
-        <Grow in={notification.open} style={{ transformOrigin: 'center' }}>
+        <Grow in={notification.open} style={{ transformOrigin: 'center', timeout: 300 }}>
           <Box
             sx={{
               p: 2,

@@ -10,16 +10,17 @@ import {
   alpha,
   useTheme as useMuiTheme,
   useMediaQuery,
-  Chip
+  Chip,
+  Button
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { FiCode, FiLayers, FiBriefcase, FiServer, FiFilter } from 'react-icons/fi';
+import { FiCode, FiLayers, FiBriefcase, FiServer, FiFilter, FiArrowLeft, FiArrowRight } from 'react-icons/fi';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useLanguage } from '../../hooks/useLanguage';
 import GlassyBlobBackground from '../../components/ui/backgrounds/GlassyBlobBackground';
-import PageTitle from '../../components/ui/common/PageTitle';
 import PageTransition from '../../components/ui/transitions/PageTransition';
 import EnhancedProjectCard from '../../components/ui/projects/EnhancedProjectCard';
+import ProjectsPageTitle from '../../components/ui/projects/ProjectsPageTitle';
 import projectsData from '../../data/projectsData';
 import { useSwipeable } from 'react-swipeable';
 
@@ -106,22 +107,63 @@ const ProjectsPage: React.FC = () => {
 
   // 过滤器切换动画变体
   const filterChipVariants = {
-    initial: { opacity: 0, y: -20 },
-    animate: { opacity: 1, y: 0, transition: { duration: 0.3 } },
-    exit: { opacity: 0, y: 20, transition: { duration: 0.2 } }
+    initial: { opacity: 0, y: -20, scale: 0.9 },
+    animate: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: {
+        type: "spring",
+        stiffness: 400,
+        damping: 25,
+        duration: 0.5
+      }
+    },
+    exit: {
+      opacity: 0,
+      y: 20,
+      scale: 0.9,
+      transition: {
+        duration: 0.3,
+        ease: [0.43, 0.13, 0.23, 0.96]
+      }
+    },
+    hover: {
+      scale: 1.05,
+      y: -5,
+      boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
+      transition: {
+        type: "spring",
+        stiffness: 400,
+        damping: 10
+      }
+    },
+    tap: {
+      scale: 0.95,
+      y: 0,
+      transition: {
+        type: "spring",
+        stiffness: 500,
+        damping: 15
+      }
+    }
   };
 
   // 滑动动画变体
   const slideVariants = {
     enter: (direction: 'left' | 'right') => ({
       x: direction === 'left' ? 300 : -300,
-      opacity: 0
+      opacity: 0,
+      rotateY: direction === 'left' ? -15 : 15,
+      scale: 0.9
     }),
     center: {
       x: 0,
       opacity: 1,
+      rotateY: 0,
+      scale: 1,
       transition: {
-        type: 'spring',
+        type: "spring",
         stiffness: 300,
         damping: 30
       }
@@ -129,8 +171,10 @@ const ProjectsPage: React.FC = () => {
     exit: (direction: 'left' | 'right') => ({
       x: direction === 'left' ? -300 : 300,
       opacity: 0,
+      rotateY: direction === 'left' ? 15 : -15,
+      scale: 0.9,
       transition: {
-        type: 'spring',
+        type: "spring",
         stiffness: 300,
         damping: 30
       }
@@ -141,13 +185,13 @@ const ProjectsPage: React.FC = () => {
   const getCategoryIcon = (category: string) => {
     switch (category) {
       case 'web':
-        return <FiCode size={isMobile ? 16 : 20} />;
+        return <FiCode size={isMobile ? 18 : 22} />;
       case 'mobile':
-        return <FiBriefcase size={isMobile ? 16 : 20} />;
+        return <FiBriefcase size={isMobile ? 18 : 22} />;
       case 'other':
-        return <FiServer size={isMobile ? 16 : 20} />;
+        return <FiServer size={isMobile ? 18 : 22} />;
       default:
-        return <FiLayers size={isMobile ? 16 : 20} />;
+        return <FiLayers size={isMobile ? 18 : 22} />;
     }
   };
 
@@ -204,8 +248,25 @@ const ProjectsPage: React.FC = () => {
   const ProjectSwipeableView: React.FC<{
     projects: typeof filteredProjects;
   }> = ({ projects }) => {
+    // 动画进度参考值
+    const [dragProgress, setDragProgress] = useState(0);
+
+    // 处理拖动进度更新
+    const handleDrag = (info: any) => {
+      const xOffset = info.offset.x;
+      const progress = Math.min(Math.max(xOffset / 150, -1), 1); // 归一化为 -1 到 1 之间
+      setDragProgress(progress);
+    };
+
     return (
-      <Box {...projectSwipeHandlers} sx={{ width: '100%', overflow: 'hidden' }}>
+      <Box
+        {...projectSwipeHandlers}
+        sx={{
+          width: '100%',
+          overflow: 'hidden',
+          perspective: '1200px' // 添加透视效果增强3D感
+        }}
+      >
         <AnimatePresence initial={false} custom={slidingDirection}>
           <motion.div
             key={currentSlideIndex}
@@ -214,7 +275,27 @@ const ProjectsPage: React.FC = () => {
             initial="enter"
             animate="center"
             exit="exit"
-            style={{ width: '100%', padding: '0 8px' }}
+            drag="x" // 允许水平拖动
+            dragConstraints={{ left: 0, right: 0 }} // 限制拖动范围
+            dragElastic={0.7} // 拖动弹性
+            onDrag={handleDrag} // 拖动时更新进度
+            onDragEnd={(e, info) => {
+              if (info.offset.x < -100 && currentSlideIndex < projects.length - 1) {
+                // 向左拖动超过阈值，显示下一个项目
+                setSlidingDirection('left');
+                setCurrentSlideIndex(currentSlideIndex + 1);
+              } else if (info.offset.x > 100 && currentSlideIndex > 0) {
+                // 向右拖动超过阈值，显示上一个项目
+                setSlidingDirection('right');
+                setCurrentSlideIndex(currentSlideIndex - 1);
+              }
+            }}
+            style={{
+              width: '100%',
+              padding: '0 8px',
+              transformStyle: 'preserve-3d',
+              boxShadow: '0 10px 30px rgba(0,0,0,0.1)'
+            }}
           >
             <Box sx={{ px: 1, py: 2 }}>
               {projects.length > 0 && currentSlideIndex < projects.length && (
@@ -230,6 +311,7 @@ const ProjectsPage: React.FC = () => {
                   githubUrl={projects[currentSlideIndex].githubUrl}
                   category={projects[currentSlideIndex].category}
                   index={currentSlideIndex}
+                  slideDirection={slidingDirection}
                 />
               )}
             </Box>
@@ -237,51 +319,111 @@ const ProjectsPage: React.FC = () => {
         </AnimatePresence>
 
         {/* 滑动指示器 */}
-        {projects.length > 1 && (
-          <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1, mt: 2 }}>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            mt: 3,
+            mb: 1
+          }}
+        >
             {projects.map((_, idx) => (
               <Box
                 key={idx}
                 onClick={() => {
-                  setSlidingDirection(idx > currentSlideIndex ? 'left' : 'right');
+                const direction = idx > currentSlideIndex ? 'left' : 'right';
+                setSlidingDirection(direction);
                   setCurrentSlideIndex(idx);
                 }}
                 sx={{
-                  width: 8,
+                width: idx === currentSlideIndex ? 24 : 8,
                   height: 8,
-                  borderRadius: '50%',
+                borderRadius: 4,
+                mx: 0.5,
                   backgroundColor: idx === currentSlideIndex
                     ? muiTheme.palette.primary.main
                     : alpha(muiTheme.palette.primary.main, 0.3),
+                transition: 'all 0.3s ease',
                   cursor: 'pointer',
-                  transition: 'all 0.3s ease'
+                '&:hover': {
+                  backgroundColor: alpha(muiTheme.palette.primary.main, idx === currentSlideIndex ? 1 : 0.6)
+                }
                 }}
               />
             ))}
           </Box>
-        )}
+
+        {/* 翻页提示 */}
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            px: 2,
+            mb: 2
+          }}
+        >
+          <Button
+            variant="outlined"
+            disabled={currentSlideIndex === 0}
+            color="primary"
+            size="small"
+            startIcon={<FiArrowLeft />}
+            onClick={() => {
+              if (currentSlideIndex > 0) {
+                setSlidingDirection('right');
+                setCurrentSlideIndex(currentSlideIndex - 1);
+              }
+            }}
+            sx={{
+              minWidth: 'auto',
+              borderRadius: 2,
+              opacity: currentSlideIndex === 0 ? 0.5 : 1
+            }}
+          >
+            上一个
+          </Button>
+
+          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+            {currentSlideIndex + 1} / {projects.length}
+          </Typography>
+
+          <Button
+            variant="outlined"
+            disabled={currentSlideIndex === projects.length - 1}
+            color="primary"
+            size="small"
+            endIcon={<FiArrowRight />}
+            onClick={() => {
+              if (currentSlideIndex < projects.length - 1) {
+                setSlidingDirection('left');
+                setCurrentSlideIndex(currentSlideIndex + 1);
+              }
+            }}
+            sx={{
+              minWidth: 'auto',
+              borderRadius: 2,
+              opacity: currentSlideIndex === projects.length - 1 ? 0.5 : 1
+            }}
+          >
+            下一个
+          </Button>
+        </Box>
       </Box>
     );
   };
 
   return (
-    <PageTransition mode="fade">
-      <Box sx={{
-        py: { xs: 4, sm: 6, md: 8 },
-        minHeight: '100vh',
-        position: 'relative'
-      }}>
-        <Container maxWidth="lg" sx={{ px: { xs: 2, sm: 3, md: 4 } }}>
+    <PageTransition>
+      <Box sx={{ minHeight: '100vh', py: 5 }}>
+        <Container maxWidth="lg" sx={{ position: 'relative' }}>
           {/* 页面标题 */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <PageTitle
-              title={t('projects.title', 'My Projects')}
-              subtitle={t('projects.subtitle', 'Showcase of my latest work')}
-            />
+            <ProjectsPageTitle withAnimation={true} />
           </motion.div>
 
           {/* 项目筛选 - 移动端和桌面端优化 */}
@@ -291,175 +433,378 @@ const ProjectsPage: React.FC = () => {
               mt: { xs: 3, sm: 4 }
             }}
           >
-            {/* 桌面端标签 */}
-            {!isMobile && (
+            {/* 全新设计的分类筛选器 */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{
+                type: "spring",
+                stiffness: 300,
+                damping: 20,
+                delay: 0.2
+              }}
+            >
               <Box
                 sx={{
                   display: 'flex',
-                  justifyContent: 'center'
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '100%',
+                  position: 'relative',
                 }}
               >
+                {/* 磨砂玻璃背景效果容器 */}
                 <Box
                   sx={{
-                    borderRadius: '50px',
-                    backdropFilter: 'blur(10px)',
-                    WebkitBackdropFilter: 'blur(10px)',
+                    width: { xs: '95%', sm: '90%', md: '80%' },
+                    maxWidth: '900px',
+                    backdropFilter: 'blur(16px)',
+                    WebkitBackdropFilter: 'blur(16px)',
                     backgroundColor: alpha(
                       theme === 'dark' ? muiTheme.palette.background.paper : muiTheme.palette.background.paper,
-                      theme === 'dark' ? 0.2 : 0.3
+                      theme === 'dark' ? 0.15 : 0.2
                     ),
+                    borderRadius: { xs: '20px', sm: '25px', md: '30px' },
                     border: `1px solid ${alpha(
                       theme === 'dark' ? muiTheme.palette.common.white : muiTheme.palette.common.black,
-                      0.05
+                      theme === 'dark' ? 0.08 : 0.05
                     )}`,
                     boxShadow: theme === 'dark'
-                      ? '0 8px 20px rgba(0, 0, 0, 0.3)'
-                      : '0 8px 20px rgba(0, 0, 0, 0.1)',
+                      ? '0 10px 40px rgba(0, 0, 0, 0.3), 0 0 10px rgba(99, 102, 241, 0.1) inset'
+                      : '0 10px 40px rgba(0, 0, 0, 0.1), 0 0 10px rgba(99, 102, 241, 0.05) inset',
                     overflow: 'hidden',
-                    padding: '0.5rem',
-                    width: 'fit-content'
+                    padding: { xs: '1rem', sm: '1.2rem', md: '1.5rem' },
+                    position: 'relative',
+                    // 增强的炫光效果
+                    '&::before': {
+                      content: '""',
+                      position: 'absolute',
+                      top: '-20px',
+                      left: '-20px',
+                      right: '-20px',
+                      bottom: '-20px',
+                      background: 'radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.2), transparent 70%)',
+                      opacity: 0.6,
+                      zIndex: -1,
+                      pointerEvents: 'none',
+                      animation: 'pulse 10s infinite alternate ease-in-out'
+                    },
+                    '@keyframes pulse': {
+                      '0%': {
+                        transform: 'scale(0.98) translate(-3px, 3px)',
+                        opacity: 0.4
+                      },
+                      '50%': {
+                        transform: 'scale(1.03) translate(3px, -2px)',
+                        opacity: 0.6
+                      },
+                      '100%': {
+                        transform: 'scale(0.98) translate(-3px, 3px)',
+                        opacity: 0.4
+                      }
+                    }
                   }}
                 >
-                  <Tabs
-                    value={filter}
-                    onChange={handleTabChange}
-                    variant="scrollable"
-                    scrollButtons="auto"
-                    allowScrollButtonsMobile
+                  {/* 筛选标题 */}
+                  <Box sx={{ mb: { xs: 2, sm: 3 }, textAlign: 'center' }}>
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.3, duration: 0.5 }}
+                    >
+                      <Typography
+                        variant="h6"
+                        sx={{
+                          fontWeight: 600,
+                          fontSize: { xs: '1.1rem', sm: '1.2rem', md: '1.3rem' },
+                          background: theme === 'dark'
+                            ? 'linear-gradient(90deg, #a0a0ff 0%, #c0c0ff 100%)'
+                            : 'linear-gradient(90deg, #4040ff 0%, #5060ff 100%)',
+                          WebkitBackgroundClip: 'text',
+                          WebkitTextFillColor: 'transparent',
+                          letterSpacing: '0.5px'
+                        }}
+                      >
+                        {t('projects.filterHeading', '浏览项目分类')}
+                      </Typography>
+                    </motion.div>
+                  </Box>
+
+                  {/* 分类按钮组 */}
+                  <Box
                     sx={{
-                      minHeight: '48px',
-                      '& .MuiTab-root': {
-                        borderRadius: '50px',
-                        minHeight: '48px',
-                        minWidth: { xs: '100px', sm: '120px' },
-                        fontSize: '0.875rem',
-                        px: 3,
-                        py: 1.5,
-                        transition: 'all 0.3s ease',
-                        fontWeight: 500,
-                        textTransform: 'none',
-                        color: theme === 'dark' ? '#fff' : '#000',
-                        '&.Mui-selected': {
-                          background: alpha(muiTheme.palette.primary.main, 0.15),
-                          color: muiTheme.palette.primary.main,
-                          fontWeight: 600
-                        },
-                      },
-                      '& .MuiTabs-indicator': {
-                        display: 'none',
-                      },
-                      '& .MuiTabScrollButton-root': {
-                        color: theme === 'dark' ? '#fff' : '#000',
-                      }
+                      display: 'flex',
+                      flexWrap: 'wrap',
+                      justifyContent: 'center',
+                      gap: { xs: 1.5, sm: 2, md: 2.5 },
+                      position: 'relative',
+                      zIndex: 2
                     }}
                   >
-                    {uniqueCategories.map(category => (
-                      <Tab
+                    {uniqueCategories.map((category, index) => (
+                      <motion.div
                         key={category}
-                        icon={getCategoryIcon(category)}
-                        label={getCategoryLabel(category)}
-                        iconPosition="start"
-                        value={category}
-                      />
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{
+                          delay: 0.2 + index * 0.1,
+                          duration: 0.4,
+                          type: "spring",
+                          stiffness: 300,
+                          damping: 20
+                        }}
+                        whileHover="hover"
+                        whileTap="tap"
+                        variants={filterChipVariants}
+                      >
+                        <Box
+                          onClick={() => handleTabChange({} as React.SyntheticEvent, category)}
+                          sx={{
+                            position: 'relative',
+                            padding: { xs: '0.8rem 1.2rem', sm: '0.9rem 1.4rem', md: '1rem 1.6rem' },
+                            borderRadius: { xs: '15px', sm: '18px' },
+                            cursor: 'pointer',
+                            overflow: 'hidden',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: { xs: 1, sm: 1.5 },
+                            backgroundColor: filter === category
+                              ? alpha(muiTheme.palette.primary.main, theme === 'dark' ? 0.25 : 0.15)
+                              : alpha(
+                                  theme === 'dark' ? muiTheme.palette.background.paper : muiTheme.palette.background.paper,
+                                  theme === 'dark' ? 0.25 : 0.08
+                                ),
+                            boxShadow: filter === category
+                              ? `0 8px 25px ${alpha(muiTheme.palette.primary.main, 0.25)}, 0 0 0 1px ${alpha(muiTheme.palette.primary.main, 0.2)}`
+                              : `0 5px 15px ${alpha(theme === 'dark' ? '#000' : '#000', 0.05)}`,
+                            border: `1px solid ${
+                              filter === category
+                                ? alpha(muiTheme.palette.primary.main, theme === 'dark' ? 0.4 : 0.25)
+                                : 'transparent'
+                            }`,
+                            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                            transform: filter === category ? 'translateY(-2px)' : 'none',
+                            '&:hover': {
+                              backgroundColor: filter === category
+                                ? alpha(muiTheme.palette.primary.main, theme === 'dark' ? 0.3 : 0.2)
+                                : alpha(
+                                    theme === 'dark' ? muiTheme.palette.background.paper : muiTheme.palette.background.paper,
+                                    theme === 'dark' ? 0.3 : 0.12
+                                  ),
+                              transform: 'translateY(-2px)',
+                              boxShadow: filter === category
+                                ? `0 10px 30px ${alpha(muiTheme.palette.primary.main, 0.3)}, 0 0 0 1px ${alpha(muiTheme.palette.primary.main, 0.25)}`
+                                : `0 7px 20px ${alpha(theme === 'dark' ? '#000' : '#000', 0.08)}`
+                            },
+                            '&:active': {
+                              transform: 'translateY(0px)'
+                            },
+                            // 添加底部的发光效果
+                            '&::after': filter === category ? {
+                              content: '""',
+                              position: 'absolute',
+                              bottom: '-10px',
+                              left: '10%',
+                              width: '80%',
+                              height: '15px',
+                              background: `radial-gradient(ellipse at center, ${alpha(muiTheme.palette.primary.main, 0.3)} 0%, transparent 70%)`,
+                              opacity: 0.6,
+                              filter: 'blur(5px)',
+                              zIndex: -1
+                            } : {}
+                          }}
+                        >
+                          {/* 分类图标 */}
+                          <motion.div
+                            animate={{
+                              rotate: filter === category ? [0, -8, 8, -4, 4, 0] : 0,
+                              scale: filter === category ? [1, 1.15, 1] : 1
+                            }}
+                            transition={{
+                              duration: 0.5,
+                              repeat: filter === category ? Infinity : 0,
+                              repeatDelay: 5
+                            }}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              color: filter === category
+                                ? theme === 'dark' ? muiTheme.palette.primary.light : muiTheme.palette.primary.main
+                                : theme === 'dark' ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.6)'
+                            }}
+                          >
+                            {getCategoryIcon(category)}
+                          </motion.div>
+
+                          {/* 分类名称 */}
+                          <Typography
+                            sx={{
+                              fontWeight: filter === category ? 600 : 500,
+                              fontSize: { xs: '0.95rem', sm: '1rem', md: '1.05rem' },
+                              color: filter === category
+                                ? theme === 'dark' ? muiTheme.palette.primary.light : muiTheme.palette.primary.main
+                                : theme === 'dark' ? 'rgba(255,255,255,0.85)' : 'rgba(0,0,0,0.75)',
+                              letterSpacing: filter === category ? '0.3px' : 'normal',
+                              transition: 'all 0.3s ease',
+                              textShadow: filter === category
+                                ? theme === 'dark' ? '0 0 8px rgba(160,160,255,0.3)' : 'none'
+                                : 'none'
+                            }}
+                          >
+                            {getCategoryLabel(category)}
+                          </Typography>
+
+                          {/* 选中指示器 */}
+                          {filter === category && (
+                            <motion.div
+                              initial={{ opacity: 0, scale: 0 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              transition={{ duration: 0.3 }}
+                              style={{
+                                position: 'absolute',
+                                bottom: 6,
+                                left: '50%',
+                                transform: 'translateX(-50%)',
+                                width: 4,
+                                height: 4,
+                                borderRadius: '50%',
+                                backgroundColor: theme === 'dark' ? muiTheme.palette.primary.light : muiTheme.palette.primary.main
+                              }}
+                            />
+                          )}
+                        </Box>
+                      </motion.div>
                     ))}
-                  </Tabs>
-                </Box>
               </Box>
-            )}
 
-            {/* 移动端滑动标签 */}
-            {isMobile && (
-              <Box>
-                {/* 选中的标签显示 */}
-                <Box
-                  sx={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    mb: 2
-                  }}
-                >
-                  <Chip
-                    icon={<FiFilter size={16} />}
-                    label={`${t('projects.filterBy', '分类')} : ${getCategoryLabel(filter)}`}
-                    color="primary"
-                    variant="outlined"
+                  {/* 装饰元素 */}
+                  <Box
                     sx={{
-                      borderRadius: '50px',
-                      height: '36px',
-                      fontWeight: 500,
-                      fontSize: '0.875rem',
-                      backgroundColor: alpha(muiTheme.palette.primary.main, 0.1),
-                      borderColor: alpha(muiTheme.palette.primary.main, 0.3),
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      pointerEvents: 'none',
+                      overflow: 'hidden',
+                      borderRadius: 'inherit',
+                      zIndex: 1
                     }}
-                  />
+                  >
+                    {/* 顶部光效 */}
+                    <Box
+                      sx={{
+                        position: 'absolute',
+                        top: '-100px',
+                        left: '-100px',
+                        width: '200px',
+                        height: '200px',
+                        background: `radial-gradient(circle, ${alpha(muiTheme.palette.primary.main, 0.2)} 0%, transparent 70%)`,
+                        opacity: 0.6
+                      }}
+                    />
+
+                    {/* 底部光效 */}
+                    <Box
+                      sx={{
+                        position: 'absolute',
+                        bottom: '-100px',
+                        right: '-100px',
+                        width: '200px',
+                        height: '200px',
+                        background: `radial-gradient(circle, ${alpha(
+                          theme === 'dark' ? '#a0a0ff' : muiTheme.palette.primary.main,
+                          0.15
+                        )} 0%, transparent 70%)`,
+                        opacity: 0.6
+                      }}
+                    />
+                  </Box>
                 </Box>
 
-                {/* 滑动标签区域 */}
-                <CustomSwipeableView
-                  index={uniqueCategories.indexOf(filter)}
-                  style={{ padding: '0 8px' }}
-                >
-                  {uniqueCategories.map(category => (
+                {/* 活动指示文本 */}
+                {filter !== 'all' && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    transition={{ duration: 0.3 }}
+                  >
                     <Box
-                      key={category}
                       sx={{
-                        padding: 2,
-                        borderRadius: '12px',
-                        backdropFilter: 'blur(10px)',
-                        WebkitBackdropFilter: 'blur(10px)',
+                        mt: 2,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 1,
+                        px: 2,
+                        py: 0.75,
+                        borderRadius: '50px',
+                        backdropFilter: 'blur(8px)',
+                        WebkitBackdropFilter: 'blur(8px)',
                         backgroundColor: alpha(
-                          theme === 'dark' ? '#000' : '#fff',
-                          theme === 'dark' ? 0.3 : 0.5
+                          theme === 'dark' ? muiTheme.palette.background.paper : muiTheme.palette.background.paper,
+                          theme === 'dark' ? 0.2 : 0.15
                         ),
-                        border: `1px solid ${alpha(
-                          theme === 'dark' ? '#fff' : '#000',
-                          0.05
-                        )}`,
-                        boxShadow: theme === 'dark'
-                          ? '0 4px 12px rgba(0, 0, 0, 0.2)'
-                          : '0 4px 12px rgba(0, 0, 0, 0.08)',
-                        textAlign: 'center'
+                        boxShadow: `0 2px 10px ${alpha(theme === 'dark' ? '#000' : '#000', 0.1)}`,
                       }}
                     >
                       <Box
                         sx={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: 1
+                          width: 8,
+                          height: 8,
+                          borderRadius: '50%',
+                          backgroundColor: muiTheme.palette.primary.main,
+                          animation: 'pulse-dot 2s cubic-bezier(0.455, 0.03, 0.515, 0.955) -0.4s infinite',
+                          '@keyframes pulse-dot': {
+                            '0%': { transform: 'scale(0.8)', opacity: 0.8 },
+                            '50%': { transform: 'scale(1.2)', opacity: 1 },
+                            '100%': { transform: 'scale(0.8)', opacity: 0.8 }
+                          }
+                        }}
+                      />
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          fontSize: '0.9rem',
+                          fontWeight: 500,
+                          color: theme === 'dark' ? 'rgba(255,255,255,0.8)' : 'rgba(0,0,0,0.7)'
                         }}
                       >
-                        {getCategoryIcon(category)}
+                        {t('projects.filteringBy', '当前筛选')}:&nbsp;
                         <Typography
-                          variant="body1"
+                          component="span"
                           sx={{
                             fontWeight: 600,
-                            color: filter === category
-                              ? muiTheme.palette.primary.main
-                              : theme === 'dark' ? '#fff' : '#000'
+                            color: theme === 'dark' ? muiTheme.palette.primary.light : muiTheme.palette.primary.main
                           }}
                         >
-                          {getCategoryLabel(category)}
+                          {getCategoryLabel(filter)}
                         </Typography>
-                      </Box>
+                        &nbsp;
                       <Typography
-                        variant="caption"
+                          component="span"
                         sx={{
-                          display: 'block',
-                          mt: 0.5,
-                          color: theme === 'dark' ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.6)'
-                        }}
-                      >
-                        {filter === category
-                          ? t('projects.currentCategory', '当前分类')
-                          : t('projects.swipeToView', '滑动切换')}
+                            fontSize: '0.85rem',
+                            fontWeight: 500,
+                            color: theme === 'dark' ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.5)',
+                            cursor: 'pointer',
+                            '&:hover': {
+                              color: theme === 'dark' ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.7)',
+                              textDecoration: 'underline'
+                            }
+                          }}
+                          onClick={() => setFilter('all')}
+                        >
+                          ({t('projects.clearFilter', '清除')})
+                        </Typography>
                       </Typography>
                     </Box>
-                  ))}
-                </CustomSwipeableView>
+                  </motion.div>
+                )}
               </Box>
-            )}
+            </motion.div>
           </Box>
 
           {/* 活跃类别显示 - 桌面端 */}
@@ -524,6 +869,7 @@ const ProjectsPage: React.FC = () => {
                         githubUrl={project.githubUrl}
                         category={project.category}
                         index={index}
+                        slideDirection={slidingDirection}
                       />
                     </Grid>
                   ))}
@@ -586,3 +932,4 @@ const ProjectsPage: React.FC = () => {
 };
 
 export default ProjectsPage;
+

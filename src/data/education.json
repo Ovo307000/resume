@@ -1,0 +1,98 @@
+[
+  {
+    "institution": "安徽财经大学",
+    "area": "计算机科学与技术",
+    "startDate": "2024-03",
+    "endDate": "2028-06",
+    "isOngoing": true,
+    "displayDate": {
+      "zh": "2024年3月 - 至今",
+      "en": "Mar 2024 - Present"
+    },
+    "description": {
+      "zh": "计算机科学与技术专业学士学位在读，专注于Java后端开发技术的学习和实践。",
+      "en": "Currently pursuing a Bachelor's degree in Computer Science and Technology, focusing on Java backend development technologies."
+    },
+    "skills": [
+      {
+        "zh": "Java编程",
+        "en": "Java Programming"
+      },
+      {
+        "zh": "后端开发",
+        "en": "Backend Development"
+      },
+      {
+        "zh": "软件工程",
+        "en": "Software Engineering"
+      }
+    ],
+    "currentFocus": [
+      {
+        "zh": "Java后端开发",
+        "en": "Java Backend Development"
+      },
+      {
+        "zh": "分布式系统",
+        "en": "Distributed Systems"
+      }
+    ],
+    "goals": [
+      {
+        "zh": "深入学习计算机科学理论知识",
+        "en": "Deepen knowledge in computer science theory"
+      },
+      {
+        "zh": "提升Java后端开发技能",
+        "en": "Enhance Java backend development skills"
+      }
+    ]
+  },
+  {
+    "institution": "安徽工贸学院",
+    "area": "软件技术",
+    "startDate": "2020-10",
+    "endDate": "2023-06",
+    "isOngoing": false,
+    "displayDate": {
+      "zh": "2020年10月 - 2023年6月",
+      "en": "Oct 2020 - Jun 2023"
+    },
+    "description": {
+      "zh": "软件技术专业，专注于Java编程和后端开发技术的学习。积累了丰富的项目经验，掌握了Spring、MySQL、Redis等后端技术栈。",
+      "en": "Studied Software Technology with a focus on Java programming and backend development. Accumulated rich project experience and mastered backend technology stack including Spring, MySQL, Redis, etc."
+    },
+    "skills": [
+      {
+        "zh": "Java编程",
+        "en": "Java Programming"
+      },
+      {
+        "zh": "Spring框架",
+        "en": "Spring Framework"
+      },
+      {
+        "zh": "MySQL",
+        "en": "MySQL"
+      },
+      {
+        "zh": "Redis",
+        "en": "Redis"
+      },
+      {
+        "zh": "Docker",
+        "en": "Docker"
+      }
+    ],
+    "achievements": [
+      {
+        "zh": "完成多个实际项目开发",
+        "en": "Completed multiple real-world projects"
+      },
+      {
+        "zh": "掌握了主流后端开发技术栈",
+        "en": "Mastered mainstream backend development stack"
+      }
+    ]
+  }
+]

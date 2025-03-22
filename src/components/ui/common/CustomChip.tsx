@@ -1,23 +1,26 @@
 import React from 'react';
-import { Chip, ChipProps, alpha, SxProps, Tooltip } from '@mui/material';
+import { Chip, ChipProps, alpha, SxProps, Tooltip, Theme } from '@mui/material';
 import { motion } from 'framer-motion';
 import { useTheme } from '../../../contexts/ThemeContext';
 
-export interface CustomChipProps extends Omit<ChipProps, 'onClick'> {
+// 定义ChipProps的color类型
+type ChipColor = 'default' | 'primary' | 'secondary' | 'success' | 'error' | 'info' | 'warning';
+
+export interface CustomChipProps extends Omit<ChipProps, 'onClick' | 'color' | 'icon'> {
   label: string;
   icon?: React.ReactNode;
-  color?: 'primary' | 'secondary' | 'success' | 'error' | 'info' | 'warning' | string;
+  color?: ChipColor | string;
   variant?: 'filled' | 'outlined';
   size?: 'small' | 'medium';
   url?: string;
   tooltip?: string;
   animate?: boolean;
-  borderRadius?: number | string;
   customBgColor?: string;
   customTextColor?: string;
-  customSx?: SxProps;
+  customSx?: SxProps<Theme>;
   interactive?: boolean;
   onClick?: (event: React.MouseEvent<HTMLDivElement>) => void;
+  borderRadius?: string;
 }
 
 /**
@@ -33,15 +36,17 @@ const CustomChip: React.FC<CustomChipProps> = ({
   url,
   tooltip,
   animate = true,
-  borderRadius = '16px',
   customBgColor,
   customTextColor,
   customSx = {},
   interactive = true,
   onClick,
+  // 从props中提取borderRadius，防止它被传递给DOM元素
+  borderRadius,
   ...props
 }) => {
-  const { theme: appTheme } = useTheme();
+  // 使用解构但不使用变量，避免未使用警告
+  const { theme: _ } = useTheme();
 
   // 处理点击事件
   const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
@@ -52,68 +57,102 @@ const CustomChip: React.FC<CustomChipProps> = ({
     }
   };
 
-  // 确定背景色和文字色
-  const getBgColor = () => {
-    if (customBgColor) return customBgColor;
-
-    // 预定义颜色的透明度处理
-    const isCustomColor = !['primary', 'secondary', 'success', 'error', 'info', 'warning'].includes(color);
-
-    if (variant === 'outlined') {
-      return 'transparent';
-    } else if (isCustomColor) {
-      return appTheme === 'dark' ? alpha(color, 0.2) : alpha(color, 0.1);
-    }
-
-    return undefined; // 使用MUI默认颜色
+  // 检查是否是标准的MUI颜色
+  const isStandardColor = (color: string): boolean => {
+    return ['default', 'primary', 'secondary', 'success', 'error', 'info', 'warning'].includes(color);
   };
 
-  const getTextColor = () => {
-    if (customTextColor) return customTextColor;
+  // 根据variant计算默认样式
+  const getDefaultSx = (): SxProps<Theme> => {
+    const isCustomColor = !isStandardColor(color);
 
-    const isCustomColor = !['primary', 'secondary', 'success', 'error', 'info', 'warning'].includes(color);
-
-    if (isCustomColor) {
-      return color;
+    if (variant === 'filled') {
+      return {
+        backgroundColor: customBgColor || (isCustomColor ? alpha(color, 0.1) : undefined),
+        color: customTextColor || (isCustomColor ? color : undefined),
+        border: isCustomColor ? `1px solid ${alpha(color, 0.2)}` : undefined,
+        '&:hover': interactive ? {
+          backgroundColor: isCustomColor ?
+            (customBgColor ? alpha(color, 0.15) : alpha(color, 0.2)) :
+            undefined,
+          boxShadow: isCustomColor ? `0 2px 8px ${alpha(color, 0.2)}` : undefined
+        } : {},
+        overflow: 'hidden', // 确保文本不溢出
+        maxWidth: '100%', // 限制最大宽度
+        '& .MuiChip-label': {
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
+          padding: '0 8px' // 确保有足够的水平内边距
+        },
+        // 将borderRadius应用到样式而不是作为DOM属性
+        borderRadius: borderRadius,
+      };
+    } else {
+      return {
+        backgroundColor: 'transparent',
+        color: customTextColor || (isCustomColor ? color : undefined),
+        border: isCustomColor ? `1px solid ${alpha(color, 0.5)}` : undefined,
+        '&:hover': interactive ? {
+          backgroundColor: isCustomColor ? alpha(color, 0.1) : undefined,
+          boxShadow: isCustomColor ? `0 2px 8px ${alpha(color, 0.15)}` : undefined
+        } : {},
+        overflow: 'hidden',
+        maxWidth: '100%',
+        '& .MuiChip-label': {
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
+          padding: '0 8px'
+        },
+        // 将borderRadius应用到样式而不是作为DOM属性
+        borderRadius: borderRadius,
+      };
     }
-
-    return undefined; // 使用MUI默认颜色
   };
+
+  // 合并默认样式和自定义样式
+  const combinedSx = {
+    ...getDefaultSx(),
+    cursor: interactive || onClick ? 'pointer' : 'default',
+    transition: 'all 0.3s ease',
+    height: size === 'small' ? '24px' : '32px',
+    fontSize: size === 'small' ? '0.75rem' : '0.85rem',
+    fontWeight: 500,
+    lineHeight: 1.2, // 确保文本垂直居中
+    ...customSx,
+  };
+
+  // 动画效果
+  const chipVariants = {
+    initial: { opacity: 0, scale: 0.8, y: 10 },
+    animate: { opacity: 1, scale: 1, y: 0 },
+    hover: { y: -4, scale: 1.05 }
+  };
+
+  // 使用动画取决于animate参数
+  const motionProps = animate ? {
+    initial: "initial",
+    animate: "animate",
+    whileHover: interactive ? "hover" : undefined,
+    variants: chipVariants,
+    transition: { type: "spring", stiffness: 300, damping: 20 }
+  } : {};
 
   // 构建chip组件
   const chipComponent = (
     <motion.div
-      whileHover={animate && interactive ? { scale: 1.05, y: -2 } : {}}
-      whileTap={animate && interactive ? { scale: 0.98 } : {}}
-      initial={{ opacity: 0, y: 5 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.2 }}
+      {...motionProps}
+      onClick={handleClick}
+      style={{ display: 'inline-block' }} // 确保动画容器正确显示
     >
       <Chip
         label={label}
-        icon={icon}
-        color={['primary', 'secondary', 'success', 'error', 'info', 'warning'].includes(color) ? (color as ChipProps['color']) : undefined}
+        icon={icon as React.ReactElement | undefined}
+        color={isStandardColor(color) ? (color as ChipProps['color']) : undefined}
         variant={variant as ChipProps['variant']}
         size={size}
-        onClick={handleClick}
-        sx={{
-          borderRadius,
-          bgcolor: getBgColor(),
-          color: getTextColor(),
-          borderColor: variant === 'outlined' ? getTextColor() : undefined,
-          fontWeight: 'medium',
-          cursor: (url || onClick) ? 'pointer' : 'default',
-          '&:hover': {
-            bgcolor: (url || onClick) && variant !== 'outlined' ?
-              (appTheme === 'dark' ? alpha(color, 0.3) : alpha(color, 0.2)) :
-              getBgColor(),
-            boxShadow: (url || onClick) ? '0 2px 4px rgba(0,0,0,0.1)' : 'none',
-          },
-          '& .MuiChip-icon': {
-            color: 'inherit',
-          },
-          ...customSx
-        }}
+        sx={combinedSx}
         {...props}
       />
     </motion.div>

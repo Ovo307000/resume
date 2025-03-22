@@ -56,7 +56,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           display: 'flex',
           flexDirection: 'column',
           position: 'relative',
-          zIndex: 2
+          zIndex: 2,
+          pt: { xs: '70px', md: 0 },
+          transition: 'padding-top 0.3s ease'
         }}
       >
         {children}

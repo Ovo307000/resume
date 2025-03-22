@@ -36,6 +36,7 @@ import { useTheme } from '../../../contexts/ThemeContext';
 import { useLanguage } from '../../../hooks/useLanguage';
 import { TechnologyTag } from './TechnologyTag';
 import { useSwipeable } from 'react-swipeable';
+import AnimatedIconButton from '../common/AnimatedIconButton';
 
 interface LocalizedText {
   en: string;
@@ -54,6 +55,7 @@ interface ProjectCardProps {
   githubUrl?: string;
   category?: string;
   index?: number;
+  slideDirection?: 'left' | 'right' | null;
 }
 
 /**
@@ -71,7 +73,8 @@ const EnhancedProjectCard: React.FC<ProjectCardProps> = ({
   url = '',
   githubUrl,
   category = '',
-  index = 0
+  index = 0,
+  slideDirection = null
 }) => {
   const { theme } = useTheme();
   const muiTheme = useMuiTheme();
@@ -83,6 +86,7 @@ const EnhancedProjectCard: React.FC<ProjectCardProps> = ({
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isImagePreviewOpen, setIsImagePreviewOpen] = useState(false);
   const [isImageEnlarged, setIsImageEnlarged] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
   // 处理卡片点击
   const handleCardClick = () => {
@@ -163,22 +167,45 @@ const EnhancedProjectCard: React.FC<ProjectCardProps> = ({
 
   // 动画变体
   const cardVariants = {
-    hidden: { opacity: 0, y: 20 },
+    hidden: {
+      opacity: 0,
+      y: 20,
+      rotateY: slideDirection === 'left' ? -15 : slideDirection === 'right' ? 15 : 0,
+      x: slideDirection === 'left' ? 50 : slideDirection === 'right' ? -50 : 0,
+      scale: 0.9
+    },
     visible: {
       opacity: 1,
       y: 0,
+      rotateY: 0,
+      x: 0,
+      scale: 1,
       transition: {
         type: "spring",
         stiffness: 300,
-        damping: 30,
-        delay: index * 0.1
+        damping: 25,
+        delay: index * 0.05,
+        duration: 0.5
+      }
+    },
+    exit: {
+      opacity: 0,
+      y: 30,
+      rotateY: slideDirection === 'left' ? 15 : slideDirection === 'right' ? -15 : 0,
+      x: slideDirection === 'left' ? -100 : slideDirection === 'right' ? 100 : 0,
+      scale: 0.9,
+      transition: {
+        type: "spring",
+        stiffness: 300,
+        damping: 20,
+        duration: 0.4
       }
     },
     hover: {
       y: -8,
       boxShadow: theme === 'dark'
-        ? '0 12px 30px rgba(0, 0, 0, 0.6)'
-        : '0 12px 30px rgba(0, 0, 0, 0.15)',
+        ? '0 18px 35px rgba(0, 0, 0, 0.6)'
+        : '0 18px 35px rgba(0, 0, 0, 0.15)',
       transition: {
         type: "spring",
         stiffness: 400,
@@ -216,16 +243,75 @@ const EnhancedProjectCard: React.FC<ProjectCardProps> = ({
     }
   };
 
+  // 炫光效果动画
+  const shineVariants = {
+    initial: {
+      background: `linear-gradient(90deg, transparent, transparent)`,
+    },
+    hover: {
+      background: `linear-gradient(90deg,
+        transparent 0%,
+        ${alpha(muiTheme.palette.primary.main, 0.1)} 30%,
+        ${alpha(muiTheme.palette.primary.main, 0.2)} 50%,
+        ${alpha(muiTheme.palette.primary.main, 0.1)} 70%,
+        transparent 100%)`,
+      backgroundSize: '200% 100%',
+      backgroundPosition: ['200% 0%', '-100% 0%'],
+      transition: {
+        backgroundPosition: {
+          duration: 2,
+          ease: 'easeInOut',
+          repeat: Infinity,
+          repeatType: 'reverse'
+        }
+      }
+    }
+  };
+
+  // 图片悬停动画
+  const imageHoverVariants = {
+    initial: { scale: 1 },
+    hover: {
+      scale: 1.05,
+      transition: { duration: 3, ease: 'easeOut' }
+    }
+  };
+
+  // 标签动画变体
+  const tagVariants = {
+    initial: { opacity: 0, y: 10, scale: 0.9 },
+    visible: (i: number) => ({
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: {
+        type: 'spring',
+        stiffness: 500,
+        damping: 30,
+        delay: 0.3 + i * 0.05
+      }
+    }),
+    hover: { y: -3, scale: 1.05 }
+  };
+
   return (
     <>
       {/* 项目卡片 */}
       <motion.div
+        key={`${name}-${index}`}
         initial="hidden"
         animate="visible"
+        exit="exit"
         whileHover="hover"
         whileTap={hasDetails ? "tap" : undefined}
         variants={cardVariants}
-        style={{ height: '100%' }}
+        style={{
+          height: '100%',
+          position: 'relative',
+          perspective: '1000px'
+        }}
+        onHoverStart={() => setIsHovered(true)}
+        onHoverEnd={() => setIsHovered(false)}
         {...(isMobile ? swipeHandlers : {})}
       >
         <Card
@@ -235,7 +321,7 @@ const EnhancedProjectCard: React.FC<ProjectCardProps> = ({
             display: 'flex',
             flexDirection: 'column',
             borderRadius: '16px',
-            overflow: 'hidden',
+            overflow: 'visible',
             cursor: hasDetails ? 'pointer' : 'default',
             backgroundColor: theme === 'dark'
               ? 'rgba(30, 30, 40, 0.7)'
@@ -248,212 +334,379 @@ const EnhancedProjectCard: React.FC<ProjectCardProps> = ({
               ? '0 8px 24px rgba(0, 0, 0, 0.4)'
               : '0 8px 24px rgba(0, 0, 0, 0.1)',
             transition: 'all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)',
-            position: 'relative'
+            position: 'relative',
+            transformStyle: 'preserve-3d'
           }}
         >
-          {/* 项目分类标签 */}
+          {/* 类别标签 */}
           {category && (
             <Box
               sx={{
                 position: 'absolute',
                 top: 12,
-                right: 12,
-                zIndex: 2
+                left: 12,
+                zIndex: 10
               }}
             >
-              <Badge
-                color="primary"
-                sx={{
-                  '& .MuiBadge-badge': {
-                    borderRadius: '10px',
-                    padding: '4px 8px',
-                    fontSize: '0.7rem',
-                    fontWeight: 600,
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.2 + index * 0.05, duration: 0.3 }}
+              >
+                <Chip
+                  icon={<FiTag size={14} />}
+                  label={category}
+                  size="small"
+                  sx={{
+                    backgroundColor: theme === 'dark'
+                      ? 'rgba(80, 80, 120, 0.8)'
+                      : 'rgba(240, 240, 255, 0.8)',
+                    color: theme === 'dark' ? '#fff' : '#000',
+                    backdropFilter: 'blur(8px)',
+                    fontWeight: 500,
+                    fontSize: '0.75rem',
                     textTransform: 'uppercase',
                     letterSpacing: '0.5px',
-                    backgroundColor: alpha(muiTheme.palette.primary.main, 0.9),
+                    border: `1px solid ${theme === 'dark'
+                      ? 'rgba(255, 255, 255, 0.1)'
+                      : 'rgba(0, 0, 0, 0.05)'}`,
                     boxShadow: theme === 'dark'
-                      ? '0 2px 8px rgba(0, 0, 0, 0.4)'
-                      : '0 2px 8px rgba(0, 0, 0, 0.15)',
-                  }
-                }}
-                badgeContent={category}
-              >
-                <Box sx={{ width: 8, height: 8 }} />
-              </Badge>
+                      ? '0 2px 8px rgba(0, 0, 0, 0.3)'
+                      : '0 2px 8px rgba(0, 0, 0, 0.1)'
+                  }}
+                />
+              </motion.div>
             </Box>
           )}
 
-          {/* 项目图片 */}
-          <Box sx={{ position: 'relative' }}>
-            <CardMedia
-              component="img"
-              height="200"
-              image={imageUrl}
-              alt={language === 'en' ? name : nameZh}
-              className="project-image"
-              sx={{
-                transition: 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
-                objectFit: 'cover',
-                filter: theme === 'dark' ? 'brightness(0.9)' : 'none',
-                '&:hover': {
-                  transform: 'scale(1.05)'
-                }
-              }}
-            />
+          {/* 炫光效果 - 悬停时激活 */}
+          <motion.div
+            variants={shineVariants}
+            initial="initial"
+            animate={isHovered ? "hover" : "initial"}
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              pointerEvents: 'none',
+              zIndex: 1
+            }}
+          />
 
-            {/* 图片操作按钮 */}
-            <Box
-              sx={{
-                position: 'absolute',
-                bottom: 8,
-                right: 8,
-                display: 'flex',
-                gap: 1
-              }}
-            >
-              <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-                <IconButton
-                  size="small"
-                  onClick={handleImagePreview}
+          {/* 图片区域 - 增强交互体验 */}
+          <Box
+            sx={{
+              position: 'relative',
+              overflow: 'hidden',
+              height: 0,
+              paddingTop: '56.25%', // 16:9 宽高比
+              backgroundColor: theme === 'dark' ? '#1a1a2e' : '#f8f9fa'
+            }}
+          >
+            <Badge
+              badgeContent={
+                <Box
+                  component={motion.div}
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{
+                    scale: hasDetails ? 1 : 0,
+                    opacity: hasDetails ? 1 : 0
+                  }}
+                  transition={{ delay: 0.3, duration: 0.3 }}
                   sx={{
-                    backgroundColor: alpha(theme === 'dark' ? '#000' : '#fff', 0.8),
-                    color: theme === 'dark' ? '#fff' : '#000',
-                    boxShadow: theme === 'dark'
-                      ? '0 2px 8px rgba(0, 0, 0, 0.4)'
-                      : '0 2px 8px rgba(0, 0, 0, 0.15)',
-                    '&:hover': {
-                      backgroundColor: alpha(theme === 'dark' ? '#000' : '#fff', 0.9),
-                    }
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: 32,
+                    height: 32,
+                    borderRadius: '50%',
+                    backgroundColor: theme === 'dark'
+                      ? 'rgba(80, 80, 255, 0.9)'
+                      : 'rgba(70, 70, 220, 0.9)',
+                    color: '#fff',
+                    boxShadow: '0 3px 8px rgba(0, 0, 0, 0.3)',
+                    border: '2px solid #fff'
                   }}
                 >
                   <FiZoomIn size={16} />
-                </IconButton>
-              </motion.div>
-
-              <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-                <IconButton
-                  size="small"
-                  onClick={handleImageDownload}
+                </Box>
+              }
+              sx={{
+                position: 'absolute',
+                top: 0,
+                right: 0,
+                zIndex: 2,
+                '& .MuiBadge-badge': {
+                  top: 16,
+                  right: 16,
+                  padding: 0,
+                  minWidth: 'auto',
+                  height: 'auto',
+                  background: 'transparent'
+                }
+              }}
+            >
+              <motion.div
+                variants={imageHoverVariants}
+                initial="initial"
+                animate={isHovered ? "hover" : "initial"}
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '100%',
+                  overflow: 'hidden'
+                }}
+              >
+                <CardMedia
+                  component="img"
+                  image={imageUrl || '/assets/images/placeholder-project.jpg'}
+                  alt={language === 'zh' ? nameZh : name}
                   sx={{
-                    backgroundColor: alpha(theme === 'dark' ? '#000' : '#fff', 0.8),
-                    color: theme === 'dark' ? '#fff' : '#000',
-                    boxShadow: theme === 'dark'
-                      ? '0 2px 8px rgba(0, 0, 0, 0.4)'
-                      : '0 2px 8px rgba(0, 0, 0, 0.15)',
-                    '&:hover': {
-                      backgroundColor: alpha(theme === 'dark' ? '#000' : '#fff', 0.9),
-                    }
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    filter: theme === 'dark' ? 'brightness(0.9)' : 'none',
+                    transition: 'all 0.5s ease-out',
+                    backgroundColor: theme === 'dark' ? 'rgba(20, 20, 35, 0.8)' : 'rgba(245, 245, 250, 0.8)'
                   }}
-                >
-                  <FiDownload size={16} />
-                </IconButton>
+                  loading="lazy"
+                  onError={(e) => {
+                    console.warn('项目图片加载失败，使用备用图片', imageUrl);
+                    const target = e.target as HTMLImageElement;
+                    // 使用更多备用路径尝试
+                    target.src = '/assets/images/placeholder-project.jpg';
+                    // 如果第一个失败，尝试另一个路径
+                    target.onerror = () => {
+                      target.src = '/placeholder-project.jpg';
+                      // 如果再次失败，尝试简单的内置图片
+                      target.onerror = () => {
+                        target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"%3E%3Crect width="100" height="100" fill="%23f0f0f0"/%3E%3Ctext x="50" y="50" font-family="Arial" font-size="12" text-anchor="middle" alignment-baseline="middle" fill="%23999"%3E图片未找到%3C/text%3E%3C/svg%3E';
+                        target.onerror = null;
+                      };
+                    };
+                  }}
+                />
               </motion.div>
+            </Badge>
+
+            {/* 图片操作按钮 */}
+            <Box
+              component={motion.div}
+              initial={{ opacity: 0, y: 20 }}
+              animate={isHovered ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+              transition={{ duration: 0.3 }}
+              sx={{
+                position: 'absolute',
+                left: 0,
+                right: 0,
+                bottom: 0,
+                display: 'flex',
+                justifyContent: 'center',
+                gap: 1,
+                p: 1,
+                background: 'linear-gradient(to top, rgba(0,0,0,0.7), transparent)',
+                backdropFilter: 'blur(4px)',
+                zIndex: 10
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <AnimatedIconButton
+                icon={<FiZoomIn size={18} />}
+                onClick={handleImagePreview}
+                tooltipText="预览图片"
+                size="small"
+                variant="glass"
+                color="primary"
+              />
             </Box>
           </Box>
 
-          {/* 项目内容 */}
-          <CardContent sx={{
-            flexGrow: 1,
-            p: 3,
-            display: 'flex',
-            flexDirection: 'column'
-          }}>
+          {/* 内容区域 */}
+          <CardContent
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              flexGrow: 1,
+              p: 3,
+              pt: 2.5
+            }}
+          >
+            {/* 项目标题 */}
             <Typography
               variant="h6"
-              gutterBottom
+              component={motion.h3}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 + index * 0.05, duration: 0.3 }}
               sx={{
                 fontWeight: 600,
-                fontSize: '1.25rem',
                 mb: 1,
-                display: '-webkit-box',
-                WebkitLineClamp: 1,
-                WebkitBoxOrient: 'vertical',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis'
+                color: theme === 'dark' ? '#fff' : '#000',
+                fontSize: { xs: '1.1rem', sm: '1.25rem' },
+                lineHeight: 1.3,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1
               }}
             >
-              {language === 'en' ? name : nameZh}
+              {language === 'zh' ? nameZh : name}
             </Typography>
 
+            {/* 项目描述 */}
             <Typography
+              component={motion.p}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 + index * 0.05, duration: 0.3 }}
               variant="body2"
               color="text.secondary"
               sx={{
                 mb: 2,
-                minHeight: '3em',
                 display: '-webkit-box',
-                WebkitLineClamp: 2,
+                WebkitLineClamp: 3,
                 WebkitBoxOrient: 'vertical',
                 overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                lineHeight: 1.5
+                lineHeight: 1.6,
+                flex: '1 0 auto'
               }}
             >
-              {language === 'en' ? description : descriptionZh}
+              {language === 'zh' ? descriptionZh : description}
             </Typography>
 
             {/* 技术标签 */}
-            <Box
-              sx={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                gap: 1,
-                mb: 2,
-                mt: 'auto'
-              }}
-            >
-              {technologies.slice(0, isMobile ? 2 : isTablet ? 3 : 4).map((tech, i) => (
-                <TechnologyTag key={i} name={tech} />
-              ))}
-
-              {technologies.length > (isMobile ? 2 : isTablet ? 3 : 4) && (
-                <Chip
-                  label={`+${technologies.length - (isMobile ? 2 : isTablet ? 3 : 4)}`}
-                  size="small"
-                  variant="outlined"
-                  sx={{
-                    height: 24,
-                    fontSize: '0.75rem',
-                    fontWeight: 500,
-                    borderColor: alpha(muiTheme.palette.primary.main, 0.3),
-                    color: muiTheme.palette.primary.main
-                  }}
-                />
-              )}
-            </Box>
-
-            {/* 链接按钮 */}
-            {githubUrl && (
-              <Box sx={{
-                display: 'flex',
-                justifyContent: 'flex-end',
-                gap: 1
-              }}>
-                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                  <IconButton
-                    onClick={(e) => handleLinkClick(e, githubUrl)}
-                    size="small"
-                    aria-label="GitHub Repository"
-                    sx={{
-                      color: theme === 'dark' ? '#fff' : '#000',
-                      backgroundColor: alpha(
-                        theme === 'dark' ? '#fff' : '#000',
-                        0.05
-                      ),
-                      '&:hover': {
-                        backgroundColor: alpha(
-                          theme === 'dark' ? '#fff' : '#000',
-                          0.1
-                        )
-                      }
-                    }}
+            {technologies.length > 0 && (
+              <Box
+                sx={{
+                  mt: 'auto',
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  gap: 1,
+                  padding: '4px 0',
+                  minHeight: '36px',
+                  alignItems: 'center'
+                }}
+              >
+                {technologies.slice(0, 4).map((tech, i) => (
+                  <motion.div
+                    key={tech}
+                    custom={i}
+                    variants={tagVariants}
+                    initial="initial"
+                    animate="visible"
+                    whileHover="hover"
                   >
-                    <FiGithub />
-                  </IconButton>
-                </motion.div>
+                    <TechnologyTag
+                      tech={tech}
+                      size="small"
+                      darkMode={theme === 'dark'}
+                    />
+                  </motion.div>
+                ))}
+                {technologies.length > 4 && (
+                  <motion.div
+                    custom={4}
+                    variants={tagVariants}
+                    initial="initial"
+                    animate="visible"
+                    whileHover="hover"
+                  >
+                    <Chip
+                      label={`+${technologies.length - 4}`}
+                      size="small"
+                      sx={{
+                        backgroundColor: alpha(muiTheme.palette.primary.main, 0.1),
+                        color: theme === 'dark' ? '#fff' : muiTheme.palette.primary.main,
+                        fontWeight: 600,
+                        fontSize: '0.7rem',
+                        height: '24px'
+                      }}
+                    />
+                  </motion.div>
+                )}
               </Box>
             )}
+
+            {/* 操作按钮 */}
+            <Box
+              component={motion.div}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 + index * 0.05, duration: 0.3 }}
+              sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                mt: 2,
+                pt: 2,
+                pb: 0.5,
+                borderTop: `1px solid ${theme === 'dark'
+                  ? 'rgba(255, 255, 255, 0.1)'
+                  : 'rgba(0, 0, 0, 0.05)'}`,
+                overflow: 'visible'
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* 左侧按钮组 */}
+              <Box sx={{ display: 'flex', gap: 1 }}>
+                {githubUrl && (
+                  <AnimatedIconButton
+                    icon={<FiGithub size={18} />}
+                    onClick={(e) => handleLinkClick(e, githubUrl)}
+                    tooltipText="查看代码"
+                    ariaLabel="查看 GitHub 代码"
+                    size="small"
+                    variant="glass"
+                  />
+                )}
+                {url && (
+                  <AnimatedIconButton
+                    icon={<FiExternalLink size={18} />}
+                    onClick={(e) => handleLinkClick(e, url)}
+                    tooltipText="访问网站"
+                    ariaLabel="访问项目网站"
+                    size="small"
+                    variant="glass"
+                  />
+                )}
+              </Box>
+
+              {/* 右侧详情按钮 */}
+              {hasDetails && (
+                <Button
+                  component={motion.button}
+                  whileHover={{
+                    scale: 1.05,
+                    transition: { duration: 0.2 }
+                  }}
+                  whileTap={{ scale: 0.95 }}
+                  variant="text"
+                  color="primary"
+                  size="small"
+                  onClick={handleCardClick}
+                  sx={{
+                    fontWeight: 500,
+                    textTransform: 'none',
+                    px: 1.5,
+                    py: 0.5,
+                    borderRadius: '20px',
+                    fontSize: '0.8rem',
+                    backgroundColor: alpha(muiTheme.palette.primary.main, 0.08),
+                    '&:hover': {
+                      backgroundColor: alpha(muiTheme.palette.primary.main, 0.15)
+                    }
+                  }}
+                >
+                  {language === 'zh' ? '查看详情' : 'View Details'}
+                </Button>
+              )}
+            </Box>
           </CardContent>
         </Card>
       </motion.div>

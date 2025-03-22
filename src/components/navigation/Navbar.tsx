@@ -34,7 +34,8 @@ const Navbar: React.FC = () => {
 
   // 检查路由是否活跃
   const checkIsActive = (path: string): boolean => {
-    return isRouteActive(location.pathname, path);
+    const isActive = isRouteActive(location.pathname, path);
+    return isActive;
   };
 
   return (

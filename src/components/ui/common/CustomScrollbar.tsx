@@ -47,10 +47,20 @@ const CustomScrollbar: React.FC<CustomScrollbarProps> = ({
       : `1px solid ${alpha(primaryColor, 0.3)}`;
 
     return {
-      // 整体滚动条样式 (WebKit 浏览器)
+      // 首先强制禁用默认滚动条
+      '*': {
+        scrollbarWidth: 'none', /* Firefox */
+        msOverflowStyle: 'none', /* IE and Edge */
+        '&::-webkit-scrollbar': {
+          display: 'none' /* Hide default scrollbar for Chrome, Safari, and Opera */
+        }
+      },
+
+      // 自定义全局滚动条 (WebKit 浏览器)
       '*::-webkit-scrollbar': {
         width: `${thickness}px`,
         height: `${thickness}px`,
+        display: 'block !important', // 覆盖上面的none
       },
 
       // 滚动条轨道 (WebKit 浏览器)
@@ -78,9 +88,9 @@ const CustomScrollbar: React.FC<CustomScrollbarProps> = ({
       },
 
       // Firefox 滚动条样式
-      'html': {
-        scrollbarColor: `${alpha(primaryColor, 0.7)} ${trackBg}`,
-        scrollbarWidth: thickness <= 4 ? 'thin' : 'auto',
+      'html, body, div': {
+        scrollbarWidth: 'thin', /* Firefox */
+        scrollbarColor: `${alpha(primaryColor, 0.7)} ${trackBg}`, /* Firefox */
       }
     };
   };

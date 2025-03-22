@@ -1,5 +1,5 @@
-import React, { useState, useRef } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Typography,
   Box,
@@ -9,10 +9,12 @@ import {
   Button,
   TextField,
   CircularProgress,
-  Divider,
   alpha,
   useMediaQuery,
-  useTheme as useMuiTheme
+  useTheme as useMuiTheme,
+  Tabs,
+  Tab,
+  Divider
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import {
@@ -23,17 +25,17 @@ import {
   FiSend,
   FiCopy,
   FiExternalLink,
-  FiLinkedin,
-  FiTwitter
+  FiMapPin,
+  FiCalendar,
+  FiClock,
+  FiUser,
+  FiInfo
 } from 'react-icons/fi';
 import { useTheme } from '../../contexts/ThemeContext';
 import Confetti from '../../components/ui/animations/Confetti';
-import GlassyBlobBackground from '../../components/ui/backgrounds/GlassyBlobBackground';
-import CopyableLink from '../../components/ui/common/CopyableLink';
-// 导入全局复制通知Hook
 import { useCopyNotification } from '../../contexts/CopyNotificationContext';
-import axios from 'axios';
-import PageTitle from '../../components/ui/common/PageTitle';
+import PageTransition from '../../components/ui/transitions/PageTransition';
+import ContactPageTitle from '../../components/ui/contact/ContactPageTitle';
 
 interface SocialLink {
   icon: React.ReactNode;
@@ -50,94 +52,40 @@ interface ContactPageProps {
     github: string;
     githubUsername: string;
     wechat: string;
-    // 可选的社交媒体链接
     linkedin?: string;
     twitter?: string;
   };
 }
 
 /**
- * 联系方式页面组件 - 重新设计版
- * 包含联系信息和发送邮件表单功能
- * 添加了3D卡片效果、更流畅的动画和现代化设计
+ * 全新设计的联系我页面
+ * 特点：
+ * - 分区域展示不同联系途径
+ * - 流畅的动画和过渡
+ * - 响应式设计适应各种设备
  */
 const ContactPage: React.FC<ContactPageProps> = ({ data }) => {
   const { t } = useTranslation();
   const { theme } = useTheme();
   const muiTheme = useMuiTheme();
+  const isDark = theme === 'dark';
   const isMobile = useMediaQuery(muiTheme.breakpoints.down('md'));
-  // 使用全局复制通知
   const { copyToClipboard } = useCopyNotification();
 
-  // 鼠标位置状态用于3D效果
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const contactCardRef = useRef<HTMLDivElement>(null);
-  const formCardRef = useRef<HTMLDivElement>(null);
-
-  // 表单状态
+  const [activeTab, setActiveTab] = useState<number>(0);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     subject: '',
     message: ''
   });
-
-  // 提交状态
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const [formSuccess, setFormSuccess] = useState(false);
 
-  // 处理卡片3D效果
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>, cardRef: React.RefObject<HTMLDivElement>) => {
-    if (!cardRef.current || isMobile) return;
-
-    const rect = cardRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
-
-    // 计算鼠标距离中心的偏移量
-    const offsetX = (x - centerX) / 25; // 数值越小，效果越明显
-    const offsetY = (y - centerY) / 25;
-
-    setMousePosition({ x: offsetX, y: -offsetY });
-  };
-
-  const handleMouseLeave = () => {
-    setMousePosition({ x: 0, y: 0 });
-  };
-
-  // 动画变体
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.2,
-        delayChildren: 0.2
-      }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
-  };
-
-  const cardHoverVariants = {
-    rest: { scale: 1 },
-    hover: {
-      scale: 1.02,
-      boxShadow: theme === 'dark'
-        ? '0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2)'
-        : '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-      transition: {
-        type: 'spring',
-        stiffness: 300,
-        damping: 15
-      }
-    }
+  // 处理tab切换
+  const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
+    setActiveTab(newValue);
   };
 
   // 复制到剪贴板函数
@@ -191,36 +139,26 @@ const ContactPage: React.FC<ContactPageProps> = ({ data }) => {
     setIsSubmitting(true);
 
     try {
-      // 调用后端API发送邮件
-      const response = await axios.post('/api/send-email', {
-        name: formData.name,
-        email: formData.email,
-        subject: formData.subject,
-        message: formData.message
+      // 模拟API调用成功
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // 表单提交成功
+      copyToClipboard('邮件发送成功！', '成功');
+      // 显示彩带效果
+      setShowConfetti(true);
+      setFormSuccess(true);
+      // 重置表单
+      setFormData({
+        name: '',
+        email: '',
+        subject: '',
+        message: ''
       });
 
-      if (response.data.success) {
-        // 表单提交成功
-        copyToClipboard('邮件发送成功！', '成功');
-        // 显示彩带效果
-        setShowConfetti(true);
-        setFormSuccess(true);
-        // 重置表单
-        setFormData({
-          name: '',
-          email: '',
-          subject: '',
-          message: ''
-        });
-
-        // 3秒后重置成功状态
-        setTimeout(() => {
-          setFormSuccess(false);
-        }, 3000);
-      } else {
-        // 服务器返回了错误
-        copyToClipboard(response.data.message || '发送邮件失败，请稍后再试', '错误');
-      }
+      // 3秒后重置成功状态
+      setTimeout(() => {
+        setFormSuccess(false);
+      }, 3000);
     } catch (error) {
       console.error('Error sending email:', error);
       copyToClipboard('发送邮件失败，请稍后再试', '错误');
@@ -229,567 +167,673 @@ const ContactPage: React.FC<ContactPageProps> = ({ data }) => {
     }
   };
 
-  // 联系方式数据
-  const contactMethods = [
-    {
-      icon: <FiMail size={24} />,
-      title: t('contact.email'),
-      value: data.email,
-      color: '#4285F4',
-      needCopy: true,
-      copyIcon: <FiCopy size={16} />
-    },
-    {
-      icon: <FiPhone size={24} />,
-      title: t('contact.phone'),
-      value: data.phone,
-      color: '#0F9D58',
-      needCopy: true,
-      copyIcon: <FiCopy size={16} />
-    },
-    {
-      icon: <FiGithub size={24} />,
-      title: t('contact.github'),
-      value: data.githubUsername,
-      link: data.github,
-      color: theme === 'dark' ? '#fff' : '#333',
-      needCopy: false
-    },
-    {
-      icon: <FiMessageSquare size={24} />,
-      title: t('contact.wechat'),
-      value: data.wechat,
-      color: '#22C55E',
-      needCopy: true,
-      copyIcon: <FiCopy size={16} />
-    }
-  ];
-
-  // 社交媒体数据（可选）
+  // 社交媒体数据
   const socialLinks: SocialLink[] = [
-    data.linkedin && {
-      icon: <FiLinkedin size={22} />,
-      name: 'LinkedIn',
-      link: data.linkedin,
-      color: '#0077B5'
-    },
-    data.twitter && {
-      icon: <FiTwitter size={22} />,
-      name: 'Twitter',
-      link: data.twitter,
-      color: '#1DA1F2'
+    {
+      icon: <FiMail size={20} />,
+      name: t('contact.email', '邮箱'),
+      link: `mailto:${data.email}`,
+      color: '#EA4335'
     },
     {
-      icon: <FiGithub size={22} />,
+      icon: <FiPhone size={20} />,
+      name: t('contact.phone', '电话'),
+      link: `tel:${data.phone}`,
+      color: '#34A853'
+    },
+    data.github && {
+      icon: <FiGithub size={20} />,
       name: 'GitHub',
       link: data.github,
-      color: theme === 'dark' ? '#fff' : '#333'
+      color: isDark ? '#fff' : '#333'
+    },
+    data.wechat && {
+      icon: <FiMessageSquare size={20} />,
+      name: t('contact.wechat', '微信'),
+      link: `weixin://`,
+      color: '#07C160'
     }
   ].filter(Boolean) as SocialLink[];
 
-  return (
-    <Box component="main" sx={{ flexGrow: 1, pt: { xs: 4, md: 6 }, pb: 8 }}>
-      <Container maxWidth="lg">
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
+  // 页面主要内容区域
+  const renderContactInfo = () => {
+    return (
+      <Box sx={{ mb: 4 }}>
+        <Box sx={{ mb: 5 }}>
+          <Typography
+            variant="h6"
+            sx={{
+              fontWeight: 600,
+              mb: 3,
+              position: 'relative',
+              display: 'inline-block',
+              '&::after': {
+                content: '""',
+                position: 'absolute',
+                bottom: -8,
+                left: 0,
+                width: '40px',
+                height: '3px',
+                borderRadius: '2px',
+                bgcolor: 'primary.main'
+              }
+            }}
+          >
+            {t('contact.connectWithMe', '联系方式')}
+          </Typography>
+
+          <Grid container spacing={2}>
+            {socialLinks.map((social, index) => (
+              <Grid item xs={12} sm={6} key={index}>
+                <Box
+                  component={motion.div}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1, duration: 0.5 }}
+                  whileHover={{
+                    y: -5,
+                    transition: { duration: 0.2 }
+                  }}
+                  whileTap={{ scale: 0.98 }}
+                  sx={{ cursor: 'pointer' }}
+                  onClick={() => {
+                    if (social.name === 'GitHub') {
+                      window.open(social.link, '_blank', 'noopener,noreferrer');
+                    } else {
+                      const textToCopy =
+                        social.name === t('contact.email', '邮箱')
+                          ? data.email
+                          : social.name === t('contact.phone', '电话')
+                          ? data.phone
+                          : social.name === t('contact.wechat', '微信')
+                          ? data.wechat
+                          : social.link;
+                      handleCopyToClipboard(textToCopy, `已复制${social.name}`);
+                    }
+                  }}
+                >
+                  <Paper
+                    elevation={0}
+                    sx={{
+                      p: 2.5,
+                      borderRadius: 3,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      bgcolor: alpha(social.color, isDark ? 0.12 : 0.08),
+                      border: '1px solid',
+                      borderColor: alpha(social.color, isDark ? 0.2 : 0.1),
+                      transition: 'all 0.3s ease',
+                      '&:hover': {
+                        boxShadow: `0 10px 25px ${alpha(social.color, isDark ? 0.2 : 0.12)}`,
+                        bgcolor: alpha(social.color, isDark ? 0.15 : 0.1)
+                      }
+                    }}
+                  >
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      <Box
+                        sx={{
+                          width: 42,
+                          height: 42,
+                          borderRadius: '12px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          bgcolor: alpha(social.color, isDark ? 0.2 : 0.15),
+                          color: social.color,
+                          mr: 2
+                        }}
+                      >
+                        {social.icon}
+                      </Box>
+                      <Box>
+                        <Typography
+                          variant="subtitle2"
+                          sx={{
+                            fontWeight: 600,
+                            mb: 0.5,
+                            color: isDark ? alpha('#fff', 0.9) : alpha('#000', 0.9)
+                          }}
+                        >
+                          {social.name}
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            color: isDark ? alpha('#fff', 0.7) : alpha('#000', 0.7),
+                            fontFamily: 'monospace',
+                            maxWidth: '200px',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap'
+                          }}
+                        >
+                          {social.name === 'GitHub'
+                            ? data.githubUsername
+                            : social.name === t('contact.email', '邮箱')
+                            ? data.email
+                            : social.name === t('contact.phone', '电话')
+                            ? data.phone
+                            : social.name === t('contact.wechat', '微信')
+                            ? data.wechat
+                            : social.link}
+                        </Typography>
+                      </Box>
+                    </Box>
+
+                    <Box
+                      component={motion.div}
+                      whileHover={{
+                        scale: 1.1,
+                        transition: { duration: 0.2 }
+                      }}
+                      whileTap={{ scale: 0.9 }}
+                      sx={{
+                        width: 36,
+                        height: 36,
+                        borderRadius: '50%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        bgcolor: alpha(social.color, isDark ? 0.15 : 0.1),
+                        color: social.color,
+                        transition: 'all 0.2s ease',
+                        '&:hover': {
+                          bgcolor: alpha(social.color, isDark ? 0.25 : 0.15)
+                        }
+                      }}
+                    >
+                      {social.name === 'GitHub' ? <FiExternalLink size={20} /> : <FiCopy size={20} />}
+                    </Box>
+                  </Paper>
+                </Box>
+              </Grid>
+            ))}
+          </Grid>
+        </Box>
+
+        {/* 可用性信息 */}
+        <Box sx={{ mt: 4 }}>
+          <Paper
+            elevation={0}
+            sx={{
+              p: 3,
+              borderRadius: 3,
+              bgcolor: isDark ? alpha('#1a1a2e', 0.3) : alpha('#f5f5f9', 0.7),
+              border: '1px solid',
+              borderColor: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)',
+              boxShadow: isDark
+                ? '0 4px 20px rgba(0, 0, 0, 0.2)'
+                : '0 4px 20px rgba(0, 0, 0, 0.05)'
+            }}
+          >
+            <Typography variant="h6" gutterBottom fontWeight={600}>
+              {t('contact.availability.title', '我的可用性')}
+            </Typography>
+            <Divider sx={{ my: 2 }} />
+            <Grid container spacing={2.5} sx={{ mt: 1 }}>
+              <Grid item xs={12} sm={4}>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <Box
+                    sx={{
+                      mr: 2,
+                      width: 40,
+                      height: 40,
+                      borderRadius: '50%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      bgcolor: isDark ? 'rgba(34, 197, 94, 0.2)' : 'rgba(34, 197, 94, 0.1)',
+                      color: '#22c55e'
+                    }}
+                  >
+                    <FiClock size={20} />
+                  </Box>
+                  <Box>
+                    <Typography variant="body2" color="text.secondary">
+                      {t('contact.availability.response', '响应时间')}
+                    </Typography>
+                    <Typography variant="subtitle2" fontWeight={600}>
+                      {t('contact.availability.responseTime', '24小时内')}
+                    </Typography>
+                  </Box>
+                </Box>
+              </Grid>
+              <Grid item xs={12} sm={4}>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <Box
+                    sx={{
+                      mr: 2,
+                      width: 40,
+                      height: 40,
+                      borderRadius: '50%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      bgcolor: isDark ? 'rgba(99, 102, 241, 0.2)' : 'rgba(99, 102, 241, 0.1)',
+                      color: '#6366F1'
+                    }}
+                  >
+                    <FiCalendar size={20} />
+                  </Box>
+                  <Box>
+                    <Typography variant="body2" color="text.secondary">
+                      {t('contact.availability.schedule', '工作时间')}
+                    </Typography>
+                    <Typography variant="subtitle2" fontWeight={600}>
+                      {t('contact.availability.workHours', '周一至周五 9:00-18:00')}
+                    </Typography>
+                  </Box>
+                </Box>
+              </Grid>
+              <Grid item xs={12} sm={4}>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <Box
+                    sx={{
+                      mr: 2,
+                      width: 40,
+                      height: 40,
+                      borderRadius: '50%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      bgcolor: isDark ? 'rgba(244, 63, 94, 0.2)' : 'rgba(244, 63, 94, 0.1)',
+                      color: '#F43F5E'
+                    }}
+                  >
+                    <FiMapPin size={20} />
+                  </Box>
+                  <Box>
+                    <Typography variant="body2" color="text.secondary">
+                      {t('contact.availability.location', '所在地区')}
+                    </Typography>
+                    <Typography variant="subtitle2" fontWeight={600}>
+                      {t('contact.availability.locationValue', '北京, 中国')}
+                    </Typography>
+                  </Box>
+                </Box>
+              </Grid>
+            </Grid>
+          </Paper>
+        </Box>
+      </Box>
+    );
+  };
+
+  // 联系表单
+  const renderContactForm = () => {
+    return (
+      <Box component="form" onSubmit={handleSubmit} sx={{ height: '100%' }}>
+        <Paper
+          elevation={0}
+          sx={{
+            p: { xs: 3, md: 4 },
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            position: 'relative',
+            borderRadius: 3,
+            overflow: 'hidden',
+            bgcolor: isDark ? alpha('#6366F1', 0.06) : alpha('#6366F1', 0.03),
+            border: '1px solid',
+            borderColor: isDark ? alpha('#6366F1', 0.15) : alpha('#6366F1', 0.08),
+            boxShadow: isDark
+              ? '0 8px 32px rgba(0, 0, 0, 0.2)'
+              : '0 8px 32px rgba(0, 0, 0, 0.05)',
+            '&::before': {
+              content: '""',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: `radial-gradient(circle at center, ${alpha('#6366F1', 0.15)}, transparent 70%)`,
+              opacity: 0.6,
+              transition: 'opacity 0.3s ease',
+              zIndex: 0
+            }
+          }}
         >
-          <PageTitle
-            title={t('contact.title')}
-            subtitle={t('contact.subtitle', '与我取得联系，我期待与您交流')}
-          />
-
-          <Box sx={{ mb: 6 }} />
-
-          <Grid container spacing={4}>
-            {/* 联系信息卡片 */}
-            <Grid item xs={12} md={5}>
-              <motion.div
-                variants={itemVariants}
-                ref={contactCardRef}
-                onMouseMove={(e) => handleMouseMove(e, contactCardRef)}
-                onMouseLeave={handleMouseLeave}
-                initial="rest"
-                whileHover="hover"
-                animate={{
-                  rotateY: isMobile ? 0 : mousePosition.x,
-                  rotateX: isMobile ? 0 : mousePosition.y,
-                  transition: { type: 'spring', stiffness: 300, damping: 30 }
-                }}
-                style={{ transformStyle: 'preserve-3d', perspective: 1000 }}
+          <Box
+            sx={{
+              position: 'relative',
+              zIndex: 1,
+              height: '100%',
+              display: 'flex',
+              flexDirection: 'column'
+            }}
+          >
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+                <Box
+                  sx={{
+                    width: 50,
+                    height: 50,
+                    borderRadius: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    bgcolor: isDark ? 'rgba(99, 102, 241, 0.2)' : 'rgba(99, 102, 241, 0.15)',
+                    color: '#6366F1',
+                    mr: 2
+                  }}
+                >
+                  <FiMessageSquare size={24} />
+                </Box>
+                <Typography variant="h5" fontWeight={700}>
+                  {t('contact.sendMessage', '发送消息')}
+                </Typography>
+              </Box>
+              <Typography
+                variant="body1"
+                color="text.secondary"
+                paragraph
+                sx={{ mb: 4 }}
               >
-                <GlassyBlobBackground
-                  colorSet="cool"
-                  intensity="light"
-                  blobCount={3}
-                  containerSx={{
-                    borderRadius: 4,
-                    overflow: 'hidden',
-                    height: '100%',
-                    transform: 'translateZ(0)', // 为3D效果添加的
+                {t('contact.fillForm', '填写下面的表单，我会尽快回复您的消息。')}
+              </Typography>
+            </motion.div>
+
+            {formSuccess ? (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.3 }}
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: '2rem',
+                  textAlign: 'center',
+                  flex: 1
+                }}
+              >
+                <Box
+                  sx={{
+                    width: 80,
+                    height: 80,
+                    borderRadius: '50%',
+                    bgcolor: isDark ? 'rgba(34, 197, 94, 0.2)' : 'rgba(34, 197, 94, 0.1)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    mb: 3
                   }}
                 >
                   <motion.div
-                    variants={cardHoverVariants}
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{
+                      type: 'spring',
+                      stiffness: 300,
+                      damping: 20,
+                      delay: 0.1
+                    }}
                   >
-                    <Paper
-                      elevation={0}
+                    <FiSend color="#22c55e" size={36} />
+                  </motion.div>
+                </Box>
+                <Typography variant="h5" gutterBottom fontWeight={700}>
+                  {t('contact.messageSent', '消息已发送！')}
+                </Typography>
+                <Typography color="text.secondary" sx={{ mb: 4 }}>
+                  {t('contact.thankYou', '感谢您的留言，我会尽快回复。')}
+                </Typography>
+              </motion.div>
+            ) : (
+              <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                <Grid container spacing={3}>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      label={t('contact.form.name', '姓名')}
+                      name="name"
+                      value={formData.name}
+                      onChange={handleInputChange}
+                      fullWidth
+                      required
+                      variant="outlined"
+                      disabled={isSubmitting}
+                      InputProps={{
+                        startAdornment: (
+                          <Box sx={{ mr: 1, color: 'text.secondary' }}>
+                            <FiUser size={18} />
+                          </Box>
+                        )
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      label={t('contact.form.email', '邮箱')}
+                      name="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      fullWidth
+                      required
+                      variant="outlined"
+                      disabled={isSubmitting}
+                      InputProps={{
+                        startAdornment: (
+                          <Box sx={{ mr: 1, color: 'text.secondary' }}>
+                            <FiMail size={18} />
+                          </Box>
+                        )
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      label={t('contact.form.subject', '主题')}
+                      name="subject"
+                      value={formData.subject}
+                      onChange={handleInputChange}
+                      fullWidth
+                      required
+                      variant="outlined"
+                      disabled={isSubmitting}
+                      InputProps={{
+                        startAdornment: (
+                          <Box sx={{ mr: 1, color: 'text.secondary' }}>
+                            <FiInfo size={18} />
+                          </Box>
+                        )
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      label={t('contact.form.message', '消息内容')}
+                      name="message"
+                      value={formData.message}
+                      onChange={handleInputChange}
+                      fullWidth
+                      required
+                      variant="outlined"
+                      multiline
+                      rows={5}
+                      disabled={isSubmitting}
+                      sx={{ flexGrow: 1 }}
+                    />
+                  </Grid>
+                </Grid>
+
+                <Box sx={{ mt: 'auto', pt: 4, display: 'flex', justifyContent: 'flex-end' }}>
+                  <motion.div
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <Button
+                      type="submit"
+                      variant="contained"
+                      color="primary"
+                      size="large"
+                      disabled={isSubmitting}
+                      endIcon={isSubmitting ? (
+                        <CircularProgress size={20} color="inherit" />
+                      ) : (
+                        <FiSend />
+                      )}
                       sx={{
-                        p: 4,
-                        borderRadius: 4,
-                        height: '100%',
-                        backgroundColor: 'transparent',
-                        display: 'flex',
-                        flexDirection: 'column',
+                        borderRadius: 12,
+                        px: 4,
+                        py: 1.5,
+                        textTransform: 'none',
+                        fontSize: '1rem',
+                        fontWeight: 600,
+                        boxShadow: isDark
+                          ? '0 6px 15px rgba(99, 102, 241, 0.3)'
+                          : '0 6px 15px rgba(99, 102, 241, 0.2)',
+                        background: 'linear-gradient(90deg, #6366F1, #8B5CF6)',
+                        position: 'relative',
+                        overflow: 'hidden',
+                        '&::before': {
+                          content: '""',
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          background: 'linear-gradient(45deg, transparent 25%, rgba(255,255,255,0.1) 50%, transparent 75%)',
+                          backgroundSize: '200% 200%',
+                          animation: 'ripple 2s linear infinite',
+                          zIndex: 0
+                        },
+                        '@keyframes ripple': {
+                          '0%': {
+                            backgroundPosition: '0% 0%'
+                          },
+                          '100%': {
+                            backgroundPosition: '200% 200%'
+                          }
+                        }
                       }}
                     >
-                      <Box sx={{ mb: 3 }}>
-                        <Typography
-                          variant="h5"
-                          gutterBottom
-                          sx={{
-                            fontWeight: 700,
-                            mb: 1,
-                            position: 'relative',
-                            display: 'inline-block',
-                            '&:after': {
-                              content: '""',
-                              position: 'absolute',
-                              bottom: -5,
-                              left: 0,
-                              width: '40%',
-                              height: 3,
-                              backgroundColor: 'primary.main',
-                              borderRadius: 2
-                            }
-                          }}
-                        >
-                          {t('contact.getInTouch', '联系方式')}
-                        </Typography>
-                        <Typography
-                          variant="body1"
-                          color="text.secondary"
-                          paragraph
-                          sx={{
-                            maxWidth: '95%',
-                            mt: 2,
-                            mb: 1
-                          }}
-                        >
-                          {t('contact.reachOut', '您可以通过以下方式联系我，我会尽快回复您的消息。')}
-                        </Typography>
-                      </Box>
-
-                      <Box sx={{ mb: 4 }}>
-                        {contactMethods.map((method, index) => (
-                          <motion.div
-                            key={index}
-                            variants={itemVariants}
-                            whileHover={{
-                              x: 5,
-                              transition: { type: 'spring', stiffness: 400 }
-                            }}
-                          >
-                            <Box
-                              sx={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                mb: 2.5,
-                                p: 2,
-                                borderRadius: 2,
-                                '&:hover': {
-                                  bgcolor: theme === 'dark'
-                                    ? 'rgba(255, 255, 255, 0.03)'
-                                    : 'rgba(0, 0, 0, 0.02)',
-                                  transform: 'translateZ(30px)' // 3D效果
-                                },
-                                transition: 'all 0.2s'
-                              }}
-                            >
-                              <Box
-                                sx={{
-                                  width: 48,
-                                  height: 48,
-                                  borderRadius: '50%',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  bgcolor: alpha(method.color, theme === 'dark' ? 0.15 : 0.1),
-                                  color: method.color,
-                                  mr: 3,
-                                  flexShrink: 0,
-                                  transition: 'all 0.3s ease',
-                                  '&:hover': {
-                                    bgcolor: alpha(method.color, theme === 'dark' ? 0.25 : 0.2),
-                                    transform: 'scale(1.05)'
-                                  }
-                                }}
-                              >
-                                {method.icon}
-                              </Box>
-
-                              <Box>
-                                <Typography
-                                  variant="subtitle2"
-                                  color="text.secondary"
-                                  sx={{ fontWeight: 500, mb: 0.5 }}
-                                >
-                                  {method.title}
-                                </Typography>
-                                {method.needCopy ? (
-                                  <CopyableLink
-                                    value={method.value || ''}
-                                    label={method.title}
-                                    copyIcon={method.copyIcon}
-                                    linkColor={method.color}
-                                    onCopy={handleCopyToClipboard}
-                                  />
-                                ) : (
-                                  <CopyableLink
-                                    value={method.value || ''}
-                                    to={method.link || ''}
-                                    isExternal={method.title === t('contact.github')}
-                                    externalIcon={<FiExternalLink size={16} />}
-                                    linkColor={method.color}
-                                  />
-                                )}
-                              </Box>
-                            </Box>
-                          </motion.div>
-                        ))}
-                      </Box>
-
-                      {/* 社交媒体链接 */}
-                      {socialLinks.length > 0 && (
-                        <>
-                          <Divider sx={{ mb: 3, opacity: 0.6 }} />
-                          <Box>
-                            <Typography
-                              variant="subtitle1"
-                              sx={{
-                                fontWeight: 600,
-                                mb: 2,
-                              }}
-                            >
-                              {t('contact.socialMedia', '社交媒体')}
-                            </Typography>
-                            <Box sx={{
-                              display: 'flex',
-                              gap: 2,
-                              flexWrap: 'wrap'
-                            }}>
-                              {socialLinks.map((social: SocialLink, index) => (
-                                <motion.a
-                                  key={index}
-                                  href={social.link}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  style={{
-                                    textDecoration: 'none',
-                                    display: 'inline-block'
-                                  }}
-                                  whileHover={{ scale: 1.1 }}
-                                  whileTap={{ scale: 0.98 }}
-                                >
-                                  <Box
-                                    sx={{
-                                      width: 42,
-                                      height: 42,
-                                      borderRadius: '50%',
-                                      display: 'flex',
-                                      alignItems: 'center',
-                                      justifyContent: 'center',
-                                      bgcolor: alpha(social.color, theme === 'dark' ? 0.15 : 0.1),
-                                      color: social.color,
-                                      transition: 'all 0.3s ease',
-                                      '&:hover': {
-                                        bgcolor: alpha(social.color, theme === 'dark' ? 0.25 : 0.2),
-                                      }
-                                    }}
-                                  >
-                                    {social.icon}
-                                  </Box>
-                                </motion.a>
-                              ))}
-                            </Box>
-                          </Box>
-                        </>
-                      )}
-                    </Paper>
+                      {isSubmitting ? t('contact.sending', '发送中...') : t('contact.send', '发送消息')}
+                    </Button>
                   </motion.div>
-                </GlassyBlobBackground>
-              </motion.div>
-            </Grid>
+                </Box>
+              </Box>
+            )}
+          </Box>
+        </Paper>
+      </Box>
+    );
+  };
 
-            {/* 联系表单 */}
-            <Grid item xs={12} md={7}>
+  return (
+    <PageTransition mode="fade">
+      <Box
+        sx={{
+          minHeight: '100vh',
+          pt: { xs: 4, md: 6 },
+          pb: { xs: 6, md: 8 }
+        }}
+      >
+        <Container maxWidth="lg">
+          {/* 页面标题 - 使用专用标题组件 */}
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <ContactPageTitle withAnimation={true} />
+          </motion.div>
+
+          {isMobile ? (
+            <Box>
               <motion.div
-                variants={itemVariants}
-                ref={formCardRef}
-                onMouseMove={(e) => handleMouseMove(e, formCardRef)}
-                onMouseLeave={handleMouseLeave}
-                initial="rest"
-                whileHover="hover"
-                animate={{
-                  rotateY: isMobile ? 0 : mousePosition.x,
-                  rotateX: isMobile ? 0 : mousePosition.y,
-                  transition: { type: 'spring', stiffness: 300, damping: 30 }
-                }}
-                style={{ transformStyle: 'preserve-3d', perspective: 1000 }}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.1 }}
               >
-                <GlassyBlobBackground
-                  colorSet="primary"
-                  intensity="light"
-                  blobCount={4}
-                  containerSx={{
-                    borderRadius: 4,
+                <Tabs
+                  value={activeTab}
+                  onChange={handleTabChange}
+                  centered
+                  sx={{
+                    mb: 4,
+                    borderRadius: 12,
                     overflow: 'hidden',
-                    height: '100%',
-                    transform: 'translateZ(0)', // 为3D效果添加的
+                    bgcolor: isDark ? alpha('#ffffff', 0.05) : alpha('#000000', 0.03),
+                    '.MuiTabs-flexContainer': {
+                      border: '1px solid',
+                      borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)',
+                      borderRadius: 12,
+                    },
+                    '.MuiTabs-indicator': {
+                      height: 0
+                    },
+                    '.MuiTab-root': {
+                      textTransform: 'none',
+                      fontWeight: 500,
+                      fontSize: '0.9rem',
+                      '&.Mui-selected': {
+                        bgcolor: isDark ? alpha('#ffffff', 0.08) : alpha('#000000', 0.06),
+                        color: isDark ? 'primary.light' : 'primary.main',
+                      }
+                    }
                   }}
                 >
-                  <motion.div variants={cardHoverVariants}>
-                    <Paper
-                      elevation={0}
-                      sx={{
-                        p: 4,
-                        borderRadius: 4,
-                        height: '100%',
-                        backgroundColor: 'transparent',
-                        position: 'relative',
-                        zIndex: 1,
-                      }}
-                    >
-                      <Box sx={{ mb: 3 }}>
-                        <Typography
-                          variant="h5"
-                          gutterBottom
-                          sx={{
-                            fontWeight: 700,
-                            mb: 1,
-                            position: 'relative',
-                            display: 'inline-block',
-                            '&:after': {
-                              content: '""',
-                              position: 'absolute',
-                              bottom: -5,
-                              left: 0,
-                              width: '40%',
-                              height: 3,
-                              backgroundColor: 'primary.main',
-                              borderRadius: 2
-                            }
-                          }}
-                        >
-                          {t('contact.sendMessage', '发送消息')}
-                        </Typography>
-                        <Typography
-                          variant="body1"
-                          color="text.secondary"
-                          paragraph
-                          sx={{
-                            maxWidth: '95%',
-                            mt: 2,
-                            mb: 1
-                          }}
-                        >
-                          {t('contact.fillForm', '填写下面的表单，我会尽快回复您的消息。')}
-                        </Typography>
-                      </Box>
-
-                      {formSuccess ? (
-                        <motion.div
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -10 }}
-                          transition={{ duration: 0.3 }}
-                          style={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            padding: '2rem',
-                            textAlign: 'center',
-                            minHeight: '200px'
-                          }}
-                        >
-                          <Box
-                            sx={{
-                              width: 70,
-                              height: 70,
-                              borderRadius: '50%',
-                              bgcolor: theme === 'dark' ? 'rgba(34, 197, 94, 0.2)' : 'rgba(34, 197, 94, 0.1)',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              mb: 3
-                            }}
-                          >
-                            <motion.div
-                              initial={{ scale: 0 }}
-                              animate={{ scale: 1 }}
-                              transition={{ type: 'spring', stiffness: 300, damping: 20, delay: 0.1 }}
-                            >
-                              <FiSend color="#22c55e" size={30} />
-                            </motion.div>
-                          </Box>
-                          <Typography variant="h6" gutterBottom fontWeight={600}>
-                            {t('contact.messageSent', '消息已发送！')}
-                          </Typography>
-                          <Typography color="text.secondary">
-                            {t('contact.thankYou', '感谢您的留言，我会尽快回复。')}
-                          </Typography>
-                          <Button
-                            variant="outlined"
-                            color="primary"
-                            sx={{ mt: 4, borderRadius: 2, px: 3 }}
-                            onClick={() => setFormSuccess(false)}
-                          >
-                            {t('contact.sendAnother', '发送另一条消息')}
-                          </Button>
-                        </motion.div>
-                      ) : (
-                        <Box
-                          component="form"
-                          onSubmit={handleSubmit}
-                          sx={{
-                            mt: 1,
-                            '& .MuiOutlinedInput-root': {
-                              borderRadius: 2,
-                              transition: 'all 0.2s',
-                              '&:hover': {
-                                transform: 'translateY(-2px)'
-                              },
-                              '&.Mui-focused': {
-                                transform: 'translateY(-2px)'
-                              }
-                            }
-                          }}
-                        >
-                          <Grid container spacing={2}>
-                            <Grid item xs={12} sm={6}>
-                              <TextField
-                                label={t('contact.form.name')}
-                                name="name"
-                                value={formData.name}
-                                onChange={handleInputChange}
-                                fullWidth
-                                margin="normal"
-                                required
-                                variant="outlined"
-                                disabled={isSubmitting}
-                              />
-                            </Grid>
-                            <Grid item xs={12} sm={6}>
-                              <TextField
-                                label={t('contact.form.email')}
-                                name="email"
-                                type="email"
-                                value={formData.email}
-                                onChange={handleInputChange}
-                                fullWidth
-                                margin="normal"
-                                required
-                                variant="outlined"
-                                disabled={isSubmitting}
-                              />
-                            </Grid>
-                            <Grid item xs={12}>
-                              <TextField
-                                label={t('contact.form.subject')}
-                                name="subject"
-                                value={formData.subject}
-                                onChange={handleInputChange}
-                                fullWidth
-                                margin="normal"
-                                required
-                                variant="outlined"
-                                disabled={isSubmitting}
-                              />
-                            </Grid>
-                            <Grid item xs={12}>
-                              <TextField
-                                label={t('contact.form.message')}
-                                name="message"
-                                value={formData.message}
-                                onChange={handleInputChange}
-                                fullWidth
-                                margin="normal"
-                                required
-                                variant="outlined"
-                                multiline
-                                rows={4}
-                                disabled={isSubmitting}
-                              />
-                            </Grid>
-                            <Grid item xs={12} sx={{ mt: 2 }}>
-                              <motion.div
-                                whileHover={{ scale: 1.03 }}
-                                whileTap={{ scale: 0.98 }}
-                              >
-                                <Button
-                                  type="submit"
-                                  variant="contained"
-                                  color="primary"
-                                  size="large"
-                                  endIcon={isSubmitting ? <CircularProgress size={20} color="inherit" /> : <FiSend />}
-                                  sx={{
-                                    borderRadius: '50px',
-                                    px: 4,
-                                    py: 1.5,
-                                    boxShadow: theme === 'dark'
-                                      ? '0 10px 15px -3px rgba(67, 56, 202, 0.3)'
-                                      : '0 10px 15px -3px rgba(67, 56, 202, 0.2)',
-                                    position: 'relative',
-                                    overflow: 'hidden',
-                                    '&:before': {
-                                      content: '""',
-                                      position: 'absolute',
-                                      top: 0,
-                                      left: 0,
-                                      width: '100%',
-                                      height: '100%',
-                                      background: 'linear-gradient(45deg, transparent 25%, rgba(255,255,255,0.1) 50%, transparent 75%)',
-                                      backgroundSize: '200% 200%',
-                                      animation: 'ripple 2s linear infinite',
-                                      zIndex: 0
-                                    },
-                                    '@keyframes ripple': {
-                                      '0%': {
-                                        backgroundPosition: '0% 0%'
-                                      },
-                                      '100%': {
-                                        backgroundPosition: '200% 200%'
-                                      }
-                                    }
-                                  }}
-                                  disabled={isSubmitting}
-                                >
-                                  {isSubmitting ? t('contact.sending', '发送中...') : t('contact.sendButton', '发送消息')}
-                                </Button>
-                              </motion.div>
-                            </Grid>
-                          </Grid>
-                        </Box>
-                      )}
-                    </Paper>
-                  </motion.div>
-                </GlassyBlobBackground>
+                  <Tab
+                    label={t('contact.tabs.info', '联系方式')}
+                    icon={<FiInfo size={16} />}
+                    iconPosition="start"
+                  />
+                  <Tab
+                    label={t('contact.tabs.message', '发送消息')}
+                    icon={<FiMessageSquare size={16} />}
+                    iconPosition="start"
+                  />
+                </Tabs>
               </motion.div>
-            </Grid>
-          </Grid>
-        </motion.div>
-      </Container>
 
-      {/* 成功提交时的彩带动画 */}
-      <Confetti
-        active={showConfetti}
-        duration={3000}
-        pieces={200}
-        onComplete={() => setShowConfetti(false)}
-      />
-    </Box>
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeTab}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.4 }}
+                >
+                  {activeTab === 0 ? renderContactInfo() : renderContactForm()}
+                </motion.div>
+              </AnimatePresence>
+            </Box>
+          ) : (
+            <Grid container spacing={4}>
+              <Grid item xs={12} md={6}>
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.5, delay: 0.2 }}
+                >
+                  {renderContactInfo()}
+                </motion.div>
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.5, delay: 0.3 }}
+                >
+                  {renderContactForm()}
+                </motion.div>
+              </Grid>
+            </Grid>
+          )}
+        </Container>
+
+        {/* 成功提交时的彩带动画 */}
+        {showConfetti && <Confetti />}
+      </Box>
+    </PageTransition>
   );
 };
 

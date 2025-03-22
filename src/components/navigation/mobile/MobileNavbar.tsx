@@ -4,19 +4,23 @@ import {
   Box,
   Container,
   Toolbar,
-  Fab,
   Zoom,
-  useTheme as useMuiTheme
+  useTheme as useMuiTheme,
+  IconButton
 } from '@mui/material';
 import { useLocation } from 'react-router-dom';
 import { useTheme } from '../../../contexts/ThemeContext';
-import { FiMenu, FiArrowUp } from 'react-icons/fi';
-import { alpha } from '@mui/material/styles';
+import {
+  FiMenu,
+  FiArrowUp,
+  FiMoon,
+  FiSun
+} from 'react-icons/fi';
 import EnhancedMobileNavMenu from './EnhancedMobileNavMenu';
-import ThemeToggle from '../../ui/ThemeToggle';
-import LanguageSelector from '../../ui/language/LanguageSelector';
 import LogoAvatar from '../../ui/LogoAvatar';
-import IconButton from '../../ui/common/IconButton';
+import AnimatedIconButton from '../../ui/common/AnimatedIconButton';
+import { useTranslation } from 'react-i18next';
+import LanguageSelector from '../../ui/language/LanguageSelector';
 import {
   FiHome,
   FiUser,
@@ -41,6 +45,7 @@ interface MobileNavbarProps {
 /**
  * 移动端导航栏组件
  * 简化导航栏，将导航项转移到可展开的侧边导航菜单
+ * 使用统一风格样式，保持与桌面端一致的视觉体验
  */
 const MobileNavbar: React.FC<MobileNavbarProps> = ({
   routes,
@@ -51,7 +56,8 @@ const MobileNavbar: React.FC<MobileNavbarProps> = ({
   const [scrollPos, setScrollPos] = useState(0);
   const location = useLocation();
   const muiTheme = useMuiTheme();
-  const { theme } = useTheme();
+  const { theme, toggleTheme } = useTheme();
+  const { t } = useTranslation();
   const isDark = theme === 'dark';
 
   // 导航栏是否处于紧凑模式（滚动一定距离后）
@@ -136,8 +142,8 @@ const MobileNavbar: React.FC<MobileNavbarProps> = ({
         sx={{
           width: '100%',
           background: isDark
-            ? 'rgba(18, 18, 30, 0.8)'
-            : 'rgba(255, 255, 255, 0.8)',
+            ? 'rgba(18, 18, 30, 0.85)'
+            : 'rgba(255, 255, 255, 0.85)',
           backdropFilter: 'blur(10px)',
           borderBottom: '1px solid',
           borderColor: isDark
@@ -146,9 +152,11 @@ const MobileNavbar: React.FC<MobileNavbarProps> = ({
           boxShadow: isDark
             ? '0 4px 20px rgba(0, 0, 0, 0.3)'
             : '0 4px 20px rgba(0, 0, 0, 0.08)',
-          zIndex: (theme) => theme.zIndex.drawer + 1,
+          zIndex: muiTheme.zIndex.drawer + 1,
           transition: 'all 0.3s ease',
-          display: { xs: 'block', sm: 'block', md: 'none' }
+          display: { xs: 'block', sm: 'block', md: 'none' },
+          top: 0,
+          height: isCompact ? '60px' : '70px',
         }}
       >
         <Container maxWidth="lg">
@@ -169,19 +177,85 @@ const MobileNavbar: React.FC<MobileNavbarProps> = ({
             {/* 右侧工具栏 */}
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               {/* 主题切换 */}
-              <ThemeToggle />
+              <Box
+                sx={{
+                  borderRadius: '12px',
+                  backdropFilter: 'blur(8px)',
+                  background: isDark ? 'rgba(32, 32, 35, 0.7)' : 'rgba(255, 255, 255, 0.8)',
+                  border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)'}`,
+                  boxShadow: isDark ? '0 4px 10px rgba(0, 0, 0, 0.25)' : '0 4px 10px rgba(0, 0, 0, 0.08)',
+                  transition: 'all 0.3s ease',
+                  '&:hover': {
+                    transform: 'translateY(-2px)',
+                    boxShadow: isDark ? '0 6px 12px rgba(0, 0, 0, 0.3)' : '0 6px 12px rgba(0, 0, 0, 0.1)',
+                  }
+                }}
+              >
+                <AnimatedIconButton
+                  icon={isDark ? <FiSun size={18} /> : <FiMoon size={18} />}
+                  size="small"
+                  variant="glass"
+                  color="primary"
+                  tooltipText={isDark ? t('common.lightMode') : t('common.darkMode')}
+                  onClick={toggleTheme}
+                  ariaLabel="切换主题"
+                  sx={{ background: 'transparent', boxShadow: 'none', border: 'none' }}
+                />
+              </Box>
 
               {/* 语言选择器 */}
-              {showLanguageSelector && <LanguageSelector size="small" variant="icon" />}
+              {showLanguageSelector && (
+                <Box
+                  sx={{
+                    borderRadius: '12px',
+                    backdropFilter: 'blur(8px)',
+                    background: isDark ? 'rgba(32, 32, 35, 0.7)' : 'rgba(255, 255, 255, 0.8)',
+                    border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)'}`,
+                    boxShadow: isDark ? '0 4px 10px rgba(0, 0, 0, 0.25)' : '0 4px 10px rgba(0, 0, 0, 0.08)',
+                    transition: 'all 0.3s ease',
+                    overflow: 'hidden',
+                    '&:hover': {
+                      transform: 'translateY(-2px)',
+                      boxShadow: isDark ? '0 6px 12px rgba(0, 0, 0, 0.3)' : '0 6px 12px rgba(0, 0, 0, 0.1)',
+                    }
+                  }}
+                >
+                  <LanguageSelector
+                    size="small"
+                    sx={{ background: 'transparent', boxShadow: 'none', border: 'none' }}
+                  />
+                </Box>
+              )}
 
-              {/* 菜单按钮 - 使用统一的IconButton组件 */}
-              <IconButton
-                onClick={handleDrawerToggle}
-                icon={<FiMenu size={20} />}
-                size="small"
-                tooltipText="菜单"
-                ariaLabel="打开菜单"
-              />
+              {/* 菜单按钮 */}
+              <Box
+                sx={{
+                  borderRadius: '12px',
+                  backdropFilter: 'blur(8px)',
+                  background: isDark ? 'rgba(32, 32, 35, 0.7)' : 'rgba(255, 255, 255, 0.8)',
+                  border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)'}`,
+                  boxShadow: isDark ? '0 4px 10px rgba(0, 0, 0, 0.25)' : '0 4px 10px rgba(0, 0, 0, 0.08)',
+                  transition: 'all 0.3s ease',
+                  '&:hover': {
+                    transform: 'translateY(-2px)',
+                    boxShadow: isDark ? '0 6px 12px rgba(0, 0, 0, 0.3)' : '0 6px 12px rgba(0, 0, 0, 0.1)',
+                  }
+                }}
+              >
+                <IconButton
+                  aria-label={t('navigation.menuToggle', '菜单')}
+                  onClick={handleDrawerToggle}
+                  color="inherit"
+                  sx={{
+                    p: 1,
+                    backgroundColor: 'transparent',
+                    border: 'none',
+                    boxShadow: 'none'
+                  }}
+                >
+                  <FiMenu size={20} />
+                </IconButton>
+              </Box>
             </Box>
           </Toolbar>
         </Container>
@@ -198,27 +272,22 @@ const MobileNavbar: React.FC<MobileNavbarProps> = ({
 
       {/* 回到顶部按钮 */}
       <Zoom in={scrollPos > 300}>
-        <Fab
-          size="small"
-          aria-label="scroll back to top"
-          onClick={scrollToTop}
-          sx={{
-            position: 'fixed',
-            bottom: 20,
-            right: 20,
-            backgroundColor: alpha(muiTheme.palette.primary.main, 0.1),
-            color: muiTheme.palette.primary.main,
-            boxShadow: isDark
-              ? '0 4px 12px rgba(0, 0, 0, 0.4)'
-              : '0 4px 12px rgba(0, 0, 0, 0.15)',
-            '&:hover': {
-              backgroundColor: alpha(muiTheme.palette.primary.main, 0.2),
-            },
-            zIndex: 100
-          }}
-        >
-          <FiArrowUp />
-        </Fab>
+        <Box sx={{
+          position: 'fixed',
+          bottom: 20,
+          left: 20,
+          zIndex: 999
+        }}>
+          <AnimatedIconButton
+            icon={<FiArrowUp size={20} />}
+            onClick={scrollToTop}
+            size="medium"
+            variant="solid"
+            color="primary"
+            tooltipText={t('common.scrollToTop', '回到顶部')}
+            ariaLabel="回到顶部"
+          />
+        </Box>
       </Zoom>
     </>
   );

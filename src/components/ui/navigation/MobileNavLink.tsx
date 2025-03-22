@@ -27,6 +27,15 @@ const MobileNavLink: React.FC<MobileNavLinkProps> = ({
 }) => {
   const muiTheme = useMuiTheme();
   const { theme } = useTheme();
+  const isDark = theme === 'dark';
+
+  // 解析颜色字符串，支持主题色或自定义颜色
+  const getColor = () => {
+    if (color === 'primary.main') {
+      return isDark ? '#7c4dff' : '#4c8cff';
+    }
+    return color;
+  };
 
   // 自定义按钮组件用于避免React Router的警告
   const CustomButton = React.forwardRef<HTMLAnchorElement, any>((props, ref) => (
@@ -40,25 +49,34 @@ const MobileNavLink: React.FC<MobileNavLinkProps> = ({
         onClick={onClick}
         sx={{
           position: 'relative',
-          py: 1.5,
-          borderRadius: 1,
-          color: isActive ? color : 'text.primary',
-          fontWeight: isActive ? 'bold' : 'normal',
-          bgcolor: isActive ? alpha(muiTheme.palette.primary.main, theme === 'dark' ? 0.1 : 0.05) : 'transparent',
+          py: 1.8,
+          px: 2,
+          my: 0.5,
+          borderRadius: 2,
+          color: isActive ? getColor() : isDark ? 'rgba(255, 255, 255, 0.85)' : 'rgba(0, 0, 0, 0.85)',
+          fontWeight: isActive ? 600 : 500,
+          bgcolor: isActive
+            ? alpha(getColor(), isDark ? 0.15 : 0.08)
+            : 'transparent',
           '&:hover': {
-            color: theme === 'dark' ? 'primary.light' : 'primary.main',
-            bgcolor: alpha(muiTheme.palette.primary.main, theme === 'dark' ? 0.08 : 0.03)
+            color: getColor(),
+            bgcolor: alpha(getColor(), isDark ? 0.1 : 0.05),
+            transform: 'translateX(5px)',
           },
-          transition: 'all 0.2s ease',
-          mb: 1,
-          overflow: 'hidden'
+          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+          borderLeft: isActive
+            ? `4px solid ${getColor()}`
+            : '4px solid transparent',
         }}
       >
         {icon && (
           <ListItemIcon
             sx={{
               color: 'inherit',
-              minWidth: 36
+              minWidth: 36,
+              mr: 1,
+              transition: 'transform 0.2s ease',
+              transform: isActive ? 'scale(1.1)' : 'scale(1)'
             }}
           >
             {icon}
@@ -68,25 +86,30 @@ const MobileNavLink: React.FC<MobileNavLinkProps> = ({
         <ListItemText
           primary={label}
           primaryTypographyProps={{
-            fontWeight: isActive ? 'bold' : 'medium',
+            fontWeight: isActive ? 600 : 500,
+            fontSize: '0.95rem',
+            letterSpacing: '0.2px'
           }}
         />
 
-        {/* 侧边激活指示器 */}
+        {/* 活动指示器 - 渐变光效 */}
         {isActive && (
           <motion.div
-            layoutId="mobile-nav-indicator"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            initial={{ opacity: 0, width: 0 }}
+            animate={{ opacity: 1, width: '100%' }}
+            exit={{ opacity: 0, width: 0 }}
             transition={{ duration: 0.3 }}
             style={{
               position: 'absolute',
-              left: 0,
-              top: 8,
-              bottom: 8,
-              width: 4,
-              borderRadius: 2,
-              backgroundColor: typeof color === 'string' ? color : muiTheme.palette.primary.main
+              right: 0,
+              bottom: 0,
+              height: '100%',
+              borderRadius: 'inherit',
+              background: isDark
+                ? `linear-gradient(to right, ${alpha(getColor(), 0)} 0%, ${alpha(getColor(), 0.07)} 100%)`
+                : `linear-gradient(to right, ${alpha(getColor(), 0)} 0%, ${alpha(getColor(), 0.04)} 100%)`,
+              zIndex: -1,
+              pointerEvents: 'none'
             }}
           />
         )}
