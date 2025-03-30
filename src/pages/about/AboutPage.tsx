@@ -1,8 +1,7 @@
 import React from 'react';
-import { Box, Grid, Paper, Container, Typography, Chip, Stack, useMediaQuery } from '@mui/material';
+import { Box, Grid, Container, Typography, Stack, SxProps, Theme } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { useTheme as useMuiTheme } from '@mui/material/styles';
 import {
   FiActivity,
   FiBook,
@@ -42,10 +41,10 @@ import {
   SiVuedotjs
 } from 'react-icons/si';
 import { Skill } from '../../types/skill';
-import TechTagGroup from '../../components/ui/common/TechTagGroup';
 import { useTheme } from '../../contexts/ThemeContext';
-import { useLanguage } from '../../hooks/useLanguage';
 import AboutPageTitle from '../../components/ui/about/AboutPageTitle';
+import GlassyBlobBackground from '../../components/ui/backgrounds/GlassyBlobBackground';
+import TechnologyTag from '../../components/ui/projects/TechnologyTag';
 
 interface AboutPageProps {
   data: {
@@ -61,12 +60,10 @@ interface AboutPageProps {
 }
 
 /**
- * 关于我页面组件
+ * 关于我页面组件 - 全新设计
  */
 const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
   const { t } = useTranslation();
-  const muiTheme = useMuiTheme();
-  const isMobile = useMediaQuery(muiTheme.breakpoints.down('md'));
 
   // 个人特质
   const traits = [
@@ -113,36 +110,6 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
       url: 'https://en.cppreference.com/w/c'
     },
     {
-      name: 'TypeScript',
-      level: 70,
-      category: 'frontend',
-      icon: <SiTypescript size={20} />,
-      url: 'https://www.typescriptlang.org/'
-    },
-    // 前端技术
-    {
-      name: 'React.js',
-      level: 82,
-      category: 'frontend',
-      icon: <DiReact size={20} />,
-      url: 'https://reactjs.org/'
-    },
-    {
-      name: 'Vue.js',
-      level: 78,
-      category: 'frontend',
-      icon: <SiVuedotjs size={20} />,
-      url: 'https://vuejs.org/'
-    },
-    {
-      name: 'TailWind CSS',
-      level: 75,
-      category: 'frontend',
-      icon: <SiTailwindcss size={20} />,
-      url: 'https://tailwindcss.com/'
-    },
-    // 框架
-    {
       name: 'Spring',
       level: 88,
       category: 'backend',
@@ -177,20 +144,69 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
       icon: <FiServer size={20} />,
       url: 'https://restfulapi.net/'
     },
-    // 构建工具
     {
-      name: 'Maven',
-      level: 85,
-      category: 'tool',
-      icon: <FiPackage size={20} />,
-      url: 'https://maven.apache.org/'
+      name: 'GraphQL',
+      level: 70,
+      category: 'backend',
+      icon: <SiGraphql size={20} />,
+      url: 'https://graphql.org/'
     },
     {
-      name: 'Gradle',
+      name: 'Node.js',
+      level: 75,
+      category: 'backend',
+      icon: <DiNodejs size={20} />,
+      url: 'https://nodejs.org/'
+    },
+    {
+      name: 'Socket.IO',
+      level: 70,
+      category: 'backend',
+      icon: <FiWifi size={20} />,
+      url: 'https://socket.io/'
+    },
+    // 前端技术
+    {
+      name: 'TypeScript',
+      level: 70,
+      category: 'frontend',
+      icon: <SiTypescript size={20} />,
+      url: 'https://www.typescriptlang.org/'
+    },
+    {
+      name: 'React.js',
+      level: 82,
+      category: 'frontend',
+      icon: <DiReact size={20} />,
+      url: 'https://reactjs.org/'
+    },
+    {
+      name: 'Vue.js',
+      level: 78,
+      category: 'frontend',
+      icon: <SiVuedotjs size={20} />,
+      url: 'https://vuejs.org/'
+    },
+    {
+      name: 'TailWind CSS',
+      level: 75,
+      category: 'frontend',
+      icon: <SiTailwindcss size={20} />,
+      url: 'https://tailwindcss.com/'
+    },
+    {
+      name: 'JavaScript',
+      level: 85,
+      category: 'frontend',
+      icon: <SiJavascript size={20} />,
+      url: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript'
+    },
+    {
+      name: 'jQuery',
       level: 80,
-      category: 'tool',
-      icon: <FiPackage size={20} />,
-      url: 'https://gradle.org/'
+      category: 'frontend',
+      icon: <SiJquery size={20} />,
+      url: 'https://jquery.com/'
     },
     // 数据库
     {
@@ -216,6 +232,20 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
     },
     // 工具
     {
+      name: 'Maven',
+      level: 85,
+      category: 'tool',
+      icon: <FiPackage size={20} />,
+      url: 'https://maven.apache.org/'
+    },
+    {
+      name: 'Gradle',
+      level: 80,
+      category: 'tool',
+      icon: <FiPackage size={20} />,
+      url: 'https://gradle.org/'
+    },
+    {
       name: 'Git',
       level: 85,
       category: 'tool',
@@ -223,46 +253,11 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
       url: 'https://git-scm.com/'
     },
     {
-      name: 'GraphQL',
-      level: 70,
-      category: 'backend',
-      icon: <SiGraphql size={20} />,
-      url: 'https://graphql.org/'
-    },
-    {
-      name: 'Node.js',
-      level: 75,
-      category: 'backend',
-      icon: <DiNodejs size={20} />,
-      url: 'https://nodejs.org/'
-    },
-    {
-      name: 'JavaScript',
-      level: 85,
-      category: 'frontend',
-      icon: <SiJavascript size={20} />,
-      url: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript'
-    },
-    {
-      name: 'jQuery',
-      level: 80,
-      category: 'frontend',
-      icon: <SiJquery size={20} />,
-      url: 'https://jquery.com/'
-    },
-    {
       name: 'Linux',
       level: 75,
       category: 'tool',
       icon: <DiTerminal size={20} />,
       url: 'https://www.linux.org/'
-    },
-    {
-      name: 'Socket.IO',
-      level: 70,
-      category: 'backend',
-      icon: <FiWifi size={20} />,
-      url: 'https://socket.io/'
     }
   ];
 
@@ -298,7 +293,7 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
         '添加监控日志，实现系统性能实时监控'
       ],
       techs: ['Java', 'Spring Boot', 'MySQL', 'Redis', 'Vue.js', 'Element-UI', 'RabbitMQ'],
-      image: '/images/projects/sky.jpg'
+      image: 'https://via.placeholder.com/400x250/777777/FFFFFF?text=Sky-Take-Out'
     },
     {
       name: 'Lease',
@@ -311,8 +306,8 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
         '实现分布式事务处理，确保数据一致性',
         '集成第三方支付接口，实现安全支付'
       ],
-      techs: ['Java', 'Spring Boot', 'Spring Cloud', 'MySQL', 'Redis', 'RabbitMQ', 'Docker'],
-      image: '/images/projects/lease.jpg'
+      techs: ['Java', 'Spring Cloud', 'MySQL', 'Redis', 'RabbitMQ', 'Docker'],
+      image: 'https://via.placeholder.com/400x250/555555/FFFFFF?text=Lease'
     }
   ];
 
@@ -349,31 +344,98 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
 
   const { theme } = useTheme();
   const isDark = theme === 'dark';
-  const { language } = useLanguage();
 
   // 根据技术名称判断分类
   const getTagCategory = (techName: string): string => {
     techName = techName.toLowerCase();
 
     // 后端语言和技术
-    if (['java', 'spring', 'springboot', 'spring boot', 'jvm'].includes(techName)) {
+    if ([ 'java', 'python', 'c#', 'c', 'spring', 'spring mvc', 'spring boot', 'spring jpa', 'rest api', 'graphql', 'node.js', 'socket.io'].includes(techName)) {
       return 'backend';
     }
-
-    if (['react', 'vue', 'angular'].includes(techName)) {
+    // 前端技术
+    if (['typescript', 'react.js', 'vue.js', 'tailwind css', 'javascript', 'jquery'].includes(techName)) {
       return 'frontend';
     }
-
-    if (['mysql', 'postgresql', 'mongodb', 'redis'].includes(techName)) {
+    // 数据库
+    if (['mysql', 'postgresql', 'redis'].includes(techName)) {
       return 'database';
     }
-
-    if (['docker', 'kubernetes', 'jenkins', 'linux', 'nginx'].includes(techName)) {
-      return 'devops';
+    // 工具和平台
+    if (['maven', 'gradle', 'git', 'linux', 'docker', 'rabbitmq', 'spring cloud', 'element-ui'].includes(techName)) {
+      return 'tool';
     }
 
-    return 'other';
+    return 'other'; // 默认分类
   };
+
+  // 创建一个统一的玻璃容器组件
+  interface GlassyContainerProps {
+    children: React.ReactNode;
+    colorSet?: 'default' | 'primary' | 'rainbow' | 'cool' | 'warm';
+    title?: string;
+    titleIcon?: React.ReactNode;
+    sx?: SxProps<Theme>;
+  }
+
+  const GlassyContainer: React.FC<GlassyContainerProps> = ({ children, colorSet = 'cool', title, titleIcon, sx = {} }) => (
+    <GlassyBlobBackground
+      colorSet={colorSet}
+      intensity="light"
+      glassEffect={true}
+      containerSx={{
+        p: { xs: 3, sm: 4 },
+        mb: 4,
+        borderRadius: '20px',
+        position: 'relative',
+        border: `1px solid ${
+          theme === 'dark'
+            ? 'rgba(255, 255, 255, 0.08)'
+            : 'rgba(0, 0, 0, 0.05)'
+        }`,
+        boxShadow: theme === 'dark'
+          ? '0 8px 32px rgba(0, 0, 0, 0.2)'
+          : '0 8px 32px rgba(0, 0, 0, 0.08)',
+        overflow: 'hidden',
+        ...sx
+      }}
+    >
+      {title && (
+        <Typography
+          variant="h5"
+          component="h2"
+          gutterBottom
+          sx={{
+            mb: 3,
+            fontWeight: 700,
+            color: isDark ? 'white' : 'text.primary',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1
+          }}
+        >
+          {titleIcon && <Box sx={{
+            display: 'flex',
+            color: isDark ? 'primary.light' : 'primary.main',
+            filter: isDark ? 'drop-shadow(0 0 3px rgba(255, 255, 255, 0.5))' : 'none'
+          }}>
+            {titleIcon}
+          </Box>}
+          {title}
+        </Typography>
+      )}
+      {children}
+    </GlassyBlobBackground>
+  );
+
+  // 渲染技术标签组
+  const renderTechTags = (techItems: Skill[] | { name: string, category: string }[], type: string) => (
+    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+      {techItems.map((item, index) => (
+        <TechnologyTag key={`${type}-${index}-${item.name}`} name={item.name} />
+      ))}
+    </Box>
+  );
 
   return (
     <Container maxWidth="lg">
@@ -392,31 +454,11 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
 
           {/* 个人简介 */}
           <motion.div variants={itemVariants}>
-            <Paper
-              elevation={0}
-              sx={{
-                p: { xs: 3, sm: 4 },
-                mb: 4,
-                borderRadius: 3,
-                bgcolor: isDark ? 'rgba(30, 41, 59, 0.6)' : 'rgba(255, 255, 255, 0.9)',
-                backdropFilter: 'blur(10px)',
-                border: '1px solid',
-                borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.06)',
-              }}
+            <GlassyContainer
+              title={t('about.title.intro', '关于我')}
+              titleIcon={<FiFeather size={24} />}
+              colorSet="warm"
             >
-              <Typography
-                variant="h5"
-                component="h2"
-                gutterBottom
-                sx={{
-                  mb: 3,
-                  fontWeight: 700,
-                  color: isDark ? 'white' : 'text.primary'
-                }}
-              >
-                {t('about.introduction', '个人介绍')}
-              </Typography>
-
               <Typography
                 variant="body1"
                 sx={{
@@ -429,61 +471,89 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
                 {data.summary}
               </Typography>
 
-              <Box sx={{ mt: 3 }}>
+              <Box
+                component={motion.div}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3, duration: 0.5 }}
+                sx={{ mt: 4 }}
+              >
+                <Typography
+                  variant="subtitle1"
+                  component="h3"
+                  sx={{
+                    mb: 3,
+                    fontWeight: 600,
+                    color: isDark ? 'primary.light' : 'primary.main',
+                    textShadow: isDark ? '0 0 8px rgba(239, 68, 68, 0.4)' : 'none',
+                  }}
+                >
+                  {t('about.traits.title', '个人特质')}
+                </Typography>
                 <Grid container spacing={2}>
                   {traits.map((trait, index) => (
                     <Grid item xs={6} sm={4} md={3} key={index}>
-                      <Chip
-                        icon={trait.icon}
-                        label={trait.name}
+                      <Box
                         sx={{
-                          width: '100%',
-                          justifyContent: 'flex-start',
-                          p: 0.5,
-                          bgcolor: isDark ? 'rgba(99, 102, 241, 0.1)' : 'rgba(79, 70, 229, 0.1)',
-                          color: isDark ? '#a5b4fc' : '#4f46e5',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 1.5,
+                          p: 2,
+                          height: '100%',
+                          borderRadius: '12px',
+                          bgcolor: isDark ? 'rgba(17, 25, 40, 0.5)' : 'rgba(255, 255, 255, 0.4)',
+                          backdropFilter: 'blur(10px)',
                           border: '1px solid',
-                          borderColor: isDark ? 'rgba(99, 102, 241, 0.2)' : 'rgba(79, 70, 229, 0.2)',
-                          '& .MuiChip-icon': {
-                            color: isDark ? '#818cf8' : '#6366f1',
-                          },
+                          borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.5)',
+                          boxShadow: 'none',
+                          transition: 'all 0.3s ease',
+                          '&:hover': {
+                            transform: 'translateY(-4px)',
+                            boxShadow: isDark
+                              ? '0 0 18px rgba(245, 158, 11, 0.5)'
+                              : '0 0 18px rgba(245, 158, 11, 0.3)',
+                            borderColor: isDark ? 'rgba(245, 158, 11, 0.4)' : 'rgba(245, 158, 11, 0.2)'
+                          }
                         }}
-                      />
+                      >
+                        <Box sx={{
+                           display:'flex',
+                           color: isDark ? '#fde047' : '#d97706',
+                           fontSize: '1.5rem'
+                           }}>
+                          {trait.icon}
+                        </Box>
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            fontWeight: 500,
+                            color: isDark ? 'grey.200' : 'grey.800'
+                             }}>
+                          {trait.name}
+                        </Typography>
+                      </Box>
                     </Grid>
                   ))}
                 </Grid>
               </Box>
-            </Paper>
+            </GlassyContainer>
           </motion.div>
 
           {/* 技能 */}
           <motion.div variants={itemVariants}>
-            <Paper
-              elevation={0}
-              sx={{
-                p: { xs: 3, sm: 4 },
-                mb: 4,
-                borderRadius: 3,
-                bgcolor: isDark ? 'rgba(30, 41, 59, 0.6)' : 'rgba(255, 255, 255, 0.9)',
-                backdropFilter: 'blur(10px)',
-                border: '1px solid',
-                borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.06)',
-              }}
+            <GlassyContainer
+              title={t('about.title.skills', '技能栈')}
+              titleIcon={<FiZap size={24} />}
+              colorSet="cool"
             >
-              <Typography
-                variant="h5"
-                component="h2"
-                gutterBottom
-                sx={{
-                  mb: 3,
-                  fontWeight: 700,
-                  color: isDark ? 'white' : 'text.primary'
-                }}
+              {/* 后端技术 */}
+              <Box
+                component={motion.div}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1, duration: 0.5 }}
+                sx={{ mb: 4 }}
               >
-                {t('about.skills', '技能与专长')}
-              </Typography>
-
-              <Box sx={{ mb: 4 }}>
                 <Typography
                   variant="subtitle1"
                   component="h3"
@@ -492,23 +562,23 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
                     fontWeight: 600,
                     color: isDark ? 'primary.light' : 'primary.main',
                     display: 'flex',
-                    alignItems: 'center'
+                    alignItems: 'center',
+                    gap: 1
                   }}
                 >
-                  <FiServer style={{ marginRight: '8px' }} />
-                  {t('about.backendSkills', '后端技术')}
+                  <FiServer /> {t('about.skills.backend', '后端技术')}
                 </Typography>
-
-                <TechTagGroup
-                  items={backendSkills}
-                  maxItems={15}
-                  enableExpand={true}
-                  size="small"
-                  techType="backend"
-                />
+                {renderTechTags(backendSkills, 'backend')}
               </Box>
 
-              <Box sx={{ mb: 4 }}>
+              {/* 前端技术 */}
+              <Box
+                component={motion.div}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2, duration: 0.5 }}
+                sx={{ mb: 4 }}
+              >
                 <Typography
                   variant="subtitle1"
                   component="h3"
@@ -517,23 +587,23 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
                     fontWeight: 600,
                     color: isDark ? 'primary.light' : 'primary.main',
                     display: 'flex',
-                    alignItems: 'center'
+                    alignItems: 'center',
+                    gap: 1
                   }}
                 >
-                  <FiCode style={{ marginRight: '8px' }} />
-                  {t('about.frontendSkills', '前端技术')}
+                  <FiCode /> {t('about.skills.frontend', '前端技术')}
                 </Typography>
-
-                <TechTagGroup
-                  items={frontendSkills}
-                  maxItems={15}
-                  enableExpand={true}
-                  size="small"
-                  techType="frontend"
-                />
+                {renderTechTags(frontendSkills, 'frontend')}
               </Box>
 
-              <Box sx={{ mb: 4 }}>
+              {/* 数据库 */}
+              <Box
+                component={motion.div}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3, duration: 0.5 }}
+                sx={{ mb: 4 }}
+              >
                 <Typography
                   variant="subtitle1"
                   component="h3"
@@ -542,23 +612,22 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
                     fontWeight: 600,
                     color: isDark ? 'primary.light' : 'primary.main',
                     display: 'flex',
-                    alignItems: 'center'
+                    alignItems: 'center',
+                    gap: 1
                   }}
                 >
-                  <FiLayers style={{ marginRight: '8px' }} />
-                  {t('about.databaseSkills', '数据库')}
+                  <FiLayers /> {t('about.skills.database', '数据库')}
                 </Typography>
-
-                <TechTagGroup
-                  items={databaseSkills}
-                  maxItems={15}
-                  enableExpand={true}
-                  size="small"
-                  techType="database"
-                />
+                {renderTechTags(databaseSkills, 'database')}
               </Box>
 
-              <Box>
+              {/* 工具与平台 */}
+              <Box
+                component={motion.div}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4, duration: 0.5 }}
+              >
                 <Typography
                   variant="subtitle1"
                   component="h3"
@@ -567,69 +636,44 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
                     fontWeight: 600,
                     color: isDark ? 'primary.light' : 'primary.main',
                     display: 'flex',
-                    alignItems: 'center'
+                    alignItems: 'center',
+                    gap: 1
                   }}
                 >
-                  <FiTrendingUp style={{ marginRight: '8px' }} />
-                  {t('about.toolSkills', '工具与平台')}
+                  <FiTrendingUp /> {t('about.skills.tools', '工具平台')}
                 </Typography>
-
-                <TechTagGroup
-                  items={toolSkills}
-                  maxItems={15}
-                  enableExpand={true}
-                  size="small"
-                  techType="tool"
-                />
+                {renderTechTags(toolSkills, 'tool')}
               </Box>
-            </Paper>
+            </GlassyContainer>
           </motion.div>
 
           {/* 教育背景 */}
           <motion.div variants={itemVariants}>
-            <Paper
-              elevation={0}
-              sx={{
-                p: { xs: 3, sm: 4 },
-                mb: 4,
-                borderRadius: 3,
-                bgcolor: isDark ? 'rgba(30, 41, 59, 0.6)' : 'rgba(255, 255, 255, 0.9)',
-                backdropFilter: 'blur(10px)',
-                border: '1px solid',
-                borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.06)',
-              }}
+            <GlassyContainer
+              title={t('about.title.education', '教育经历')}
+              titleIcon={<FiBook size={24} />}
+              colorSet="primary"
             >
-              <Typography
-                variant="h5"
-                component="h2"
-                gutterBottom
-                sx={{
-                  mb: 3,
-                  fontWeight: 700,
-                  color: isDark ? 'white' : 'text.primary'
-                }}
-              >
-                {t('about.education', '教育背景')}
-              </Typography>
-
               <Grid container spacing={3}>
                 {educations.map((education, index) => (
                   <Grid item xs={12} sm={6} key={index}>
-                    <Paper
-                      elevation={0}
+                    <Box
                       sx={{
                         p: 3,
                         height: '100%',
                         borderRadius: 2,
-                        bgcolor: isDark ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.01)',
+                        bgcolor: isDark ? 'rgba(17, 25, 40, 0.5)' : 'rgba(255, 255, 255, 0.4)',
+                        backdropFilter: 'blur(16px)',
                         border: '1px solid',
-                        borderColor: isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.04)',
-                        transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+                        borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.5)',
+                        boxShadow: 'none',
+                        transition: 'all 0.3s ease',
                         '&:hover': {
                           transform: 'translateY(-5px)',
                           boxShadow: isDark
-                            ? '0 10px 30px rgba(0, 0, 0, 0.15)'
-                            : '0 10px 30px rgba(0, 0, 0, 0.07)',
+                            ? '0 0 25px rgba(99, 102, 241, 0.5)'
+                            : '0 0 25px rgba(79, 70, 229, 0.3)',
+                          borderColor: isDark ? 'rgba(99, 102, 241, 0.5)' : 'rgba(79, 70, 229, 0.3)'
                         }
                       }}
                     >
@@ -639,7 +683,7 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
                         sx={{
                           fontWeight: 600,
                           color: isDark ? 'primary.light' : 'primary.main',
-                          mb: 1
+                          mb: 1,
                         }}
                       >
                         {education.school}
@@ -675,57 +719,43 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
                       >
                         {education.description}
                       </Typography>
-                    </Paper>
+                    </Box>
                   </Grid>
                 ))}
               </Grid>
-            </Paper>
+            </GlassyContainer>
           </motion.div>
 
           {/* 项目经验 */}
           <motion.div variants={itemVariants}>
-            <Paper
-              elevation={0}
-              sx={{
-                p: { xs: 3, sm: 4 },
-                mb: 4,
-                borderRadius: 3,
-                bgcolor: isDark ? 'rgba(30, 41, 59, 0.6)' : 'rgba(255, 255, 255, 0.9)',
-                backdropFilter: 'blur(10px)',
-                border: '1px solid',
-                borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.06)',
-              }}
+            <GlassyContainer
+              title={t('about.title.projects', '项目展示')}
+              titleIcon={<FiActivity size={24} />}
+              colorSet="cool"
             >
-              <Typography
-                variant="h5"
-                component="h2"
-                gutterBottom
-                sx={{
-                  mb: 3,
-                  fontWeight: 700,
-                  color: isDark ? 'white' : 'text.primary'
-                }}
-              >
-                {t('about.projects', '项目经验')}
-              </Typography>
-
               <Stack spacing={4}>
                 {projects.map((project, index) => (
-                  <Paper
+                  <Box
                     key={index}
-                    elevation={0}
+                    component={motion.div}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1 * index, duration: 0.5 }}
                     sx={{
                       p: { xs: 2, sm: 3 },
                       borderRadius: 2,
-                      bgcolor: isDark ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.01)',
+                      bgcolor: isDark ? 'rgba(17, 25, 40, 0.5)' : 'rgba(255, 255, 255, 0.4)',
+                      backdropFilter: 'blur(16px)',
                       border: '1px solid',
-                      borderColor: isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.04)',
-                      transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+                      borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.5)',
+                      boxShadow: 'none',
+                      transition: 'all 0.3s ease',
                       '&:hover': {
                         transform: 'translateY(-5px)',
                         boxShadow: isDark
-                          ? '0 10px 30px rgba(0, 0, 0, 0.15)'
-                          : '0 10px 30px rgba(0, 0, 0, 0.07)',
+                          ? '0 0 25px rgba(16, 185, 129, 0.5)'
+                          : '0 0 25px rgba(16, 185, 129, 0.3)',
+                         borderColor: isDark ? 'rgba(16, 185, 129, 0.5)' : 'rgba(16, 185, 129, 0.3)'
                       }
                     }}
                   >
@@ -737,7 +767,7 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
                           sx={{
                             fontWeight: 600,
                             color: isDark ? 'primary.light' : 'primary.main',
-                            mb: 1
+                            mb: 1,
                           }}
                         >
                           {project.name}
@@ -802,17 +832,7 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
                         >
                           {t('about.technologies', '技术栈')}:
                         </Typography>
-
-                        <Box>
-                          <TechTagGroup
-                            items={project.techs.map(tech => ({
-                              name: tech,
-                              category: getTagCategory(tech)
-                            }))}
-                            size="small"
-                            enableExpand={false}
-                          />
-                        </Box>
+                        {renderTechTags(project.techs.map(tech => ({ name: tech, category: getTagCategory(tech) })), 'project-' + index)}
                       </Grid>
 
                       <Grid
@@ -837,22 +857,26 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
                             borderColor: isDark
                               ? 'rgba(255, 255, 255, 0.1)'
                               : 'rgba(0, 0, 0, 0.05)',
-                            boxShadow: isDark
-                              ? '0 5px 15px rgba(0, 0, 0, 0.3)'
-                              : '0 5px 15px rgba(0, 0, 0, 0.1)',
-                            objectFit: 'cover'
+                            boxShadow: 'none',
+                            objectFit: 'cover',
+                            transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+                            '&:hover': {
+                              transform: 'scale(1.03)',
+                              boxShadow: isDark
+                                ? '0 8px 25px rgba(0, 0, 0, 0.4)'
+                                : '0 8px 25px rgba(0, 0, 0, 0.15)',
+                            }
                           }}
                           onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
-                            // 设置默认的占位图
                             e.currentTarget.src = 'https://via.placeholder.com/300x200?text=Project+Image';
                           }}
                         />
                       </Grid>
                     </Grid>
-                  </Paper>
+                  </Box>
                 ))}
               </Stack>
-            </Paper>
+            </GlassyContainer>
           </motion.div>
         </motion.div>
       </Box>
