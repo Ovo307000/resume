@@ -10,41 +10,83 @@
       "en": "Mar 2024 - Present"
     },
     "description": {
-      "zh": "计算机科学与技术专业学士学位在读，专注于Java后端开发技术的学习和实践。",
-      "en": "Currently pursuing a Bachelor's degree in Computer Science and Technology, focusing on Java backend development technologies."
+      "zh": "计算机科学与技术专业学士学位在读，专注于Java后端开发技术的深入学习与实践。本科阶段计划系统学习计算机理论知识，并将所学应用到实际项目开发中，为未来的职业发展奠定坚实基础。",
+      "en": "Currently pursuing a Bachelor's degree in Computer Science and Technology, focusing on in-depth learning and practice of Java backend development technologies. During undergraduate studies, planning to systematically learn computer theory knowledge and apply it to practical project development, laying a solid foundation for future career development."
     },
+    "activities": [
+      {
+        "zh": "积极参与校园开源社区活动",
+        "en": "Active participation in campus open source community activities"
+      },
+      {
+        "zh": "参加Java编程技能竞赛",
+        "en": "Participation in Java programming skill competitions"
+      },
+      {
+        "zh": "担任学校技术论坛版主",
+        "en": "Serve as a moderator for the school's technical forum"
+      }
+    ],
     "skills": [
       {
         "zh": "Java编程",
         "en": "Java Programming"
       },
       {
+        "zh": "Spring框架",
+        "en": "Spring Framework"
+      },
+      {
         "zh": "后端开发",
         "en": "Backend Development"
       },
       {
+        "zh": "数据库设计",
+        "en": "Database Design"
+      },
+      {
         "zh": "软件工程",
         "en": "Software Engineering"
+      },
+      {
+        "zh": "微服务架构",
+        "en": "Microservice Architecture"
       }
     ],
     "currentFocus": [
       {
-        "zh": "Java后端开发",
-        "en": "Java Backend Development"
+        "zh": "Java后端开发进阶技术",
+        "en": "Advanced Java Backend Development Techniques"
       },
       {
-        "zh": "分布式系统",
-        "en": "Distributed Systems"
+        "zh": "分布式系统设计与实现",
+        "en": "Distributed Systems Design and Implementation"
+      },
+      {
+        "zh": "高性能Web应用开发",
+        "en": "High-performance Web Application Development"
+      },
+      {
+        "zh": "云原生应用架构",
+        "en": "Cloud-native Application Architecture"
       }
     ],
     "goals": [
       {
-        "zh": "深入学习计算机科学理论知识",
-        "en": "Deepen knowledge in computer science theory"
+        "zh": "深入掌握计算机科学理论知识",
+        "en": "Master computer science theoretical knowledge in depth"
       },
       {
-        "zh": "提升Java后端开发技能",
-        "en": "Enhance Java backend development skills"
+        "zh": "成为全栈开发工程师",
+        "en": "Become a full-stack development engineer"
+      },
+      {
+        "zh": "参与开源项目贡献",
+        "en": "Contribute to open source projects"
+      },
+      {
+        "zh": "获得行业认可的技术认证",
+        "en": "Obtain industry-recognized technical certifications"
       }
     ]
   },
@@ -59,9 +101,23 @@
       "en": "Oct 2020 - Jun 2023"
     },
     "description": {
-      "zh": "软件技术专业，专注于Java编程和后端开发技术的学习。积累了丰富的项目经验，掌握了Spring、MySQL、Redis等后端技术栈。",
-      "en": "Studied Software Technology with a focus on Java programming and backend development. Accumulated rich project experience and mastered backend technology stack including Spring, MySQL, Redis, etc."
+      "zh": "软件技术专业毕业，以优异成绩完成学业。在校期间专注于Java编程和后端开发技术的学习，积极参与各类实践项目。通过系统学习和项目实践，掌握了包括Spring、MySQL、Redis、Docker等在内的完整后端技术栈，并独立完成了多个真实项目的开发工作。",
+      "en": "Graduated from Software Technology major with excellent academic performance. During the study period, focused on learning Java programming and backend development technologies, actively participating in various practical projects. Through systematic learning and project practice, mastered a complete backend technology stack including Spring, MySQL, Redis, Docker, etc., and independently completed the development of multiple real-world projects."
     },
+    "activities": [
+      {
+        "zh": "参与校企合作项目开发",
+        "en": "Participated in school-enterprise cooperation project development"
+      },
+      {
+        "zh": "担任Java编程兴趣小组组长",
+        "en": "Served as the leader of the Java programming interest group"
+      },
+      {
+        "zh": "协助组织校内编程马拉松活动",
+        "en": "Assisted in organizing on-campus programming marathon events"
+      }
+    ],
     "skills": [
       {
         "zh": "Java编程",
@@ -72,6 +128,10 @@
         "en": "Spring Framework"
       },
       {
+        "zh": "SpringBoot",
+        "en": "SpringBoot"
+      },
+      {
         "zh": "MySQL",
         "en": "MySQL"
       },
@@ -80,18 +140,34 @@
         "en": "Redis"
       },
       {
-        "zh": "Docker",
-        "en": "Docker"
+        "zh": "Docker容器化",
+        "en": "Docker Containerization"
+      },
+      {
+        "zh": "Git版本控制",
+        "en": "Git Version Control"
+      },
+      {
+        "zh": "RESTful API设计",
+        "en": "RESTful API Design"
       }
     ],
     "achievements": [
       {
-        "zh": "完成多个实际项目开发",
-        "en": "Completed multiple real-world projects"
+        "zh": "完成校企合作外卖平台项目'Sky-Take-Out'的后端开发",
+        "en": "Completed the backend development of 'Sky-Take-Out', a food delivery platform project in school-enterprise cooperation"
       },
       {
-        "zh": "掌握了主流后端开发技术栈",
-        "en": "Mastered mainstream backend development stack"
+        "zh": "独立开发公寓租赁管理系统'Lease'，包含完整的前后端功能",
+        "en": "Independently developed 'Lease', an apartment rental management system with complete frontend and backend functionality"
+      },
+      {
+        "zh": "获得学院优秀毕业生称号",
+        "en": "Received the outstanding graduate award from the college"
+      },
+      {
+        "zh": "掌握主流后端开发技术栈，能够独立设计和实现企业级应用",
+        "en": "Mastered mainstream backend development stack, capable of independently designing and implementing enterprise applications"
       }
     ]
   }

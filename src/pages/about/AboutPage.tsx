@@ -1,54 +1,51 @@
-import React, { useEffect, useRef } from 'react';
-import { motion, useAnimation, useInView } from 'framer-motion';
-import {
-  Typography,
-  Box,
-  Container,
-  Grid,
-  useTheme as useMuiTheme,
-  useMediaQuery,
-  Paper,
-  alpha,
-  Divider,
-  Button,
-  IconButton,
-  Chip,
-  Stack,
-  Tooltip
-} from '@mui/material';
+import React from 'react';
+import { Box, Grid, Paper, Container, Typography, Chip, Stack, useMediaQuery } from '@mui/material';
 import { useTranslation } from 'react-i18next';
+import { motion } from 'framer-motion';
+import { useTheme as useMuiTheme } from '@mui/material/styles';
 import {
-  FiUser, FiBook, FiHeart, FiTarget,
-  FiCoffee, FiGlobe, FiActivity, FiTrendingUp,
-  FiFeather, FiZap, FiServer, FiPackage, FiImage,
-  FiAward, FiCode, FiMenu
+  FiActivity,
+  FiBook,
+  FiCode,
+  FiCoffee,
+  FiFeather,
+  FiGlobe,
+  FiHeart,
+  FiLayers,
+  FiPackage,
+  FiServer,
+  FiTarget,
+  FiTrendingUp,
+  FiWifi,
+  FiZap
 } from 'react-icons/fi';
 import {
-  DiJava, DiPython, DiMysql, DiRedis,
-  DiDocker, DiGit, DiReact, DiMongodb,
-  DiPostgresql, DiJavascript1
+  DiGitBranch,
+  DiJava,
+  DiMysql,
+  DiNodejs,
+  DiPython,
+  DiReact,
+  DiTerminal
 } from 'react-icons/di';
 import {
-  SiSpring, SiVuedotjs,
-  SiLinux, SiSharp, SiC, SiTailwindcss,
-  SiGradle, SiTypescript,
-  SiSpringboot, SiNginx
+  SiC,
+  SiGraphql,
+  SiJavascript,
+  SiJquery,
+  SiPostgresql,
+  SiRedis,
+  SiSharp,
+  SiSpring,
+  SiTailwindcss,
+  SiTypescript,
+  SiVuedotjs
 } from 'react-icons/si';
-import PageTransition from '../../components/ui/transitions/PageTransition';
-import ExperienceCard from '../../components/ui/ExperienceCard';
-import TraitCard from '../../components/ui/TraitCard';
-import MobileAboutCard from '../../components/ui/MobileAboutCard';
-import SkillBarGroup from '../../components/ui/skills/SkillBarGroup';
-import EnhancedPageTitle from '../../components/ui/common/EnhancedPageTitle';
 import { Skill } from '../../types/skill';
 import TechTagGroup from '../../components/ui/common/TechTagGroup';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useLanguage } from '../../hooks/useLanguage';
-import CustomTabs from '../../components/ui/common/CustomTabs';
 import AboutPageTitle from '../../components/ui/about/AboutPageTitle';
-import { Theme } from '@mui/material/styles';
-import ThemeToggle from '../../components/ui/ThemeToggle';
-import LanguageSelector from '../../components/ui/LanguageSelector';
 
 interface AboutPageProps {
   data: {
@@ -62,53 +59,6 @@ interface AboutPageProps {
     wechat: string;
   };
 }
-
-/**
- * 统一的页面顶部控制按钮组件
- * 使用动画图标按钮统一样式
- */
-const HeaderControls = () => {
-  const { theme } = useTheme();
-  const isDark = theme === 'dark';
-  const { t } = useTranslation();
-
-  return (
-    <Box
-      sx={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 1,
-        '& > *': { // 应用于所有子元素
-          borderRadius: '12px',
-          backdropFilter: 'blur(8px)',
-          background: isDark ? 'rgba(32, 32, 35, 0.7)' : 'rgba(255, 255, 255, 0.8)',
-          border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)'}`,
-          boxShadow: isDark ? '0 4px 10px rgba(0, 0, 0, 0.25)' : '0 4px 10px rgba(0, 0, 0, 0.08)',
-          transition: 'all 0.3s ease',
-          '&:hover': {
-            transform: 'translateY(-2px)',
-            boxShadow: isDark ? '0 6px 12px rgba(0, 0, 0, 0.3)' : '0 6px 12px rgba(0, 0, 0, 0.1)',
-          }
-        }
-      }}
-    >
-      <ThemeToggle size="medium" />
-      <LanguageSelector size="medium" />
-      <IconButton
-        aria-label={t('navigation.menuToggle', '菜单')}
-        sx={{
-          display: { xs: 'flex', md: 'none' },
-          width: 38,
-          height: 38,
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}
-      >
-        <FiMenu size={22} />
-      </IconButton>
-    </Box>
-  );
-};
 
 /**
  * 关于我页面组件
@@ -237,15 +187,15 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
     },
     {
       name: 'Gradle',
-      level: 78,
+      level: 80,
       category: 'tool',
-      icon: <SiGradle size={20} />,
+      icon: <FiPackage size={20} />,
       url: 'https://gradle.org/'
     },
     // 数据库
     {
       name: 'MySQL',
-      level: 85,
+      level: 90,
       category: 'database',
       icon: <DiMysql size={20} />,
       url: 'https://www.mysql.com/'
@@ -254,695 +204,659 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
       name: 'PostgreSQL',
       level: 85,
       category: 'database',
-      icon: <DiPostgresql size={20} />,
+      icon: <SiPostgresql size={20} />,
       url: 'https://www.postgresql.org/'
-    },
-    {
-      name: 'MongoDB',
-      level: 70,
-      category: 'database',
-      icon: <DiMongodb size={20} />,
-      url: 'https://www.mongodb.com/'
     },
     {
       name: 'Redis',
       level: 80,
       category: 'database',
-      icon: <DiRedis size={20} />,
+      icon: <SiRedis size={20} />,
       url: 'https://redis.io/'
     },
-    // DevOps & 工具
-    {
-      name: 'Docker',
-      level: 80,
-      category: 'devops',
-      icon: <DiDocker size={20} />,
-      url: 'https://www.docker.com/'
-    },
-    {
-      name: 'Linux',
-      level: 80,
-      category: 'devops',
-      icon: <SiLinux size={20} />,
-      url: 'https://www.linux.org/'
-    },
+    // 工具
     {
       name: 'Git',
       level: 85,
       category: 'tool',
-      icon: <DiGit size={20} />,
+      icon: <DiGitBranch size={20} />,
       url: 'https://git-scm.com/'
     },
     {
-      name: 'Stable Diffusion',
+      name: 'GraphQL',
       level: 70,
+      category: 'backend',
+      icon: <SiGraphql size={20} />,
+      url: 'https://graphql.org/'
+    },
+    {
+      name: 'Node.js',
+      level: 75,
+      category: 'backend',
+      icon: <DiNodejs size={20} />,
+      url: 'https://nodejs.org/'
+    },
+    {
+      name: 'JavaScript',
+      level: 85,
+      category: 'frontend',
+      icon: <SiJavascript size={20} />,
+      url: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript'
+    },
+    {
+      name: 'jQuery',
+      level: 80,
+      category: 'frontend',
+      icon: <SiJquery size={20} />,
+      url: 'https://jquery.com/'
+    },
+    {
+      name: 'Linux',
+      level: 75,
       category: 'tool',
-      icon: <FiImage size={20} />,
-      url: 'https://stability.ai/'
+      icon: <DiTerminal size={20} />,
+      url: 'https://www.linux.org/'
+    },
+    {
+      name: 'Socket.IO',
+      level: 70,
+      category: 'backend',
+      icon: <FiWifi size={20} />,
+      url: 'https://socket.io/'
     }
   ];
 
   // 教育经历
   const educations = [
     {
-      title: "计算机科学与技术",
-      company: "安徽财经大学",
-      period: "2024年3月 - 至今",
-      description: "本科专业学习，主要研究方向包括软件工程、数据库系统、计算机网络和分布式系统等。",
-      achievements: [],
-      technologies: []
+      school: '安徽财经大学',
+      degree: '本科',
+      major: '计算机科学与技术',
+      period: '2022 - 2026',
+      description: '专注于计算机科学基础理论学习和软件工程实践，参与多个校内项目和竞赛，获得优异成绩。'
     },
     {
-      title: "软件技术",
-      company: "安徽工贸学院",
-      period: "2020年10月 - 2023年6月",
-      description: "接受专业的软件开发训练，掌握了Java编程、Web开发和数据库应用等核心技能。",
-      achievements: [],
-      technologies: []
+      school: '安徽工商职业学院',
+      degree: '大专',
+      major: '软件技术',
+      period: '2019 - 2022',
+      description: '学习软件开发基础知识和实用技能，参与多个实训项目，获得国家奖学金和多项技能证书。'
     }
   ];
 
-  // 项目经历（从简历中提取）
+  // 项目经验
   const projects = [
     {
-      title: "Sky-Take-Out",
-      company: "个人项目",
-      period: "2023",
-      description: "苍穹外卖是专门为餐饮企业定制的软件产品，包括系统管理后台和小程序端应用两部分。系统管理后台主要提供给餐饮企业内部员工使用，可以对餐厅的分类、菜品、套餐、订单、员工等进行管理维护。小程序端主要提供给消费者使用，可以在线浏览菜品、添加购物车、下单、支付等。",
+      name: 'Sky-Take-Out',
+      role: '全栈开发',
+      period: '2023年3月 - 2023年7月',
+      description: '基于Spring Boot和Vue.js开发的餐饮外卖管理系统。实现了订单管理、菜品管理、员工管理等功能，通过Redis缓存和消息队列优化性能，支持高并发访问。',
       achievements: [
-        "实现了移动端的菜品浏览、购物车、下单、支付等功能",
-        "开发了后台管理系统的菜品、订单、员工管理等功能",
-        "使用WebSocket实现来单语音播报功能",
-        "集成阿里云OSS进行图片存储"
+        '独立设计并实现了后端API和前端界面',
+        '集成Redis实现数据缓存，提升系统响应速度',
+        '使用RabbitMQ实现异步消息处理，提高系统吞吐量',
+        '添加监控日志，实现系统性能实时监控'
       ],
-      technologies: ["Spring Boot", "SpringMVC", "Redis", "MySQL", "Docker", "Nginx", "WebSocket", "阿里云OSS", "Git", "Maven"],
-      image: "/assets/images/placeholder-project.jpg"
+      techs: ['Java', 'Spring Boot', 'MySQL', 'Redis', 'Vue.js', 'Element-UI', 'RabbitMQ'],
+      image: '/images/projects/sky.jpg'
     },
     {
-      title: "Lease",
-      company: "个人项目",
-      period: "2022",
-      description: "尚庭公寓是一个公寓租赁平台项目，包含移动端和后台管理系统。移动端面向广大用户，提供找房、看房预约、租约管理等功能，后台管理系统面向管理员，提供公寓（房源）管理、租赁管理、用户管理等功能。",
+      name: 'Lease',
+      role: '后端开发',
+      period: '2022年10月 - 2023年1月',
+      description: '针对短期租赁市场的服务平台，采用Spring Boot微服务架构，实现了用户管理、房源发布、预订管理、支付集成等功能，通过分布式设计支持高可用和水平扩展。',
       achievements: [
-        "实现了公寓和房间信息的管理功能",
-        "开发了用户账户管理功能",
-        "构建了看房预约和租约管理流程",
-        "使用SpringBoot和MyBatis-Plus提高开发效率"
+        '设计并实现RESTful API',
+        '开发基于Spring Security的认证鉴权系统',
+        '实现分布式事务处理，确保数据一致性',
+        '集成第三方支付接口，实现安全支付'
       ],
-      technologies: ["Spring Boot", "SpringMVC", "MyBatis/Plus", "Redis", "MySQL", "MinIO", "Docker", "Git", "Maven"],
-      image: "/assets/images/placeholder-project.jpg"
+      techs: ['Java', 'Spring Boot', 'Spring Cloud', 'MySQL', 'Redis', 'RabbitMQ', 'Docker'],
+      image: '/images/projects/lease.jpg'
     }
   ];
 
-  // 动画控制
-  const controls = {
-    skillBar: useAnimation(),
-    timeline: useAnimation(),
-    traits: useAnimation(),
-    contact: useAnimation()
-  };
-
-  // 引用元素来检测是否在视图中
-  const refs = {
-    skillRef: useRef(null),
-    timelineRef: useRef(null),
-    traitsRef: useRef(null),
-    contactRef: useRef(null)
-  };
-
-  // 检测元素是否在视图中
-  const isInView = {
-    skill: useInView(refs.skillRef, { once: true, amount: 0.1 }),
-    timeline: useInView(refs.timelineRef, { once: true, amount: 0.1 }),
-    traits: useInView(refs.traitsRef, { once: true, amount: 0.1 }),
-    contact: useInView(refs.contactRef, { once: true, amount: 0.1 })
-  };
-
-  // 根据元素是否在视图中控制动画
-  useEffect(() => {
-    if (isInView.skill) {
-      controls.skillBar.start('visible');
-    }
-    if (isInView.timeline) {
-      controls.timeline.start('visible');
-    }
-    if (isInView.traits) {
-      controls.traits.start('visible');
-    }
-    if (isInView.contact) {
-      controls.contact.start('visible');
-    }
-  }, [isInView.skill, isInView.timeline, isInView.traits, isInView.contact]);
-
-  // 添加技能动画变体
-  const skillVariants = {
+  // 容器动画
+  const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
       transition: {
-        duration: 0.5,
-        when: "beforeChildren",
         staggerChildren: 0.1
       }
     }
   };
 
-  // 时间线动画
-  const timelineVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.3,
-        delayChildren: 0.2
-      }
-    }
-  };
-
-  // 时间线项目动画
-  const timelineItemVariants = {
+  // 子项目动画
+  const itemVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: {
       opacity: 1,
       y: 0,
       transition: {
         type: 'spring',
-        stiffness: 100,
-        damping: 15
-      }
-    }
-  };
-
-  // 生成个人特质网格
-  const renderTraitsGrid = () => (
-    <Grid container spacing={2}>
-      {traits.map((trait, index) => (
-        <Grid item xs={12} sm={6} key={index}>
-          <motion.div variants={traitItemVariants}>
-            <TraitCard
-              name={trait.name}
-              icon={trait.icon}
-              index={index}
-            />
-          </motion.div>
-        </Grid>
-      ))}
-    </Grid>
-  );
-
-  // 右侧列内容渲染
-  const renderRightColumn = () => (
-    <Grid item xs={12} md={7}>
-      {/* 特质部分 */}
-      <Box
-        ref={refs.traitsRef}
-        sx={{ mb: 8 }}
-        component={motion.div}
-        initial="hidden"
-        animate={controls.traits}
-        variants={traitsVariants}
-      >
-        <Typography
-          variant="h5"
-          component="h2"
-          sx={{
-            fontWeight: 600,
-            mb: 3,
-            borderBottom: '2px solid',
-            borderColor: 'primary.main',
-            pb: 1,
-            display: 'inline-block'
-          }}
-        >
-          {t('about.personalTraits', '个人特质')}
-        </Typography>
-        {renderTraitsGrid()}
-      </Box>
-
-      {/* 教育经历卡片 */}
-      <motion.div
-        variants={mobileCardItemVariants}
-        style={{ marginTop: '16px' }}
-      >
-        <MobileAboutCard
-          title={t('about.educationTitle', '教育经历')}
-          icon={<FiBook size={22} />}
-          delay={0.3}
-          isPc={true}
-          noBorder={false}
-        >
-          <Box ref={refs.timelineRef}>
-            <motion.div
-              initial="hidden"
-              animate={controls.timeline}
-              variants={timelineVariants}
-            >
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                {educations.map((education, index) => (
-                  <motion.div key={index} variants={timelineItemVariants}>
-                    <ExperienceCard
-                      title={education.title}
-                      company={education.company}
-                      period={education.period}
-                      description={education.description}
-                      achievements={education.achievements}
-                      technologies={education.technologies}
-                      isMobile={false} // PC端保留卡片原样式
-                    />
-                  </motion.div>
-                ))}
-              </Box>
-            </motion.div>
-          </Box>
-        </MobileAboutCard>
-      </motion.div>
-
-      {/* 项目经历卡片 */}
-      <motion.div
-        variants={mobileCardItemVariants}
-        style={{ marginTop: '16px' }}
-      >
-        <MobileAboutCard
-          title={t('about.projectsTitle', '项目经历')}
-          icon={<FiServer size={22} />}
-          delay={0.4}
-          isPc={true}
-          noBorder={true} // 移除边框，让时间线更突出
-        >
-          <Box>
-            <motion.div
-              initial="hidden"
-              animate="visible"
-              variants={timelineVariants}
-            >
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                {projects.map((project, index) => (
-                  <motion.div key={index} variants={timelineItemVariants}>
-                    <ExperienceCard
-                      title={project.title}
-                      company={project.company}
-                      period={project.period}
-                      description={project.description}
-                      achievements={project.achievements}
-                      technologies={project.technologies}
-                      isMobile={false} // PC端保留卡片原样式
-                    />
-                  </motion.div>
-                ))}
-              </Box>
-            </motion.div>
-          </Box>
-        </MobileAboutCard>
-      </motion.div>
-    </Grid>
-  );
-
-  // 保留所有动画变体
-  const traitsVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.2
-      }
-    }
-  };
-
-  const traitItemVariants = {
-    hidden: { opacity: 0, scale: 0.8 },
-    visible: {
-      opacity: 1,
-      scale: 1,
-      transition: {
-        type: 'spring',
-        stiffness: 200,
+        stiffness: 50,
         damping: 10
       }
     }
   };
 
-  // 为动画增加变体
-  const mobileCardVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        staggerChildren: 0.15,
-        delayChildren: 0.2
-      }
+  // 技能分类
+  const backendSkills = skills.filter(skill => skill.category === 'backend');
+  const frontendSkills = skills.filter(skill => skill.category === 'frontend');
+  const databaseSkills = skills.filter(skill => skill.category === 'database');
+  const toolSkills = skills.filter(skill => skill.category === 'tool');
+
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+  const { language } = useLanguage();
+
+  // 根据技术名称判断分类
+  const getTagCategory = (techName: string): string => {
+    techName = techName.toLowerCase();
+
+    // 后端语言和技术
+    if (['java', 'spring', 'springboot', 'spring boot', 'jvm'].includes(techName)) {
+      return 'backend';
     }
-  };
 
-  const mobileCardItemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { type: 'spring', stiffness: 100, damping: 15 }
+    if (['react', 'vue', 'angular'].includes(techName)) {
+      return 'frontend';
     }
+
+    if (['mysql', 'postgresql', 'mongodb', 'redis'].includes(techName)) {
+      return 'database';
+    }
+
+    if (['docker', 'kubernetes', 'jenkins', 'linux', 'nginx'].includes(techName)) {
+      return 'devops';
+    }
+
+    return 'other';
   };
 
-  // 移动端简略显示重要技能
-  const renderMobileSkillBars = () => {
-    // 只展示熟练度75以上的技能
-    const mainSkills = skills.filter(skill => skill.level >= 75);
-
-    return (
-      <SkillBarGroup
-        skills={mainSkills}
-        showCategoryHeaders={false}
-        animated={true} // 始终启用动画
-        variant="glass"
-        height={10}
-        glowEffect={true}
-        compact={true}
-        useGrid={true} // 移动端也使用网格布局
-        columnsPerRow={1} // 但一行只显示一个
-      />
-    );
-  };
-
-  // 替换之前的技能卡片渲染
-  const mobileContent = () => (
-    <motion.div
-      variants={mobileCardVariants}
-      initial="hidden"
-      animate="visible"
-    >
-      {/* 介绍卡片 */}
-      <motion.div variants={mobileCardItemVariants}>
-        <MobileAboutCard
-          title={t('about.aboutMe', '关于我')}
-          icon={<FiUser size={22} />}
-          delay={0}
-          variant="elevated" // 使用凸起效果
-        >
-          <Typography variant="body2" paragraph>
-            {data.summary}
-          </Typography>
-          <Typography variant="body2">
-            {t('about.philosophyText', '我坚信编写干净、可维护的代码并创造直观的用户体验。我不断学习新技术和方法来提升我的技能并提供更好的解决方案。')}
-          </Typography>
-        </MobileAboutCard>
-      </motion.div>
-
-      {/* 技能卡片 */}
-      <motion.div variants={mobileCardItemVariants}>
-        <MobileAboutCard
-          title={t('about.skillsTitle', '技能')}
-          icon={<FiZap size={22} />}
-          delay={0.1}
-          variant="default" // 使用默认效果
-        >
-          <Box ref={refs.skillRef}>
-            <motion.div
-              initial="hidden"
-              animate={controls.skillBar}
-              variants={skillVariants}
-            >
-              {renderMobileSkillBars()}
-            </motion.div>
-          </Box>
-        </MobileAboutCard>
-      </motion.div>
-
-      {/* 个人特质卡片 */}
-      <motion.div variants={mobileCardItemVariants}>
-        <MobileAboutCard
-          title={t('about.traitsTitle', '个人特质')}
-          icon={<FiTarget size={22} />}
-          delay={0.2}
-          variant="subtle" // 使用轻微效果
-        >
-          <Box ref={refs.traitsRef}>
-            <motion.div
-              initial="hidden"
-              animate={controls.traits}
-              variants={traitsVariants}
-            >
-              {/* 移动端特质栏使用更紧凑的布局 */}
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-                {traits.map((trait, index) => (
-                  <motion.div variants={traitItemVariants} key={index}>
-                    <TraitCard
-                      name={trait.name}
-                      icon={trait.icon}
-                      index={index}
-                    />
-                  </motion.div>
-                ))}
-              </Box>
-            </motion.div>
-          </Box>
-        </MobileAboutCard>
-      </motion.div>
-
-      {/* 教育经历卡片 */}
-      <motion.div variants={mobileCardItemVariants}>
-        <MobileAboutCard
-          title={t('about.educationTitle', '教育经历')}
-          icon={<FiBook size={22} />}
-          delay={0.3}
-          noBorder={true} // 移除左侧边框
-        >
-          <Box ref={refs.timelineRef}>
-            <motion.div
-              initial="hidden"
-              animate={controls.timeline}
-              variants={timelineVariants}
-            >
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-                {educations.map((education, index) => (
-                  <motion.div key={index} variants={timelineItemVariants}>
-                    <ExperienceCard
-                      title={education.title}
-                      company={education.company}
-                      period={education.period}
-                      description={education.description}
-                      achievements={education.achievements}
-                      technologies={education.technologies}
-                      isMobile={true}
-                    />
-                  </motion.div>
-                ))}
-              </Box>
-            </motion.div>
-          </Box>
-        </MobileAboutCard>
-      </motion.div>
-
-      {/* 项目经历卡片 */}
-      <motion.div variants={mobileCardItemVariants}>
-        <MobileAboutCard
-          title={t('about.projectsTitle', '项目经历')}
-          icon={<FiServer size={22} />}
-          delay={0.4}
-          noBorder={true} // 移除左侧边框
-        >
-          <Box>
-            <motion.div
-              initial="hidden"
-              animate="visible"
-              variants={timelineVariants}
-            >
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-                {projects.map((project, index) => (
-                  <motion.div key={index} variants={timelineItemVariants}>
-                    <ExperienceCard
-                      title={project.title}
-                      company={project.company}
-                      period={project.period}
-                      description={project.description}
-                      achievements={project.achievements}
-                      technologies={project.technologies}
-                      isMobile={true}
-                    />
-                  </motion.div>
-                ))}
-              </Box>
-            </motion.div>
-          </Box>
-        </MobileAboutCard>
-      </motion.div>
-    </motion.div>
-  );
-
-  // 添加渲染技能标签组函数
-  const renderTechStacks = () => {
-    const techStacks = [
-      // 后端
-      {
-        title: '后端技术',
-        items: [
-          { name: 'Java', icon: <DiJava />, value: 90 },
-          { name: 'Spring Boot', icon: <SiSpringboot />, value: 85 },
-          { name: 'Spring MVC', icon: <SiSpring />, value: 85 },
-          { name: 'Spring JPA', icon: <SiSpring />, value: 80 }
-        ]
-      },
-      // 前端
-      {
-        title: '前端技术',
-        items: [
-          { name: 'JavaScript', icon: <DiJavascript1 />, value: 75 },
-          { name: 'TypeScript', icon: <SiTypescript />, value: 70 },
-          { name: 'React', icon: <DiReact />, value: 75 },
-          { name: 'Vue.js', icon: <SiVuedotjs />, value: 65 },
-          { name: 'TailWind CSS', icon: <SiTailwindcss />, value: 70 }
-        ]
-      },
-      // 数据库
-      {
-        title: '数据库',
-        items: [
-          { name: 'MySQL', icon: <DiMysql />, value: 85 },
-          { name: 'PostgreSQL', icon: <DiPostgresql />, value: 80 },
-          { name: 'MongoDB', icon: <DiMongodb />, value: 75 },
-          { name: 'Redis', icon: <DiRedis />, value: 80 }
-        ]
-      },
-      // 工具与平台
-      {
-        title: '工具与平台',
-        items: [
-          { name: 'Docker', icon: <DiDocker />, value: 80 },
-          { name: 'Git', icon: <DiGit />, value: 85 },
-          { name: 'Linux', icon: <SiLinux />, value: 75 },
-          { name: 'Nginx', icon: <SiNginx />, value: 70 }
-        ]
-      }
-    ];
-
-    return (
-      <Box sx={{ mt: 4 }}>
-        <Typography variant="h5" fontWeight={600} mb={3} color="primary.main">
-          技术栈
-        </Typography>
-        <Grid container spacing={3}>
-          {techStacks.map((stack, index) => (
-            <Grid item xs={12} md={6} key={index}>
-              <TechTagGroup
-                title={stack.title}
-                techItems={stack.items}
-                initiallyExpanded={true}
-                maxVisibleItems={12}
-                collapsible={false}
-                animate={true}
-                enableSizing={true}
-                variant="small"
-              />
-            </Grid>
-          ))}
-        </Grid>
-      </Box>
-    );
-  };
-
-  // PC端渲染
   return (
-    <PageTransition>
-      <Container maxWidth="lg" sx={{ py: 5 }}>
-        {/* 页面右上角控制按钮 */}
-        <Box sx={{ position: 'absolute', top: 16, right: 16, zIndex: 100 }}>
-          <HeaderControls />
-        </Box>
+    <Container maxWidth="lg">
+      <Box component="main" sx={{ py: 4 }}>
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          {/* 页面标题 */}
+          <motion.div variants={itemVariants}>
+            <Box sx={{ mb: 6 }}>
+              <AboutPageTitle withAnimation={false} />
+            </Box>
+          </motion.div>
 
-        {/* 页面标题部分 - 使用专用标题组件 */}
-        <AboutPageTitle withAnimation={false} />
-
-        {isMobile ? (
-          mobileContent()
-        ) : (
-          <Grid container spacing={4}>
-            {/* 左侧列 - 个人介绍和技能 */}
-            <Grid item xs={12} md={5} sx={{ position: 'relative' }}>
-              {/* 个人介绍内容 */}
-              <Box
+          {/* 个人简介 */}
+          <motion.div variants={itemVariants}>
+            <Paper
+              elevation={0}
+              sx={{
+                p: { xs: 3, sm: 4 },
+                mb: 4,
+                borderRadius: 3,
+                bgcolor: isDark ? 'rgba(30, 41, 59, 0.6)' : 'rgba(255, 255, 255, 0.9)',
+                backdropFilter: 'blur(10px)',
+                border: '1px solid',
+                borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.06)',
+              }}
+            >
+              <Typography
+                variant="h5"
+                component="h2"
+                gutterBottom
                 sx={{
-                  mb: 6,
-                  position: 'relative',
-                  p: 3,
-                  borderRadius: 2,
-                  background: (theme: Theme) => alpha(theme.palette.primary.main, 0.03),
-                  backdropFilter: 'blur(8px)',
-                  border: (theme: Theme) => `1px solid ${alpha(theme.palette.primary.main, 0.08)}`,
-                  boxShadow: (theme: Theme) => `0 4px 20px ${alpha(theme.palette.primary.main, 0.05)}`,
-                  '&::before': {
-                    content: '""',
-                    position: 'absolute',
-                    top: -8,
-                    left: 20,
-                    width: 50,
-                    height: 3,
-                    background: (theme: Theme) => `linear-gradient(90deg, ${theme.palette.primary.main}, transparent)`,
-                    borderRadius: 4
-                  }
+                  mb: 3,
+                  fontWeight: 700,
+                  color: isDark ? 'white' : 'text.primary'
                 }}
               >
-                <Typography
-                  variant="body1"
-                  paragraph
-                  sx={{
-                    lineHeight: 1.8,
-                    fontSize: '1.05rem',
-                    letterSpacing: '0.01em',
-                    textAlign: 'justify'
-                  }}
-                >
-                  {data.summary}
-                </Typography>
-                <Typography
-                  variant="body1"
-                  sx={{
-                    lineHeight: 1.8,
-                    fontSize: '1.05rem',
-                    letterSpacing: '0.01em',
-                    textAlign: 'justify',
-                    fontStyle: 'italic',
-                    color: (theme: Theme) => alpha(theme.palette.text.primary, 0.85)
-                  }}
-                >
-                  {t('about.philosophyText', '我坚信编写干净、可维护的代码并创造直观的用户体验。我不断学习新技术和方法来提升我的技能并提供更好的解决方案。')}
-                </Typography>
-              </Box>
+                {t('about.introduction', '个人介绍')}
+              </Typography>
 
-              {/* 技能条形图部分 */}
-              <Box
-                ref={refs.skillRef}
-                component={motion.div}
-                initial="hidden"
-                animate={controls.skillBar}
-                variants={skillVariants}
+              <Typography
+                variant="body1"
+                sx={{
+                  mb: 3,
+                  color: isDark ? 'grey.300' : 'grey.800',
+                  lineHeight: 1.8,
+                  whiteSpace: 'pre-line'
+                }}
               >
-                <SkillBarGroup
-                  skills={skills}
-                  showCategoryHeaders={true}
-                  categoryTranslations={{
-                    backend: t('skills.categories.backend', '后端开发'),
-                    frontend: t('skills.categories.frontend', '前端开发'),
-                    database: t('skills.categories.database', '数据库'),
-                    devops: t('skills.categories.devops', 'DevOps & 运维'),
-                    tool: t('skills.categories.tools', '开发工具')
+                {data.summary}
+              </Typography>
+
+              <Box sx={{ mt: 3 }}>
+                <Grid container spacing={2}>
+                  {traits.map((trait, index) => (
+                    <Grid item xs={6} sm={4} md={3} key={index}>
+                      <Chip
+                        icon={trait.icon}
+                        label={trait.name}
+                        sx={{
+                          width: '100%',
+                          justifyContent: 'flex-start',
+                          p: 0.5,
+                          bgcolor: isDark ? 'rgba(99, 102, 241, 0.1)' : 'rgba(79, 70, 229, 0.1)',
+                          color: isDark ? '#a5b4fc' : '#4f46e5',
+                          border: '1px solid',
+                          borderColor: isDark ? 'rgba(99, 102, 241, 0.2)' : 'rgba(79, 70, 229, 0.2)',
+                          '& .MuiChip-icon': {
+                            color: isDark ? '#818cf8' : '#6366f1',
+                          },
+                        }}
+                      />
+                    </Grid>
+                  ))}
+                </Grid>
+              </Box>
+            </Paper>
+          </motion.div>
+
+          {/* 技能 */}
+          <motion.div variants={itemVariants}>
+            <Paper
+              elevation={0}
+              sx={{
+                p: { xs: 3, sm: 4 },
+                mb: 4,
+                borderRadius: 3,
+                bgcolor: isDark ? 'rgba(30, 41, 59, 0.6)' : 'rgba(255, 255, 255, 0.9)',
+                backdropFilter: 'blur(10px)',
+                border: '1px solid',
+                borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.06)',
+              }}
+            >
+              <Typography
+                variant="h5"
+                component="h2"
+                gutterBottom
+                sx={{
+                  mb: 3,
+                  fontWeight: 700,
+                  color: isDark ? 'white' : 'text.primary'
+                }}
+              >
+                {t('about.skills', '技能与专长')}
+              </Typography>
+
+              <Box sx={{ mb: 4 }}>
+                <Typography
+                  variant="subtitle1"
+                  component="h3"
+                  sx={{
+                    mb: 2,
+                    fontWeight: 600,
+                    color: isDark ? 'primary.light' : 'primary.main',
+                    display: 'flex',
+                    alignItems: 'center'
                   }}
-                  animated={true}
-                  variant="glass"
-                  height={10}
-                  glowEffect={true}
+                >
+                  <FiServer style={{ marginRight: '8px' }} />
+                  {t('about.backendSkills', '后端技术')}
+                </Typography>
+
+                <TechTagGroup
+                  items={backendSkills}
+                  maxItems={15}
+                  enableExpand={true}
+                  size="small"
+                  techType="backend"
                 />
               </Box>
-            </Grid>
 
-            {/* 右侧列 - 特质和联系方式 */}
-            {renderRightColumn()}
-          </Grid>
-        )}
+              <Box sx={{ mb: 4 }}>
+                <Typography
+                  variant="subtitle1"
+                  component="h3"
+                  sx={{
+                    mb: 2,
+                    fontWeight: 600,
+                    color: isDark ? 'primary.light' : 'primary.main',
+                    display: 'flex',
+                    alignItems: 'center'
+                  }}
+                >
+                  <FiCode style={{ marginRight: '8px' }} />
+                  {t('about.frontendSkills', '前端技术')}
+                </Typography>
 
-        {/* 技能标签组 */}
-        {renderTechStacks()}
-      </Container>
-    </PageTransition>
+                <TechTagGroup
+                  items={frontendSkills}
+                  maxItems={15}
+                  enableExpand={true}
+                  size="small"
+                  techType="frontend"
+                />
+              </Box>
+
+              <Box sx={{ mb: 4 }}>
+                <Typography
+                  variant="subtitle1"
+                  component="h3"
+                  sx={{
+                    mb: 2,
+                    fontWeight: 600,
+                    color: isDark ? 'primary.light' : 'primary.main',
+                    display: 'flex',
+                    alignItems: 'center'
+                  }}
+                >
+                  <FiLayers style={{ marginRight: '8px' }} />
+                  {t('about.databaseSkills', '数据库')}
+                </Typography>
+
+                <TechTagGroup
+                  items={databaseSkills}
+                  maxItems={15}
+                  enableExpand={true}
+                  size="small"
+                  techType="database"
+                />
+              </Box>
+
+              <Box>
+                <Typography
+                  variant="subtitle1"
+                  component="h3"
+                  sx={{
+                    mb: 2,
+                    fontWeight: 600,
+                    color: isDark ? 'primary.light' : 'primary.main',
+                    display: 'flex',
+                    alignItems: 'center'
+                  }}
+                >
+                  <FiTrendingUp style={{ marginRight: '8px' }} />
+                  {t('about.toolSkills', '工具与平台')}
+                </Typography>
+
+                <TechTagGroup
+                  items={toolSkills}
+                  maxItems={15}
+                  enableExpand={true}
+                  size="small"
+                  techType="tool"
+                />
+              </Box>
+            </Paper>
+          </motion.div>
+
+          {/* 教育背景 */}
+          <motion.div variants={itemVariants}>
+            <Paper
+              elevation={0}
+              sx={{
+                p: { xs: 3, sm: 4 },
+                mb: 4,
+                borderRadius: 3,
+                bgcolor: isDark ? 'rgba(30, 41, 59, 0.6)' : 'rgba(255, 255, 255, 0.9)',
+                backdropFilter: 'blur(10px)',
+                border: '1px solid',
+                borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.06)',
+              }}
+            >
+              <Typography
+                variant="h5"
+                component="h2"
+                gutterBottom
+                sx={{
+                  mb: 3,
+                  fontWeight: 700,
+                  color: isDark ? 'white' : 'text.primary'
+                }}
+              >
+                {t('about.education', '教育背景')}
+              </Typography>
+
+              <Grid container spacing={3}>
+                {educations.map((education, index) => (
+                  <Grid item xs={12} sm={6} key={index}>
+                    <Paper
+                      elevation={0}
+                      sx={{
+                        p: 3,
+                        height: '100%',
+                        borderRadius: 2,
+                        bgcolor: isDark ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.01)',
+                        border: '1px solid',
+                        borderColor: isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.04)',
+                        transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+                        '&:hover': {
+                          transform: 'translateY(-5px)',
+                          boxShadow: isDark
+                            ? '0 10px 30px rgba(0, 0, 0, 0.15)'
+                            : '0 10px 30px rgba(0, 0, 0, 0.07)',
+                        }
+                      }}
+                    >
+                      <Typography
+                        variant="h6"
+                        component="h3"
+                        sx={{
+                          fontWeight: 600,
+                          color: isDark ? 'primary.light' : 'primary.main',
+                          mb: 1
+                        }}
+                      >
+                        {education.school}
+                      </Typography>
+
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          fontWeight: 500,
+                          color: isDark ? 'grey.400' : 'grey.700',
+                          mb: 0.5
+                        }}
+                      >
+                        {education.degree} · {education.major}
+                      </Typography>
+
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          color: isDark ? 'grey.500' : 'grey.600',
+                          mb: 2
+                        }}
+                      >
+                        {education.period}
+                      </Typography>
+
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          color: isDark ? 'grey.400' : 'grey.700',
+                          lineHeight: 1.6
+                        }}
+                      >
+                        {education.description}
+                      </Typography>
+                    </Paper>
+                  </Grid>
+                ))}
+              </Grid>
+            </Paper>
+          </motion.div>
+
+          {/* 项目经验 */}
+          <motion.div variants={itemVariants}>
+            <Paper
+              elevation={0}
+              sx={{
+                p: { xs: 3, sm: 4 },
+                mb: 4,
+                borderRadius: 3,
+                bgcolor: isDark ? 'rgba(30, 41, 59, 0.6)' : 'rgba(255, 255, 255, 0.9)',
+                backdropFilter: 'blur(10px)',
+                border: '1px solid',
+                borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.06)',
+              }}
+            >
+              <Typography
+                variant="h5"
+                component="h2"
+                gutterBottom
+                sx={{
+                  mb: 3,
+                  fontWeight: 700,
+                  color: isDark ? 'white' : 'text.primary'
+                }}
+              >
+                {t('about.projects', '项目经验')}
+              </Typography>
+
+              <Stack spacing={4}>
+                {projects.map((project, index) => (
+                  <Paper
+                    key={index}
+                    elevation={0}
+                    sx={{
+                      p: { xs: 2, sm: 3 },
+                      borderRadius: 2,
+                      bgcolor: isDark ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.01)',
+                      border: '1px solid',
+                      borderColor: isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.04)',
+                      transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+                      '&:hover': {
+                        transform: 'translateY(-5px)',
+                        boxShadow: isDark
+                          ? '0 10px 30px rgba(0, 0, 0, 0.15)'
+                          : '0 10px 30px rgba(0, 0, 0, 0.07)',
+                      }
+                    }}
+                  >
+                    <Grid container spacing={3}>
+                      <Grid item xs={12} md={8}>
+                        <Typography
+                          variant="h6"
+                          component="h3"
+                          sx={{
+                            fontWeight: 600,
+                            color: isDark ? 'primary.light' : 'primary.main',
+                            mb: 1
+                          }}
+                        >
+                          {project.name}
+                        </Typography>
+
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            fontWeight: 500,
+                            color: isDark ? 'grey.400' : 'grey.700',
+                            mb: 0.5
+                          }}
+                        >
+                          {project.role} | {project.period}
+                        </Typography>
+
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            color: isDark ? 'grey.400' : 'grey.700',
+                            lineHeight: 1.6,
+                            mb: 2
+                          }}
+                        >
+                          {project.description}
+                        </Typography>
+
+                        <Typography
+                          variant="subtitle2"
+                          sx={{
+                            fontWeight: 600,
+                            mb: 1,
+                            color: isDark ? 'grey.300' : 'grey.800'
+                          }}
+                        >
+                          {t('about.achievements', '主要成果')}:
+                        </Typography>
+
+                        <Box component="ul" sx={{ pl: 2, mb: 2 }}>
+                          {project.achievements.map((achievement, i) => (
+                            <Typography
+                              component="li"
+                              variant="body2"
+                              key={i}
+                              sx={{
+                                color: isDark ? 'grey.400' : 'grey.700',
+                                mb: 0.75
+                              }}
+                            >
+                              {achievement}
+                            </Typography>
+                          ))}
+                        </Box>
+
+                        <Typography
+                          variant="subtitle2"
+                          sx={{
+                            fontWeight: 600,
+                            mb: 1,
+                            color: isDark ? 'grey.300' : 'grey.800'
+                          }}
+                        >
+                          {t('about.technologies', '技术栈')}:
+                        </Typography>
+
+                        <Box>
+                          <TechTagGroup
+                            items={project.techs.map(tech => ({
+                              name: tech,
+                              category: getTagCategory(tech)
+                            }))}
+                            size="small"
+                            enableExpand={false}
+                          />
+                        </Box>
+                      </Grid>
+
+                      <Grid
+                        item
+                        xs={12}
+                        md={4}
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center'
+                        }}
+                      >
+                        <Box
+                          component="img"
+                          src={project.image}
+                          alt={project.name}
+                          sx={{
+                            width: '100%',
+                            height: 'auto',
+                            borderRadius: 2,
+                            border: '1px solid',
+                            borderColor: isDark
+                              ? 'rgba(255, 255, 255, 0.1)'
+                              : 'rgba(0, 0, 0, 0.05)',
+                            boxShadow: isDark
+                              ? '0 5px 15px rgba(0, 0, 0, 0.3)'
+                              : '0 5px 15px rgba(0, 0, 0, 0.1)',
+                            objectFit: 'cover'
+                          }}
+                          onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
+                            // 设置默认的占位图
+                            e.currentTarget.src = 'https://via.placeholder.com/300x200?text=Project+Image';
+                          }}
+                        />
+                      </Grid>
+                    </Grid>
+                  </Paper>
+                ))}
+              </Stack>
+            </Paper>
+          </motion.div>
+        </motion.div>
+      </Box>
+    </Container>
   );
 };
 

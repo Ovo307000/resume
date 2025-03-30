@@ -26,6 +26,7 @@ import { useLanguage } from '../../hooks/useLanguage';
 import CustomChip from '../../components/ui/common/CustomChip';
 import PageTransition from '../../components/ui/transitions/PageTransition';
 import SkillsPageTitle from '../../components/ui/skills/SkillsPageTitle';
+import TechnologyTag from '../../components/ui/projects/TechnologyTag';
 
 interface SkillsPageProps {
   data: {
@@ -265,11 +266,8 @@ const SkillsPage: React.FC<SkillsPageProps> = ({ data }) => {
     // 生成所有技能并按熟练度排序
     const allSkills = generateSkills();
 
-    console.log("技能标签数据准备:", allSkills?.length || 0, "个标签");
-
     // 确保标签数据不为空
     if (!allSkills || allSkills.length === 0) {
-      console.warn("技能数据为空，无法渲染标签云");
       return (
         <Box sx={{
           display: 'flex',
@@ -306,44 +304,43 @@ const SkillsPage: React.FC<SkillsPageProps> = ({ data }) => {
       value: skill.value
     }));
 
-    console.log("技能标签数据已转换:", techTags.length, "个标签");
-
-    // 创建标签组容器
+    // 重新设计的标签云容器
     return (
       <Box sx={{
         width: '100%',
-        height: { xs: '300px', sm: '350px', md: '400px' },
+        height: { xs: '350px', sm: '400px', md: '450px' }, // 增加高度
         position: 'relative',
         overflow: 'hidden',
-        borderRadius: '16px',
-        bgcolor: alpha(
-          theme === 'dark'
-            ? muiTheme.palette.background.paper
-            : muiTheme.palette.background.paper,
-          theme === 'dark' ? 0.1 : 0.05
-        ),
+        borderRadius: '20px', // 增加圆角
+        background: theme === 'dark'
+          ? `radial-gradient(ellipse at center, ${alpha(muiTheme.palette.primary.dark, 0.1)} 0%, ${alpha(muiTheme.palette.background.paper, 0.1)} 70%)` // 暗色模式背景
+          : `radial-gradient(ellipse at center, ${alpha(muiTheme.palette.primary.light, 0.1)} 0%, ${alpha(muiTheme.palette.background.paper, 0.05)} 70%)`, // 亮色模式背景
         my: 2,
-        // 添加边框和阴影增强视觉效果
         border: `1px solid ${alpha(
           theme === 'dark' ? '#ffffff' : '#000000',
-          theme === 'dark' ? 0.05 : 0.03
+          theme === 'dark' ? 0.08 : 0.05 // 边框稍微明显一点
         )}`,
         boxShadow: theme === 'dark'
-          ? '0 4px 20px rgba(0, 0, 0, 0.2)'
-          : '0 4px 20px rgba(0, 0, 0, 0.05)',
+          ? `0 8px 30px rgba(0, 0, 0, 0.3), inset 0 0 10px ${alpha(muiTheme.palette.primary.main, 0.1)}` // 增加阴影和内阴影
+          : `0 8px 30px rgba(0, 0, 0, 0.1), inset 0 0 10px ${alpha(muiTheme.palette.primary.main, 0.05)}`,
         display: 'flex',
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
+        backdropFilter: 'blur(5px)', // 添加轻微模糊
+        WebkitBackdropFilter: 'blur(5px)'
       }}>
-        {/* 确保传递正确的props */}
         <TagSphere
           tags={techTags}
-          radius={180}
-          initialSpeed={0.6}
+          radius={200} // 稍微增大半径
+          initialSpeed={0.8} // 增加初始速度
           animated={true}
           enableSizing={true}
-          colorScheme="mixed"
-          glassEffect={true}
+          colorScheme="gradient" // 使用渐变色方案
+          glassEffect={false} // 关闭玻璃效果，避免与背景冲突
+          tagStyle={{
+            fontWeight: 500,
+            textShadow: theme === 'dark' ? '0 1px 2px rgba(0,0,0,0.5)' : 'none' // 暗色模式加文字阴影
+          }}
         />
       </Box>
     );
@@ -356,47 +353,28 @@ const SkillsPage: React.FC<SkillsPageProps> = ({ data }) => {
         title: "后端开发",
         description: "作为Java后端工程师，熟悉Java编程语言，熟悉面向对象编程思想（OOP），包括封装、继承、多态等特性，并能灵活运用到实际项目开发中。熟悉Spring框架的核心概念，包括IoC（控制反转）和AOP（面向切面编程），能够灵活运用其特性进行模块化设计和解耦。",
         icon: <FiServer size={24} />,
-        technologies: [
-          { name: "Spring Boot", icon: <SiSpring size={16} />, url: "https://spring.io/projects/spring-boot" },
-          { name: "Spring MVC", icon: <SiSpring size={16} />, url: "https://docs.spring.io/spring-framework/docs/current/reference/html/web/webmvc.html" },
-          { name: "Spring JPA", icon: <SiSpring size={16} />, url: "https://spring.io/projects/spring-data-jpa" },
-          { name: "Java", icon: <DiJava size={16} />, url: "https://www.java.com/" }
-        ],
+        technologies: ["Spring Boot", "Spring MVC", "Spring JPA", "Java"],
         delay: 0
       },
       {
         title: "数据库技术",
         description: "熟悉多种数据库系统，包括关系型数据库和NoSQL数据库。熟练使用MySQL和PostgreSQL进行数据建模、查询优化和性能调优。了解Redis缓存技术，能够实现高效的数据缓存策略。熟悉MongoDB等文档型数据库的使用场景和应用方法。",
         icon: <FiDatabase size={24} />,
-        technologies: [
-          { name: "MySQL", icon: <DiMysql size={16} />, url: "https://www.mysql.com/" },
-          { name: "PostgreSQL", icon: <DiPostgresql size={16} />, url: "https://www.postgresql.org/" },
-          { name: "Redis", icon: <DiRedis size={16} />, url: "https://redis.io/" },
-          { name: "MongoDB", icon: <DiMongodb size={16} />, url: "https://www.mongodb.com/" }
-        ],
+        technologies: ["MySQL", "PostgreSQL", "Redis", "MongoDB"],
         delay: 0.1
       },
       {
         title: "DevOps & 运维",
         description: "熟悉Linux常用命令，能够进行服务器日常维护和故障排查，并能编写Shell脚本进行自动化部署和监控。熟悉Nginx和Tomcat的配置和优化。熟练使用Git进行版本控制，熟悉Gitflow工作流，能够高效地进行代码管理和团队协作。熟悉Docker的基本概念和常用命令。",
         icon: <FiSettings size={24} />,
-        technologies: [
-          { name: "Docker", icon: <DiDocker size={16} />, url: "https://www.docker.com/" },
-          { name: "Linux", icon: <SiLinux size={16} />, url: "https://www.linux.org/" },
-          { name: "Git", icon: <DiGit size={16} />, url: "https://git-scm.com/" }
-        ],
+        technologies: ["Docker", "Linux", "Git"],
         delay: 0.2
       },
       {
         title: "前端技术",
         description: "虽然主要专注于后端开发，但也具备基本的前端开发能力。了解HTML/CSS/JavaScript等前端基础技术，能够使用React.js和Vue.js等现代前端框架构建用户界面。熟悉TypeScript提供的类型安全特性，能够开发更健壮的前端应用。",
         icon: <FiMonitor size={24} />,
-        technologies: [
-          { name: "React.js", icon: <DiReact size={16} />, url: "https://reactjs.org/" },
-          { name: "Vue.js", icon: <SiVuedotjs size={16} />, url: "https://vuejs.org/" },
-          { name: "TypeScript", icon: <SiTypescript size={16} />, url: "https://www.typescriptlang.org/" },
-          { name: "TailWind CSS", icon: <SiTailwindcss size={16} />, url: "https://tailwindcss.com/" }
-        ],
+        technologies: ["React.js", "Vue.js", "TypeScript", "Tailwind CSS"],
         delay: 0.3
       }
     ];
@@ -409,7 +387,7 @@ const SkillsPage: React.FC<SkillsPageProps> = ({ data }) => {
               title={detail.title}
               description={detail.description}
               icon={detail.icon}
-              technologies={detail.technologies}
+              technologies={detail.technologies.map(tech => ({ name: tech }))}
               delay={detail.delay}
             />
           </Grid>
@@ -535,40 +513,7 @@ const SkillsPage: React.FC<SkillsPageProps> = ({ data }) => {
                     }}
                   >
                     {['Java', 'Spring Boot', 'MySQL', 'Redis', 'Docker'].map((tech, index) => (
-                      <motion.div
-                        key={tech}
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: 0.5 + index * 0.1, duration: 0.3 }}
-                        whileHover={{ y: -5, scale: 1.05 }}
-                      >
-                        <Box
-                          sx={{
-                            px: 2,
-                            py: 1,
-                            borderRadius: '30px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 1,
-                            background: alpha(muiTheme.palette.primary.main, theme === 'dark' ? 0.15 : 0.08),
-                            border: `1px solid ${alpha(muiTheme.palette.primary.main, theme === 'dark' ? 0.3 : 0.2)}`,
-                            boxShadow: theme === 'dark'
-                              ? '0 4px 12px rgba(0, 0, 0, 0.2)'
-                              : '0 4px 12px rgba(0, 0, 0, 0.05)'
-                          }}
-                        >
-                          {getSkillIcon(tech)}
-                          <Typography
-                            variant="body2"
-                            sx={{
-                              fontWeight: 500,
-                              color: theme === 'dark' ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.8)'
-                            }}
-                          >
-                            {tech}
-                          </Typography>
-                        </Box>
-                      </motion.div>
+                      <TechnologyTag key={tech} tech={tech} index={index} size="medium" />
                     ))}
                   </Box>
                 </Box>
@@ -606,16 +551,7 @@ const SkillsPage: React.FC<SkillsPageProps> = ({ data }) => {
             >
               技能标签云
             </Typography>
-            <Box
-              sx={{
-                borderRadius: '16px',
-                mb: 6,
-                height: 'auto',
-                overflow: 'hidden'
-              }}
-            >
-              {renderTechPool()}
-            </Box>
+            {renderTechPool()}
           </motion.div>
 
           {/* 技能标签切换器 */}

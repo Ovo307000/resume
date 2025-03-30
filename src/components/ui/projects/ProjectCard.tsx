@@ -4,20 +4,20 @@ import {
   Box,
   Typography,
   alpha,
-  useTheme as useMuiTheme,
   Card,
   CardMedia,
   CardContent,
   IconButton,
-  useMediaQuery,
   Dialog,
   DialogContent,
-  DialogTitle
+  DialogTitle,
+  Chip,
+  Stack,
+  Divider
 } from '@mui/material';
 import { FiGithub, FiExternalLink, FiX } from 'react-icons/fi';
 import { useTheme } from '../../../contexts/ThemeContext';
 import { useLanguage } from '../../../hooks/useLanguage';
-import { TechnologyTag } from './TechnologyTag';
 
 interface LocalizedText {
   en: string;
@@ -52,13 +52,10 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
   index = 0
 }) => {
   const { theme } = useTheme();
-  const muiTheme = useMuiTheme();
   const { language } = useLanguage();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  // 新增：检测是否为移动设备
-  const isMobile = useMediaQuery(muiTheme.breakpoints.down('sm'));
-  const isTablet = useMediaQuery(muiTheme.breakpoints.down('md'));
+  const isDark = theme === 'dark';
 
   const handleOpenDetail = () => {
     if (longDescription) {
@@ -67,7 +64,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
   };
 
   // 处理外部链接点击
-  const handleLinkClick = (e: React.MouseEvent, link?: string) => {
+  const handleLinkClick = (e: React.MouseEvent<HTMLButtonElement>, link?: string) => {
     e.stopPropagation(); // 阻止事件冒泡
     if (link) {
       window.open(link, '_blank', 'noopener,noreferrer');
@@ -111,25 +108,24 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
             height: '100%',
             display: 'flex',
             flexDirection: 'column',
-            borderRadius: '16px',
+            borderRadius: 2,
             overflow: 'hidden',
             cursor: hasDetails ? 'pointer' : 'default',
-            backgroundColor: theme === 'dark'
-              ? 'rgba(30, 30, 40, 0.6)'
+            backgroundColor: isDark
+              ? 'rgba(30, 41, 59, 0.6)'
               : 'rgba(255, 255, 255, 0.8)',
-            backdropFilter: 'blur(10px)',
-            border: `1px solid ${theme === 'dark'
-              ? 'rgba(255, 255, 255, 0.1)'
+            border: `1px solid ${isDark
+              ? 'rgba(255, 255, 255, 0.05)'
               : 'rgba(0, 0, 0, 0.05)'}`,
-            boxShadow: theme === 'dark'
-              ? '0 4px 20px rgba(0, 0, 0, 0.4)'
-              : '0 4px 20px rgba(0, 0, 0, 0.1)',
+            boxShadow: isDark
+              ? '0 4px 12px rgba(0, 0, 0, 0.3)'
+              : '0 4px 12px rgba(0, 0, 0, 0.1)',
             transition: 'all 0.3s ease-in-out',
             '&:hover': {
               transform: 'translateY(-4px)',
-              boxShadow: theme === 'dark'
-                ? '0 8px 30px rgba(0, 0, 0, 0.6)'
-                : '0 8px 30px rgba(0, 0, 0, 0.15)',
+              boxShadow: isDark
+                ? '0 8px 24px rgba(0, 0, 0, 0.4)'
+                : '0 8px 24px rgba(0, 0, 0, 0.12)',
               '& .project-image': {
                 transform: 'scale(1.05)'
               }
@@ -137,26 +133,77 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
           }}
         >
           {/* 项目图片 */}
-          <CardMedia
-            component="img"
-            height="200"
-            image={imageUrl}
-            alt={language === 'en' ? name : nameZh}
-            className="project-image"
-            sx={{
-              transition: 'transform 0.3s ease-in-out',
-              objectFit: 'cover'
-            }}
-          />
+          <Box sx={{ position: 'relative', overflow: 'hidden' }}>
+            <CardMedia
+              component="img"
+              height={180}
+              image={imageUrl}
+              alt={language === 'en' ? name : nameZh}
+              className="project-image"
+              sx={{
+                transition: 'transform 0.3s ease-in-out',
+                objectFit: 'cover'
+              }}
+            />
+
+            {/* 技术标签覆盖在图片上 */}
+            <Box
+              sx={{
+                position: 'absolute',
+                bottom: 0,
+                left: 0,
+                right: 0,
+                padding: '30px 12px 8px',
+                background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%)',
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: 0.5,
+                alignItems: 'center'
+              }}
+            >
+              {technologies.slice(0, 3).map((tech, i) => (
+                <Chip
+                  key={i}
+                  label={tech}
+                  size="small"
+                  sx={{
+                    height: 22,
+                    fontSize: '0.65rem',
+                    backgroundColor: alpha('#fff', 0.2),
+                    color: '#fff',
+                    backdropFilter: 'blur(4px)',
+                    cursor: hasDetails ? 'pointer' : 'default',
+                    '&:hover': {
+                      backgroundColor: alpha('#fff', 0.25),
+                    }
+                  }}
+                />
+              ))}
+              {technologies.length > 3 && (
+                <Chip
+                  label={`+${technologies.length - 3}`}
+                  size="small"
+                  sx={{
+                    height: 22,
+                    fontSize: '0.65rem',
+                    backgroundColor: alpha('#fff', 0.15),
+                    color: '#fff',
+                    backdropFilter: 'blur(4px)',
+                    cursor: hasDetails ? 'pointer' : 'default'
+                  }}
+                />
+              )}
+            </Box>
+          </Box>
 
           {/* 项目内容 */}
-          <CardContent sx={{ flexGrow: 1, p: 3 }}>
+          <CardContent sx={{ flexGrow: 1, p: 2 }}>
             <Typography
               variant="h6"
               gutterBottom
               sx={{
                 fontWeight: 600,
-                fontSize: '1.25rem',
+                fontSize: '1.1rem',
                 mb: 1
               }}
             >
@@ -168,28 +215,17 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
               color="text.secondary"
               sx={{
                 mb: 2,
-                minHeight: '3em',
+                fontSize: '0.85rem',
                 display: '-webkit-box',
-                WebkitLineClamp: 2,
+                WebkitLineClamp: 3,
                 WebkitBoxOrient: 'vertical',
                 overflow: 'hidden',
-                textOverflow: 'ellipsis'
+                textOverflow: 'ellipsis',
+                lineHeight: 1.5
               }}
             >
               {language === 'en' ? description : descriptionZh}
             </Typography>
-
-            {/* 技术标签 */}
-            <Box sx={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: 1,
-              mb: 2
-            }}>
-              {technologies.map((tech, i) => (
-                <TechnologyTag key={i} name={tech} />
-              ))}
-            </Box>
 
             {/* 链接按钮 */}
             {(url || githubUrl) && (
@@ -201,44 +237,30 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
               }}>
                 {githubUrl && (
                   <IconButton
-                    onClick={(e) => handleLinkClick(e, githubUrl)}
+                    onClick={(e: React.MouseEvent<HTMLButtonElement>) => handleLinkClick(e, githubUrl)}
                     size="small"
                     sx={{
-                      color: theme === 'dark' ? '#fff' : '#000',
-                      backgroundColor: alpha(
-                        theme === 'dark' ? '#fff' : '#000',
-                        0.05
-                      ),
+                      color: isDark ? alpha('#fff', 0.8) : alpha('#000', 0.7),
                       '&:hover': {
-                        backgroundColor: alpha(
-                          theme === 'dark' ? '#fff' : '#000',
-                          0.1
-                        )
+                        bgcolor: isDark ? alpha('#fff', 0.1) : alpha('#000', 0.05),
                       }
                     }}
                   >
-                    <FiGithub />
+                    <FiGithub size={18} />
                   </IconButton>
                 )}
                 {url && (
                   <IconButton
-                    onClick={(e) => handleLinkClick(e, url)}
+                    onClick={(e: React.MouseEvent<HTMLButtonElement>) => handleLinkClick(e, url)}
                     size="small"
                     sx={{
-                      color: theme === 'dark' ? '#fff' : '#000',
-                      backgroundColor: alpha(
-                        theme === 'dark' ? '#fff' : '#000',
-                        0.05
-                      ),
+                      color: isDark ? alpha('#fff', 0.8) : alpha('#000', 0.7),
                       '&:hover': {
-                        backgroundColor: alpha(
-                          theme === 'dark' ? '#fff' : '#000',
-                          0.1
-                        )
+                        bgcolor: isDark ? alpha('#fff', 0.1) : alpha('#000', 0.05),
                       }
                     }}
                   >
-                    <FiExternalLink />
+                    <FiExternalLink size={18} />
                   </IconButton>
                 )}
               </Box>
@@ -247,7 +269,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
         </Card>
       </motion.div>
 
-      {/* 项目详情对话框 */}
+      {/* 项目详情对话框 - 简化样式 */}
       <Dialog
         open={isDialogOpen}
         onClose={() => setIsDialogOpen(false)}
@@ -255,14 +277,12 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
         fullWidth
         sx={{
           '& .MuiDialog-paper': {
-            borderRadius: '20px',
-            backgroundColor: theme === 'dark'
-              ? 'rgba(30, 30, 40, 0.95)'
+            borderRadius: 2,
+            backgroundColor: isDark
+              ? 'rgba(15, 23, 42, 0.95)'
               : 'rgba(255, 255, 255, 0.95)',
-            backdropFilter: 'blur(10px)',
-            border: `1px solid ${theme === 'dark'
-              ? 'rgba(255, 255, 255, 0.1)'
-              : 'rgba(0, 0, 0, 0.05)'}`,
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+            overflow: 'hidden'
           }
         }}
       >
@@ -278,10 +298,10 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
           <IconButton
             onClick={() => setIsDialogOpen(false)}
             sx={{
-              color: theme === 'dark' ? '#fff' : '#000',
+              color: isDark ? '#fff' : '#000',
               '&:hover': {
                 backgroundColor: alpha(
-                  theme === 'dark' ? '#fff' : '#000',
+                  isDark ? '#fff' : '#000',
                   0.1
                 )
               }
@@ -290,6 +310,9 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
             <FiX />
           </IconButton>
         </DialogTitle>
+
+        <Divider />
+
         <DialogContent sx={{ p: 3 }}>
           {/* 项目图片 */}
           <Box
@@ -299,76 +322,80 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
             sx={{
               width: '100%',
               height: 'auto',
-              borderRadius: '12px',
+              borderRadius: 1,
               mb: 3
             }}
           />
 
+          {/* 技术标签 */}
+          <Stack
+            direction="row"
+            spacing={1}
+            flexWrap="wrap"
+            useFlexGap
+            sx={{ mb: 2 }}
+          >
+            {technologies.map((tech, i) => (
+              <Chip
+                key={i}
+                label={tech}
+                size="small"
+                sx={{
+                  margin: '0 4px 4px 0',
+                  bgcolor: isDark
+                    ? alpha('#fff', 0.1)
+                    : alpha('#000', 0.05),
+                  color: isDark
+                    ? alpha('#fff', 0.9)
+                    : alpha('#000', 0.8)
+                }}
+              />
+            ))}
+          </Stack>
+
           {/* 项目描述 */}
-          <Typography variant="body1" paragraph>
+          <Typography
+            variant="body1"
+            paragraph
+            sx={{
+              lineHeight: 1.7,
+              fontSize: '0.95rem'
+            }}
+          >
             {getLongDescription()}
           </Typography>
-
-          {/* 技术标签 */}
-          <Box sx={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: 1,
-            mb: 3
-          }}>
-            {technologies.map((tech, i) => (
-              <TechnologyTag key={i} name={tech} />
-            ))}
-          </Box>
 
           {/* 链接按钮 */}
           {(url || githubUrl) && (
             <Box sx={{
               display: 'flex',
               justifyContent: 'flex-end',
-              gap: 2
+              gap: 2,
+              mt: 2
             }}>
               {githubUrl && (
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                   <IconButton
-                    onClick={(e) => handleLinkClick(e, githubUrl)}
+                    onClick={(e: React.MouseEvent<HTMLButtonElement>) => handleLinkClick(e, githubUrl)}
                     sx={{
-                      color: theme === 'dark' ? '#fff' : '#000',
-                      backgroundColor: alpha(
-                        theme === 'dark' ? '#fff' : '#000',
-                        0.05
-                      ),
-                      '&:hover': {
-                        backgroundColor: alpha(
-                          theme === 'dark' ? '#fff' : '#000',
-                          0.1
-                        )
-                      }
+                      color: isDark ? '#fff' : '#000',
+                      p: 1.5
                     }}
                   >
-                    <FiGithub />
+                    <FiGithub size={20} />
                   </IconButton>
                 </motion.div>
               )}
               {url && (
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                   <IconButton
-                    onClick={(e) => handleLinkClick(e, url)}
+                    onClick={(e: React.MouseEvent<HTMLButtonElement>) => handleLinkClick(e, url)}
                     sx={{
-                      color: theme === 'dark' ? '#fff' : '#000',
-                      backgroundColor: alpha(
-                        theme === 'dark' ? '#fff' : '#000',
-                        0.05
-                      ),
-                      '&:hover': {
-                        backgroundColor: alpha(
-                          theme === 'dark' ? '#fff' : '#000',
-                          0.1
-                        )
-                      }
+                      color: isDark ? '#fff' : '#000',
+                      p: 1.5
                     }}
                   >
-                    <FiExternalLink />
+                    <FiExternalLink size={20} />
                   </IconButton>
                 </motion.div>
               )}

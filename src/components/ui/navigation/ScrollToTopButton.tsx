@@ -58,8 +58,8 @@ const ScrollToTopButton: React.FC<ScrollToTopButtonProps> = ({
       scale: 1.1,
       y: -5,
       boxShadow: isDark
-        ? '0 10px 25px rgba(99, 102, 241, 0.5)'
-        : '0 10px 25px rgba(99, 102, 241, 0.3)',
+        ? '0 10px 30px rgba(99, 102, 241, 0.6)'
+        : '0 10px 30px rgba(99, 102, 241, 0.4)',
       transition: {
         type: 'spring',
         stiffness: 400,
@@ -79,9 +79,9 @@ const ScrollToTopButton: React.FC<ScrollToTopButtonProps> = ({
   // 获取按钮尺寸
   const getButtonSize = () => {
     switch (size) {
-      case 'small': return 40;
-      case 'large': return 60;
-      default: return 50;
+      case 'small': return 42;
+      case 'large': return 62;
+      default: return 52;
     }
   };
 
@@ -100,8 +100,8 @@ const ScrollToTopButton: React.FC<ScrollToTopButtonProps> = ({
       <Box
         sx={{
           position: 'fixed',
-          bottom: { xs: 20, sm: 30 },
-          right: { xs: 20, sm: 30 },
+          bottom: { xs: 24, sm: 36 },
+          right: { xs: 24, sm: 36 },
           zIndex: 1000,
         }}
       >
@@ -119,21 +119,36 @@ const ScrollToTopButton: React.FC<ScrollToTopButtonProps> = ({
               width: getButtonSize(),
               height: getButtonSize(),
               backgroundColor: isDark
-                ? alpha('#6366F1', 0.9)
-                : '#6366F1',
+                ? alpha('#6366F1', 0.8)
+                : alpha('#6366F1', 0.9),
               color: '#FFFFFF',
               boxShadow: isDark
-                ? '0 4px 20px rgba(99, 102, 241, 0.4)'
-                : '0 4px 20px rgba(99, 102, 241, 0.25)',
+                ? '0 4px 20px rgba(99, 102, 241, 0.5)'
+                : '0 4px 20px rgba(99, 102, 241, 0.3)',
               border: `1px solid ${isDark
-                ? alpha('#FFFFFF', 0.1)
-                : alpha('#6366F1', 0.3)}`,
+                ? alpha('#FFFFFF', 0.15)
+                : alpha('#6366F1', 0.4)}`,
+              backdropFilter: 'blur(8px)',
               '&:hover': {
                 backgroundColor: isDark
-                  ? alpha('#6366F1', 1)
+                  ? alpha('#6366F1', 0.9)
                   : '#4F46E5',
               },
               transition: 'all 0.3s ease',
+              '&::before': {
+                content: '""',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                borderRadius: '50%',
+                background: isDark
+                  ? 'linear-gradient(145deg, rgba(99, 102, 241, 0.1), rgba(99, 102, 241, 0.4))'
+                  : 'linear-gradient(145deg, rgba(255, 255, 255, 0.2), rgba(99, 102, 241, 0.1))',
+                zIndex: -1,
+                opacity: 0.6,
+              }
             }}
           >
             <Box
@@ -141,9 +156,29 @@ const ScrollToTopButton: React.FC<ScrollToTopButtonProps> = ({
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
+                position: 'relative',
+                zIndex: 1,
+                '&::after': {
+                  content: '""',
+                  position: 'absolute',
+                  width: '140%',
+                  height: '140%',
+                  top: '-20%',
+                  left: '-20%',
+                  background: isDark
+                    ? 'radial-gradient(circle, rgba(99, 102, 241, 0.2) 0%, rgba(0, 0, 0, 0) 70%)'
+                    : 'radial-gradient(circle, rgba(255, 255, 255, 0.6) 0%, rgba(0, 0, 0, 0) 70%)',
+                  opacity: 0.4,
+                  zIndex: -1
+                }
               }}
             >
-              <FiArrowUp size={getIconSize()} />
+              <FiArrowUp
+                size={getIconSize()}
+                style={{
+                  filter: `drop-shadow(0 2px 3px ${isDark ? 'rgba(0, 0, 0, 0.3)' : 'rgba(0, 0, 0, 0.2)'})`
+                }}
+              />
             </Box>
           </Fab>
         </motion.div>

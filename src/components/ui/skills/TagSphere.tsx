@@ -1,8 +1,10 @@
-import React, { useEffect, useRef, useState, useMemo, useCallback } from 'react';
-import { Box, useTheme as useMuiTheme, useMediaQuery, Typography, alpha } from '@mui/material';
+import React, { useRef, useMemo, Suspense, useState, useEffect } from 'react';
+import { Box, Typography, useTheme as useMuiTheme, useMediaQuery, alpha } from '@mui/material';
 import { useTheme } from '../../../contexts/ThemeContext';
-import { motion, useMotionValue, useSpring } from 'framer-motion';
-import debounce from 'lodash/debounce';
+import { Canvas, useFrame, ThreeEvent } from '@react-three/fiber';
+import { Text, OrbitControls, useDetectGPU, Stats } from '@react-three/drei';
+import * as THREE from 'three';
+import GlassyBlobBackground from '../backgrounds/GlassyBlobBackground'; // 导入玻璃容器
 
 // 定义标签接口
 interface Tag {
@@ -21,84 +23,132 @@ interface TagSphereProps {
   animated?: boolean;
   enableSizing?: boolean;
   colorScheme?: 'rainbow' | 'blue' | 'purple' | 'green' | 'warmth' | 'mixed';
-  glassEffect?: boolean;
 }
 
-/**
- * 增强版3D标签云组件
- * 使用CSS 3D变换和Framer Motion实现流畅的动画效果
- * 支持鼠标交互、触摸控制和自动旋转
- * 优化性能，支持大量标签
- */
-const TagSphere: React.FC<TagSphereProps> = ({
-  tags,
-  radius = 150,
-  initialSpeed = 0.5,
-  animated = true,
-  enableSizing = true,
-  colorScheme = 'mixed',
-  glassEffect = true
+// 性能监控组件
+const PerformanceMonitor = ({ onPerformanceIssue }: { onPerformanceIssue: () => void }) => {
+  useEffect(() => {
+    let frameCount = 0;
+    let lastTime = performance.now();
+    let lowFpsCount = 0;
+
+    const checkPerformance = () => {
+      const now = performance.now();
+      const elapsed = now - lastTime;
+
+      if (elapsed >= 1000) { // 每秒检查一次
+        const fps = frameCount / (elapsed / 1000);
+
+        if (fps < 30) { // 低于30fps认为有性能问题
+          lowFpsCount++;
+          if (lowFpsCount >= 3) { // 连续3秒低帧率，触发性能问题回调
+            onPerformanceIssue();
+            lowFpsCount = 0;
+          }
+        } else {
+          lowFpsCount = 0;
+        }
+
+        frameCount = 0;
+        lastTime = now;
+      }
+
+      frameCount++;
+      requestAnimationFrame(checkPerformance);
+    };
+
+    const animationId = requestAnimationFrame(checkPerformance);
+
+    return () => cancelAnimationFrame(animationId);
+  }, [onPerformanceIssue]);
+
+  return null;
+};
+
+// 单个标签组件 - 性能优化版
+const TagText = ({ tag, position, scale, color, index }: {
+  tag: Tag;
+  position: [number, number, number];
+  scale: number;
+  color: string;
+  index: number;
 }) => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [hoveredTag, setHoveredTag] = useState<number | null>(null);
-  const animationRef = useRef<number | null>(null);
-  const [isInitialized, setIsInitialized] = useState(false);
+  const ref = useRef<THREE.Mesh>(null);
   const { theme } = useTheme();
   const isDark = theme === 'dark';
-  const muiTheme = useMuiTheme();
+  const [isHovered, setIsHovered] = useState(false);
 
-  // 鼠标位置跟踪
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
+  useFrame(({ clock }) => {
+    if (!ref.current) return;
+    // 极轻微的自转，减少GPU计算
+    ref.current.rotation.x = Math.sin(clock.elapsedTime * 0.05 + index * 0.5) * 0.02;
+    ref.current.rotation.y = Math.sin(clock.elapsedTime * 0.03 + index * 0.7) * 0.02;
+  });
 
-  // 平滑的鼠标跟随效果
-  const smoothMouseX = useSpring(mouseX, { damping: 50, stiffness: 400 });
-  const smoothMouseY = useSpring(mouseY, { damping: 50, stiffness: 400 });
-
-  // 响应式调整
-  const isMobile = useMediaQuery(muiTheme.breakpoints.down('sm'));
-  const isTablet = useMediaQuery(muiTheme.breakpoints.down('md'));
-  const isWideScreen = useMediaQuery(muiTheme.breakpoints.up('xl'));
-
-  // 根据屏幕尺寸和标签数量调整半径
-  const responsiveRadius = useMemo(() => {
-    const tagCountFactor = Math.min(1.2, 1 + (tags?.length / 100 || 0));
-    const baseRadius = radius * tagCountFactor;
-
-    if (isMobile) return baseRadius * 0.6;
-    if (isTablet) return baseRadius * 0.7;
-    if (isWideScreen) return baseRadius * 1.1;
-    return baseRadius * 0.8;
-  }, [radius, tags, isMobile, isTablet, isWideScreen]);
-
-  // 限制显示的标签数量，防止过度拥挤和性能问题
-  const limitedTags = useMemo(() => {
-    if (!tags || tags.length === 0) {
-      console.warn("TagSphere: 标签数据为空");
-      return [];
+  // 处理点击事件
+  const handleClick = () => {
+    if (tag.url) {
+      window.open(tag.url, '_blank', 'noopener,noreferrer');
     }
+  };
 
-    const maxTags = isMobile ? 16 : isTablet ? 24 : isWideScreen ? 40 : 32;
-    if (tags.length > maxTags) {
-      return [...tags]
-        .sort((a, b) => ((b.value || 1) - (a.value || 1)))
-        .slice(0, maxTags);
-    }
-    return tags;
-  }, [tags, isMobile, isTablet, isWideScreen]);
+  // 处理鼠标悬停事件
+  const handlePointerOver = (e: ThreeEvent<PointerEvent>) => {
+    e.stopPropagation();
+    setIsHovered(true);
+    document.body.style.cursor = 'pointer';
+  };
 
-  // 3D标签位置计算 - 使用useRef避免重新创建
-  const tagsData = useRef<Array<{
-    tag: Tag;
-    position: { x: number; y: number; z: number; };
-    color: string;
-    scale: number;
-    rotation: { x: number; y: number; z: number; };
-  }>>([]);
+  const handlePointerOut = () => {
+    setIsHovered(false);
+    document.body.style.cursor = 'default';
+  };
+
+  const textScale = isHovered ? scale * 1.15 : scale; // 悬停时放大
+
+  return (
+    <Text
+      ref={ref}
+      position={position}
+      scale={[textScale, textScale, textScale]} // 应用悬停缩放
+      color={color}
+      fontSize={0.8}
+      maxWidth={2}
+      lineHeight={1}
+      letterSpacing={0.02}
+      textAlign="center"
+      font="/fonts/Inter-Medium.woff"
+      anchorX="center"
+      anchorY="middle"
+      outlineWidth={isDark ? 0.01 : 0.005}
+      outlineColor={isDark ? "#000000" : "#ffffff"}
+      outlineOpacity={0.3}
+      onPointerOver={handlePointerOver}
+      onPointerOut={handlePointerOut}
+      onClick={handleClick}
+    >
+      {tag.name}
+      {/* 使用更简单的基础材质，并渲染双面防止消失 */}
+      <meshBasicMaterial color={color} side={THREE.DoubleSide} toneMapped={false} />
+    </Text>
+  );
+};
+
+// 标签云容器 - 优化空间分布
+const TagCloud = ({ tags, radius = 12, colorScheme, enableSizing, lowPerformanceMode }: {
+  tags: Tag[];
+  radius: number;
+  colorScheme: string;
+  enableSizing: boolean;
+  lowPerformanceMode: boolean;
+}) => {
+  const ref = useRef<THREE.Group>(null);
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
 
   // 获取颜色方案
-  const getColors = useCallback(() => {
-    const colorSchemes = {
+  const getColors = useMemo(() => {
+    const colorSchemes: Record<string, string[]> = {
       rainbow: [
         '#f44336', // 红
         '#ff9800', // 橙
@@ -109,7 +159,7 @@ const TagSphere: React.FC<TagSphereProps> = ({
         '#9c27b0'  // 紫
       ],
       blue: [
-        '#90caf9',
+        '#2196f3',
         '#64b5f6',
         '#42a5f5',
         '#2196f3',
@@ -117,7 +167,7 @@ const TagSphere: React.FC<TagSphereProps> = ({
         '#1976d2'
       ],
       purple: [
-        '#ce93d8',
+        '#9c27b0',
         '#ba68c8',
         '#ab47bc',
         '#9c27b0',
@@ -125,7 +175,7 @@ const TagSphere: React.FC<TagSphereProps> = ({
         '#7b1fa2'
       ],
       green: [
-        '#a5d6a7',
+        '#4caf50',
         '#81c784',
         '#66bb6a',
         '#4caf50',
@@ -133,7 +183,7 @@ const TagSphere: React.FC<TagSphereProps> = ({
         '#388e3c'
       ],
       warmth: [
-        '#ffcdd2',
+        '#f44336',
         '#ef9a9a',
         '#e57373',
         '#ef5350',
@@ -152,455 +202,269 @@ const TagSphere: React.FC<TagSphereProps> = ({
       ]
     };
 
-    return colorSchemes[colorScheme];
+    // 增强颜色饱和度
+    return colorSchemes[colorScheme] || colorSchemes.mixed;
   }, [colorScheme]);
 
-  // 创建标签位置和属性
-  const initializeTagsData = useCallback(() => {
-    if (!limitedTags || limitedTags.length === 0) {
-      console.warn("TagSphere: 无法初始化标签数据，标签列表为空");
-      return;
-    }
+  // 生成标签位置 - 优化点: 使用斐波那契球面分布优化标签位置，减少重叠
+  const tagItems = useMemo(() => {
+    if (!tags || tags.length === 0) return [];
 
-    console.log("TagSphere: 正在初始化标签数据, 数量:", limitedTags.length);
+    const fibonacciSphere = (samples: number, radius: number) => {
+      const points: [number, number, number][] = [];
+      const offset = 2/samples;
+      const increment = Math.PI * (3 - Math.sqrt(5));
 
-    const tagSizeFactor = Math.max(0.4, 1 - (limitedTags.length / 90));
-    const colors = getColors();
+      for (let i = 0; i < samples; i++) {
+        const y = ((i * offset) - 1) + (offset / 2);
+        const r = Math.sqrt(1 - y*y) * radius;
+        const phi = ((i + 1) % samples) * increment;
 
-    // 直接使用新的标签数据
-    const newTagsData = limitedTags.map((tag, i) => {
-      // 使用黄金螺旋分布算法，确保标签均匀分布
-      const goldenRatio = (1 + Math.sqrt(5)) / 2;
-      const theta = 2 * Math.PI * (i / goldenRatio);
-      const phi = Math.acos(1 - 2 * (i + 0.5) / limitedTags.length);
+        const x = Math.cos(phi) * r;
+        const z = Math.sin(phi) * r;
 
-      // 添加少量随机偏移，使分布更自然
-      const randomOffset = 0.05;
-      const offsetX = (Math.random() * 2 - 1) * randomOffset * responsiveRadius;
-      const offsetY = (Math.random() * 2 - 1) * randomOffset * responsiveRadius;
-      const offsetZ = (Math.random() * 2 - 1) * randomOffset * responsiveRadius;
+        points.push([x, y * radius, z]);
+      }
 
-      const x = responsiveRadius * Math.sin(phi) * Math.cos(theta) + offsetX;
-      const y = responsiveRadius * Math.sin(phi) * Math.sin(theta) + offsetY;
-      const z = responsiveRadius * Math.cos(phi) + offsetZ;
+      return points;
+    };
 
-      // 计算标签大小
+    // 生成标签点
+    const points = fibonacciSphere(tags.length, radius);
+
+    return tags.map((tag, i) => {
+      // 设置标签大小
       const value = tag.value || 1;
-      // 调整比例，标签大小差异更平滑
-      const scale = enableSizing
-        ? (0.6 + (value / 20) * 0.4) * tagSizeFactor
-        : tagSizeFactor;
+      const scale = enableSizing ? 0.6 + (value / 10) * 0.4 : 0.8;
 
-      // 设置标签颜色
-      const color = tag.color || colors[i % colors.length];
+      // 为了避免重叠，向外稍微推动小标签
+      let position = points[i];
+      if (scale < 0.8) {
+        // 小标签向外推到1.2倍半径位置
+        const pushFactor = 1.2;
+        position = [
+          position[0] * pushFactor,
+          position[1] * pushFactor,
+          position[2] * pushFactor
+        ] as [number, number, number];
+      }
 
-      // 添加随机旋转，使标签看起来更自然
-      const rotation = {
-        x: Math.random() * 0.05 - 0.025,
-        y: Math.random() * 0.05 - 0.025,
-        z: Math.random() * 0.05 - 0.025
-      };
+      // 设置标签颜色 - 确保颜色足够鲜明
+      const baseColor = getColors[i % getColors.length];
+      const color = isDark ? baseColor : baseColor; // 不同主题使用更明显的颜色
 
       return {
         tag,
-        position: { x, y, z },
+        position,
+        scale: lowPerformanceMode ? 0.8 : scale, // 低性能模式下所有标签大小一样
         color,
-        scale,
-        rotation
+        key: `tag-${i}-${tag.name}`,
+        index: i
       };
     });
+  }, [tags, radius, getColors, enableSizing, lowPerformanceMode, isDark]);
 
-    // 更新标签数据引用
-    tagsData.current = newTagsData;
-    console.log("TagSphere: 标签数据初始化完成，标签数量:", newTagsData.length);
-
-    // 标记初始化完成
-    setIsInitialized(true);
-  }, [limitedTags, responsiveRadius, enableSizing, getColors]);
-
-  // 优先初始化标签数据
-  useEffect(() => {
-    console.log("TagSphere: 组件挂载，准备初始化标签数据");
-
-    if (!tags) {
-      console.warn("TagSphere: 标签数据未定义");
-      return;
-    }
-
-    if (tags.length === 0) {
-      console.warn("TagSphere: 标签数据为空数组");
-      return;
-    }
-
-    console.log("TagSphere: 开始初始化标签数据, 标签数量:", tags.length);
-    initializeTagsData();
-
-  }, [tags, initializeTagsData]);
-
-  // 自动旋转状态
-  const rotationState = useRef({
-    angleX: 0,
-    angleY: 0,
-    speed: 0.0015, // 降低默认速度
-    lastTime: 0,
-    mouseX: 0,
-    mouseY: 0,
-    isMouseActive: false
+  // 整体旋转动画 - 降低旋转速度，减轻GPU压力
+  useFrame(({ clock }) => {
+    if (!ref.current) return;
+    ref.current.rotation.y = clock.elapsedTime * 0.03;
+    ref.current.rotation.x = Math.sin(clock.elapsedTime * 0.02) * 0.05;
   });
 
-  // 优化鼠标/触摸事件处理 - 使用debounce减少事件触发频率
-  const handlePointerMove = useCallback(debounce((clientX: number, clientY: number) => {
-    if (!containerRef.current) return;
+  return (
+    <group ref={ref}>
+      {tagItems.map((item) => (
+        <TagText
+          key={item.key}
+          tag={item.tag}
+          position={item.position}
+          scale={item.scale}
+          color={item.color}
+          index={item.index}
+        />
+      ))}
+    </group>
+  );
+};
 
-    const rect = containerRef.current.getBoundingClientRect();
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
+/**
+ * 基于Three.js的3D技能标签云组件 - 性能优化版
+ * 使用React Three Fiber提供流畅的3D渲染和交互
+ */
+const TagSphere: React.FC<TagSphereProps> = ({
+  tags,
+  initialSpeed = 0.5,
+  animated = true,
+  enableSizing = true,
+  colorScheme = 'mixed',
+}) => {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+  const muiTheme = useMuiTheme();
+  const [lowPerformanceMode, setLowPerformanceMode] = useState(false);
+  const [showFallback, setShowFallback] = useState(false);
 
-    // 更新鼠标位置
-    mouseX.set((clientX - rect.left - centerX) / centerX);
-    mouseY.set((clientY - rect.top - centerY) / centerY);
-
-    rotationState.current.mouseX = mouseX.get();
-    rotationState.current.mouseY = mouseY.get();
-    rotationState.current.isMouseActive = true;
-
-    // 鼠标移动时暂时增加速度
-    rotationState.current.speed = 0.002;
-  }, 16), [mouseX, mouseY]);  // 16ms ~= 60fps
-
-  // 处理鼠标移动 - 使用useCallback
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    handlePointerMove(e.clientX, e.clientY);
-  }, [handlePointerMove]);
-
-  // 处理触摸移动 - 使用useCallback
-  const handleTouchMove = useCallback((e: React.TouchEvent) => {
-    if (e.touches.length === 0) return;
-    handlePointerMove(e.touches[0].clientX, e.touches[0].clientY);
-    e.preventDefault(); // 防止页面滚动
-  }, [handlePointerMove]);
-
-  // 鼠标/触摸离开时重置状态 - 使用useCallback
-  const handlePointerLeave = useCallback(() => {
-    rotationState.current.isMouseActive = false;
-    rotationState.current.speed = 0.0015;
-    setHoveredTag(null);
-  }, []);
-
-  // 处理点击事件 - 使用useCallback
-  const handleClick = useCallback(() => {
-    if (hoveredTag !== null && tagsData.current[hoveredTag]?.tag.url) {
-      window.open(tagsData.current[hoveredTag].tag.url, '_blank', 'noopener,noreferrer');
+  const handlePerformanceIssue = () => {
+    if (!lowPerformanceMode) {
+      setLowPerformanceMode(true);
+    } else if (!showFallback) {
+      setShowFallback(true);
     }
-  }, [hoveredTag]);
+  };
 
-  // 渲染CSS 3D标签云
-  const renderCssSphere = useCallback(() => {
-    // 确保tagsData已经初始化
-    if (!isInitialized || !tagsData.current || tagsData.current.length === 0) {
-      console.log("标签数据未初始化或为空");
-      return (
-        <Box sx={{
-          height: { xs: 280, sm: 320, md: 380 },
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}>
-          <Typography variant="body1" color="text.secondary">
-            {isDark ? '✨' : '⚙️'} 加载标签中...
-          </Typography>
-        </Box>
-      );
+  const isMobile = useMediaQuery(muiTheme.breakpoints.down('sm'));
+  const isTablet = useMediaQuery(muiTheme.breakpoints.down('md'));
+  const isWideScreen = useMediaQuery(muiTheme.breakpoints.up('xl'));
+
+  const gpu = useDetectGPU();
+
+  useEffect(() => {
+    if (gpu && (gpu.tier < 2 || isMobile)) {
+      setLowPerformanceMode(true);
     }
+  }, [gpu, isMobile]);
 
-    console.log("渲染标签云，标签数量:", tagsData.current.length);
+  const limitedTags = useMemo(() => {
+    if (!tags || tags.length === 0) {
+      return [];
+    }
+    const maxTags = lowPerformanceMode
+      ? (isMobile ? 15 : isTablet ? 20 : 25)
+      : (isMobile ? 20 : isTablet ? 30 : isWideScreen ? 50 : 40);
 
+    if (tags.length > maxTags) {
+      return [...tags]
+        .sort((a, b) => ((b.value || 1) - (a.value || 1)))
+        .slice(0, maxTags);
+    }
+    return tags;
+  }, [tags, isMobile, isTablet, isWideScreen, lowPerformanceMode]);
+
+  const responsiveRadius = useMemo(() => {
+    const baseRadius = isMobile ? 8 : isTablet ? 10 : isWideScreen ? 14 : 12;
+    return baseRadius;
+  }, [isMobile, isTablet, isWideScreen]);
+
+  // Fallback 2D rendering (keep as is)
+  if (showFallback) {
     return (
       <Box
-        ref={containerRef}
-        onClick={handleClick}
-        onMouseMove={handleMouseMove}
-        onTouchMove={handleTouchMove}
-        onMouseLeave={handlePointerLeave}
-        onTouchEnd={handlePointerLeave}
         sx={{
           width: '100%',
-          height: {
-            xs: '280px',
-            sm: '320px',
-            md: '380px',
-            lg: '420px'
-          },
+          height: isMobile ? '350px' : isTablet ? '400px' : '500px',
           position: 'relative',
-          perspective: '1000px',
+          margin: '0 auto',
+          padding: 3,
+          maxWidth: '100%',
           overflow: 'hidden',
+          borderRadius: 4,
+          boxShadow: isDark
+            ? `0 10px 30px ${alpha('#000', 0.3)}, 0 0 20px ${alpha('#7c4dff', 0.2)} inset`
+            : `0 10px 30px ${alpha('#000', 0.1)}, 0 0 20px ${alpha('#4c8cff', 0.1)} inset`,
+          background: isDark
+            ? 'linear-gradient(135deg, rgba(20, 20, 35, 0.7) 0%, rgba(30, 30, 50, 0.7) 100%)'
+            : 'linear-gradient(135deg, rgba(240, 240, 255, 0.7) 0%, rgba(250, 250, 255, 0.7) 100%)',
+          backdropFilter: 'blur(10px)', // Assuming fallback should also have blur
+          border: `1px solid ${isDark ? alpha('#ffffff', 0.1) : alpha('#000000', 0.05)}`,
           display: 'flex',
+          flexWrap: 'wrap',
           justifyContent: 'center',
           alignItems: 'center',
-          my: { xs: 2, sm: 3, md: 4 },
-          bgcolor: 'transparent',
-          borderRadius: '16px',
-          '&::before': {
-            content: '""',
-            position: 'absolute',
-            inset: 0,
-            borderRadius: 'inherit',
-            padding: '1px',
-            background: `linear-gradient(120deg, ${
-              isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)'
-            }, ${
-              isDark ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.01)'
-            })`,
-            WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-            WebkitMaskComposite: 'xor',
-            maskComposite: 'exclude',
-            pointerEvents: 'none'
-          }
+          alignContent: 'center',
+          gap: 2
         }}
       >
-        <Box
-          id="tag-sphere-container"
-          sx={{
-            width: '100%',
-            height: '100%',
-            position: 'relative',
-            transformStyle: 'preserve-3d',
-            transform: 'rotateX(0deg) rotateY(0deg)',
-            transition: 'transform 0.1s linear',
-            willChange: 'transform', // 提示浏览器做硬件加速
-          }}
-        >
-          {tagsData.current.map((tagData, index) => {
-            const { tag, position, color, scale, rotation } = tagData;
-            const isHovered = hoveredTag === index;
-
-            // 计算z轴位置对应的透明度
-            const zNormalized = position.z / responsiveRadius;
-            const opacity = 0.4 + Math.max(0, (zNormalized + 1) / 2) * 0.6;
-
-            // 优化性能：跳过渲染完全不可见的标签（超出视野）
-            if (position.z < -responsiveRadius * 0.75) {
-              return null;
-            }
-
-            // 基础字体大小
-            const baseFontSize = isMobile ? 11 : isTablet ? 12 : 14;
-            const fontSize = baseFontSize * scale;
-
-            // 玻璃效果样式
-            const glassStyles = glassEffect ? {
-              background: isDark
-                ? alpha('#1A1A2A', 0.7)
-                : alpha('#FFFFFF', 0.8),
-              backdropFilter: 'blur(4px)',
-              WebkitBackdropFilter: 'blur(4px)', // Safari支持
-              border: `1px solid ${
-                isDark ? alpha('#ffffff', 0.1) : alpha('#000000', 0.05)
-              }`,
-              boxShadow: isHovered
-                ? `0 4px 12px ${isDark ? alpha('#ffffff', 0.15) : alpha('#000000', 0.15)}`
-                : `0 2px 8px ${isDark ? alpha('#000000', 0.25) : alpha('#000000', 0.1)}`
-            } : {
-              background: isDark ? 'rgba(26, 26, 45, 0.7)' : 'rgba(255, 255, 255, 0.7)',
-              border: `1px solid ${
-                isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)'
-              }`,
-              boxShadow: isHovered
-                ? `0 0 8px ${isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)'}`
-                : 'none'
-            };
-
-            return (
-              <Box
-                key={`tag-${index}-${tag.name}`}
-                component={motion.div}
-                initial={{ opacity: 0, scale: 0 }}
-                animate={{
-                  opacity,
-                  scale: isHovered ? scale * 1.1 : scale,
-                }}
-                whileHover={{
-                  scale: scale * 1.2,
-                  zIndex: 1000,
-                }}
-                onHoverStart={() => setHoveredTag(index)}
-                onHoverEnd={() => setHoveredTag(null)}
-                sx={{
-                  position: 'absolute',
-                  left: '50%',
-                  top: '50%',
-                  transform: `translate(-50%, -50%) translate3d(${position.x}px, ${position.y}px, ${position.z}px) rotateX(${rotation.x * 360}deg) rotateY(${rotation.y * 360}deg) rotateZ(${rotation.z * 360}deg)`,
-                  color,
-                  padding: '4px 10px',
-                  borderRadius: '12px',
-                  fontSize: `${fontSize}px`,
-                  lineHeight: 1.3,
-                  fontWeight: isHovered ? 600 : 500,
-                  cursor: tag.url ? 'pointer' : 'default',
-                  userSelect: 'none',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                  whiteSpace: 'nowrap',
-                  zIndex: Math.floor((position.z + responsiveRadius) * 10),
-                  transition: 'transform 0.1s ease-out, opacity 0.1s ease-out',
-                  transformStyle: 'preserve-3d',
-                  backfaceVisibility: 'hidden',
-                  WebkitFontSmoothing: 'antialiased', // 文字渲染优化
-                  textRendering: 'optimizeLegibility',
-                  textShadow: isDark ? '0 1px 2px rgba(0,0,0,0.5)' : 'none',
-                  ...glassStyles,
-                }}
-              >
-                {tag.icon && (
-                  <Box
-                    component="span"
-                    sx={{
-                      fontSize: `${fontSize * 1.1}px`,
-                      display: 'flex',
-                      alignItems: 'center',
-                    }}
-                  >
-                    {tag.icon}
-                  </Box>
-                )}
-                {tag.name}
-              </Box>
-            );
-          })}
-        </Box>
-      </Box>
-    );
-  }, [
-    isDark, responsiveRadius, handleClick, handleMouseMove,
-    handleTouchMove, handlePointerLeave, hoveredTag,
-    isMobile, isTablet, glassEffect, isInitialized
-  ]);
-
-  // 动画函数 - 使用requestAnimationFrame优化性能
-  useEffect(() => {
-    if (!isInitialized || !animated) return;
-
-    // 减少动画帧率，提高性能
-    let lastTimestamp = 0;
-    const frameInterval = isMobile ? 40 : isTablet ? 30 : 20; // 降低帧率，提高性能
-
-    const animateTagSphere = (timestamp: number) => {
-      if (!containerRef.current) return;
-
-      // 控制帧率
-      if (timestamp - lastTimestamp < frameInterval) {
-        animationRef.current = requestAnimationFrame(animateTagSphere);
-        return;
-      }
-
-      lastTimestamp = timestamp;
-
-      // 计算时间增量
-      const deltaTime = rotationState.current.lastTime
-        ? (timestamp - rotationState.current.lastTime) / 16.7
-        : 1;
-      rotationState.current.lastTime = timestamp;
-
-      // 根据鼠标位置或自动计算角度
-      let rotationX, rotationY;
-
-      if (rotationState.current.isMouseActive) {
-        // 鼠标控制旋转
-        rotationX = smoothMouseY.get() * initialSpeed * 0.003 * deltaTime;
-        rotationY = smoothMouseX.get() * initialSpeed * 0.003 * deltaTime;
-
-        // 缓动衰减
-        rotationState.current.mouseX *= 0.95;
-        rotationState.current.mouseY *= 0.95;
-
-        if (Math.abs(rotationState.current.mouseX) < 0.01 &&
-            Math.abs(rotationState.current.mouseY) < 0.01) {
-          rotationState.current.isMouseActive = false;
-        }
-      } else {
-        // 自动旋转 - 降低速度
-        rotationX = rotationState.current.speed * deltaTime * 0.2;
-        rotationY = rotationState.current.speed * deltaTime * 0.4;
-      }
-
-      // 更新角度
-      rotationState.current.angleX += rotationX;
-      rotationState.current.angleY += rotationY;
-
-      // 应用旋转矩阵到标签位置
-      const cosX = Math.cos(rotationX);
-      const sinX = Math.sin(rotationX);
-      const cosY = Math.cos(rotationY);
-      const sinY = Math.sin(rotationY);
-
-      // 更新每个标签的位置
-      tagsData.current.forEach(tagData => {
-        const { x, y, z } = tagData.position;
-
-        // 绕Y轴旋转
-        const newX = x * cosY - z * sinY;
-        const newZ = z * cosY + x * sinY;
-
-        // 绕X轴旋转
-        const newY = y * cosX - newZ * sinX;
-        const finalZ = newZ * cosX + y * sinX;
-
-        // 更新位置
-        tagData.position.x = newX;
-        tagData.position.y = newY;
-        tagData.position.z = finalZ;
-      });
-
-      // 排序标签，确保Z轴正确渲染顺序
-      tagsData.current.sort((a, b) => b.position.z - a.position.z);
-
-      // 更新DOM元素的变换 - 使用CSS变换而不是直接操作DOM属性，提高性能
-      const container = document.getElementById('tag-sphere-container');
-      if (container) {
-        container.style.transform = `rotateX(${rotationState.current.angleX}rad) rotateY(${rotationState.current.angleY}rad)`;
-      }
-
-      // 继续下一帧动画
-      animationRef.current = requestAnimationFrame(animateTagSphere);
-    };
-
-    // 开始动画
-    animationRef.current = requestAnimationFrame(animateTagSphere);
-
-    // 清理函数
-    return () => {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
-    };
-  }, [isInitialized, animated, initialSpeed, smoothMouseX, smoothMouseY, isMobile, isTablet]);
-
-  // 使用useMemo优化渲染
-  const sphereContent = useMemo(() => renderCssSphere(), [renderCssSphere]);
-
-  // 如果尚未初始化，显示加载状态
-  if (!isInitialized) {
-    return (
-      <Box sx={{
-        height: { xs: 280, sm: 320, md: 380 },
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center'
-      }}>
-        <Typography variant="body1" color="text.secondary">
-          {isDark ? '✨' : '⚙️'} 加载标签云中...
-        </Typography>
+        {limitedTags.map((tag, index) => (
+          <Box
+            key={`2d-tag-${index}`}
+            sx={{
+              padding: '6px 12px',
+              borderRadius: '50px',
+              backgroundColor: isDark ? alpha(tag.color || '#7c4dff', 0.2) : alpha(tag.color || '#4c8cff', 0.1),
+              color: tag.color || (isDark ? '#ffffff' : '#333333'),
+              fontWeight: 'bold',
+              fontSize: tag.value ? `${0.8 + (tag.value / 10) * 0.4}rem` : '1rem',
+              boxShadow: `0 4px 8px ${alpha('#000000', 0.1)}`,
+              transition: 'all 0.3s ease',
+              '&:hover': {
+                transform: 'translateY(-5px)',
+                boxShadow: `0 6px 12px ${alpha('#000000', 0.2)}`,
+              }
+            }}
+          >
+            {tag.name}
+          </Box>
+        ))}
       </Box>
     );
   }
 
+  // Use GlassyBlobBackground as the main container
   return (
-    <Box sx={{ position: 'relative', width: '100%' }}>
-      {sphereContent}
-    </Box>
+    <GlassyBlobBackground
+      colorSet="cool" // Choose a color set (e.g., cool)
+      intensity="light"
+      glassEffect={true} // Enable glass effect
+      containerSx={{
+        width: '100%',
+        height: isMobile ? '350px' : isTablet ? '400px' : '500px',
+        position: 'relative',
+        margin: '0 auto',
+        maxWidth: '100%',
+        borderRadius: 4,
+        // Remove background/boxShadow/border/backdropFilter here, handled by GlassyBlobBackground
+      }}
+    >
+      <PerformanceMonitor onPerformanceIssue={handlePerformanceIssue} />
+
+      {tags && tags.length > 0 ? (
+        <Canvas
+          dpr={lowPerformanceMode ? 1 : [1, 2]}
+          camera={{ position: [0, 0, 25], fov: 45 }}
+          gl={{ antialias: !lowPerformanceMode }}
+          style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }} // Canvas fills the container
+        >
+          <ambientLight intensity={isDark ? 0.6 : 0.8} />
+          {!lowPerformanceMode && <pointLight position={[15, 15, 15]} intensity={isDark ? 0.3 : 0.4} />} // Slightly adjusted light
+
+          <Suspense fallback={null}>
+            <TagCloud
+              tags={limitedTags}
+              radius={responsiveRadius}
+              colorScheme={colorScheme}
+              enableSizing={enableSizing}
+              lowPerformanceMode={lowPerformanceMode}
+            />
+          </Suspense>
+
+          <OrbitControls
+            enableZoom={false}
+            enablePan={false}
+            rotateSpeed={0.5}
+            autoRotate={animated && !lowPerformanceMode}
+            autoRotateSpeed={initialSpeed}
+            enableDamping={!lowPerformanceMode}
+          />
+
+          {process.env.NODE_ENV === 'development' && <Stats />}
+        </Canvas>
+      ) : (
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: '100%',
+            color: 'text.secondary' // Ensure text is visible
+          }}
+        >
+          <Typography variant="h6">
+            暂无技能标签数据
+          </Typography>
+        </Box>
+      )}
+    </GlassyBlobBackground>
   );
 };
 
-// 使用React.memo包装组件，避免不必要的重新渲染
-export default React.memo(TagSphere);
+export default TagSphere;

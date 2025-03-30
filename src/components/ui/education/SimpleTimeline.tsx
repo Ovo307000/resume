@@ -189,21 +189,52 @@ const SimpleTimeline: React.FC<SimpleTimelineProps> = ({
           key={`desktop-timeline-${index}`}
           sx={{
             display: 'flex',
-            flexDirection: index % 2 === 0 ? 'row' : 'row-reverse',
             justifyContent: 'center',
             position: 'relative',
-            mb: 6
+            mb: 6,
+            width: '100%'
           }}
         >
-          {/* 左侧空白或内容 */}
-          <Box sx={{
-            flex: 1,
-            maxWidth: '400px',
-            display: 'flex',
-            justifyContent: index % 2 === 0 ? 'flex-end' : 'flex-start',
-            pr: index % 2 === 0 ? 3 : 0,
-            pl: index % 2 === 1 ? 3 : 0,
-          }} />
+          {/* 左侧内容（偶数索引）或空白（奇数索引） */}
+          <Box
+            component={motion.div}
+            variants={index % 2 === 0 ? cardVariants : {}}
+            initial={index % 2 === 0 ? "hidden" : "visible"}
+            animate={index % 2 === 0 ? "visible" : "visible"}
+            custom={index}
+            sx={{
+              flex: 1,
+              maxWidth: '45%',
+              display: 'flex',
+              justifyContent: 'flex-end',
+              pr: index % 2 === 0 ? 3 : 0,
+              visibility: index % 2 === 0 ? 'visible' : 'hidden'
+            }}
+          >
+            {index % 2 === 0 && (
+              <Box
+                sx={{
+                  p: 3,
+                  width: '100%',
+                  borderRadius: '14px',
+                  bgcolor: isDark ? 'rgba(255, 255, 255, 0.04)' : 'rgba(255, 255, 255, 0.8)',
+                  backdropFilter: 'blur(8px)',
+                  boxShadow: isDark
+                    ? '0 8px 16px rgba(0, 0, 0, 0.15)'
+                    : '0 8px 16px rgba(0, 0, 0, 0.08)',
+                  border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.03)'}`
+                }}
+              >
+                <EducationCardContent
+                  education={education}
+                  cardId={`desktop-left-${index}`}
+                  expandedCards={expandedCards}
+                  toggleCardExpansion={toggleCardExpansion}
+                  isTimelineView={true}
+                />
+              </Box>
+            )}
+          </Box>
 
           {/* 时间点 */}
           <Box
@@ -220,38 +251,50 @@ const SimpleTimeline: React.FC<SimpleTimelineProps> = ({
               zIndex: 2,
               alignSelf: 'flex-start',
               mt: 3,
-              mx: 0,
+              mx: 2,
               flexShrink: 0
             }}
           />
 
-          {/* 右侧内容或空白 */}
+          {/* 右侧内容（奇数索引）或空白（偶数索引） */}
           <Box
             component={motion.div}
-            variants={cardVariants}
-            initial="hidden"
-            animate="visible"
+            variants={index % 2 === 1 ? cardVariants : {}}
+            initial={index % 2 === 1 ? "hidden" : "visible"}
+            animate={index % 2 === 1 ? "visible" : "visible"}
             custom={index}
             sx={{
               flex: 1,
-              maxWidth: '400px',
-              p: 3,
-              borderRadius: '14px',
-              bgcolor: isDark ? 'rgba(255, 255, 255, 0.04)' : 'rgba(255, 255, 255, 0.8)',
-              backdropFilter: 'blur(8px)',
-              boxShadow: isDark
-                ? '0 8px 16px rgba(0, 0, 0, 0.15)'
-                : '0 8px 16px rgba(0, 0, 0, 0.08)',
-              border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.03)'}`
+              maxWidth: '45%',
+              display: 'flex',
+              justifyContent: 'flex-start',
+              pl: index % 2 === 1 ? 3 : 0,
+              visibility: index % 2 === 1 ? 'visible' : 'hidden'
             }}
           >
-            <EducationCardContent
-              education={education}
-              cardId={`desktop-${index}`}
-              expandedCards={expandedCards}
-              toggleCardExpansion={toggleCardExpansion}
-              isTimelineView={true}
-            />
+            {index % 2 === 1 && (
+              <Box
+                sx={{
+                  p: 3,
+                  width: '100%',
+                  borderRadius: '14px',
+                  bgcolor: isDark ? 'rgba(255, 255, 255, 0.04)' : 'rgba(255, 255, 255, 0.8)',
+                  backdropFilter: 'blur(8px)',
+                  boxShadow: isDark
+                    ? '0 8px 16px rgba(0, 0, 0, 0.15)'
+                    : '0 8px 16px rgba(0, 0, 0, 0.08)',
+                  border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.03)'}`
+                }}
+              >
+                <EducationCardContent
+                  education={education}
+                  cardId={`desktop-right-${index}`}
+                  expandedCards={expandedCards}
+                  toggleCardExpansion={toggleCardExpansion}
+                  isTimelineView={true}
+                />
+              </Box>
+            )}
           </Box>
         </Box>
       ))}

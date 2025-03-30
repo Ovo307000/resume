@@ -13,7 +13,8 @@ import Layout from './components/layout/Layout';
 import HomePage from './pages/home/HomePage';
 import AboutPage from './pages/about/AboutPage';
 import SkillsPage from './pages/skills/SkillsPage';
-import ProjectsPage from './pages/projects/ProjectsPage';
+// 导入全新设计的项目页面组件
+import NewProjectsPage from './pages/projects/NewProjectsPage';
 import EducationPage from './pages/education/EducationPage';
 import ContactPage from './pages/contact/ContactPage';
 import CustomScrollbar from './components/ui/common/CustomScrollbar';
@@ -46,7 +47,7 @@ function App() {
                 <Route path="/" element={<HomePage data={resumeData.basics} />} />
                 <Route path="/about" element={<AboutPage data={resumeData.basics} />} />
                 <Route path="/skills" element={<SkillsPage data={resumeData.skills} />} />
-                <Route path="/projects" element={<ProjectsPage />} />
+                <Route path="/projects" element={<NewProjectsPage />} />
                 <Route path="/education" element={<EducationPage data={resumeData.education} />} />
                 <Route path="/contact" element={<ContactPage data={resumeData.basics} />} />
               </Routes>

@@ -1,156 +1,94 @@
 import React from 'react';
-import { Box } from '@mui/material';
-import EnhancedPageTitle from '../common/EnhancedPageTitle';
-import { useTranslation } from 'react-i18next';
+import { Box, Typography, alpha, useTheme as useMuiTheme } from '@mui/material';
 import { useTheme } from '../../../contexts/ThemeContext';
-import { FiCode } from 'react-icons/fi';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 interface SkillsPageTitleProps {
   withAnimation?: boolean;
 }
 
 /**
- * 技能页面专用标题组件
- * 使用复用的EnhancedPageTitle组件，并添加技能页面特定的样式和动画
+ * 技能页面标题组件
+ * 展示带有动画效果的技能页面标题
  */
-const SkillsPageTitle: React.FC<SkillsPageTitleProps> = ({
-  withAnimation = true
-}) => {
-  const { t } = useTranslation();
+const SkillsPageTitle: React.FC<SkillsPageTitleProps> = ({ withAnimation = true }) => {
   const { theme } = useTheme();
+  const muiTheme = useMuiTheme();
+  const { t } = useTranslation();
   const isDark = theme === 'dark';
 
-  // 装饰元素的动画
-  const decorationVariants = {
-    hidden: { opacity: 0, scale: 0.8, rotate: -10 },
+  // 动画变体
+  const containerVariants = {
+    hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      scale: 1,
-      rotate: 0,
       transition: {
-        duration: 0.7,
-        delay: 0.3,
-        ease: [0.25, 0.1, 0.25, 1.0],
+        staggerChildren: 0.1,
+        delayChildren: 0.2
       }
     }
   };
 
-  // 代码图标的动画
-  const codeIconVariants = {
-    hidden: { opacity: 0, y: -15 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.5,
-        delay: 0.2,
-        ease: [0.25, 0.1, 0.25, 1.0],
-      }
-    }
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
   };
 
-  return (
-    <Box sx={{
-      position: 'relative',
-      mb: 5,
-    }}>
-      {/* 顶部装饰元素 - 左侧 */}
-      <Box
-        component={motion.div}
-        initial={withAnimation ? "hidden" : "visible"}
-        animate="visible"
-        variants={decorationVariants}
+  const titleComponent = (
+    <>
+      <Typography
+        variant="h4"
+        component="h1"
+        gutterBottom
         sx={{
-          position: 'absolute',
-          top: -15,
-          left: '15%',
-          width: '40px',
-          height: '40px',
-          borderRadius: '8px',
-          transform: 'rotate(-15deg)',
+          fontWeight: 700,
+          textAlign: { xs: 'center', md: 'left' },
           background: isDark
-            ? 'linear-gradient(135deg, #0ea5e9, #38bdf8)'
-            : 'linear-gradient(135deg, #0284c7, #0ea5e9)',
-          opacity: 0.15,
-          filter: 'blur(8px)',
-          zIndex: 0
-        }}
-      />
-
-      {/* 顶部图标 */}
-      <Box
-        component={motion.div}
-        initial={withAnimation ? "hidden" : "visible"}
-        animate="visible"
-        variants={codeIconVariants}
-        sx={{
-          display: 'flex',
-          justifyContent: 'center',
-          mb: 1.5,
-          position: 'relative',
-          zIndex: 3
+            ? 'linear-gradient(90deg, #9c7aff 0%, #6a98ff 100%)'
+            : 'linear-gradient(90deg, #5e35b1 0%, #1976d2 100%)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          mb: 1,
+          letterSpacing: '0.5px'
         }}
       >
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            width: '60px',
-            height: '60px',
-            borderRadius: '50%',
-            background: isDark
-              ? 'linear-gradient(135deg, rgba(14, 165, 233, 0.12), rgba(56, 189, 248, 0.08))'
-              : 'linear-gradient(135deg, rgba(2, 132, 199, 0.1), rgba(14, 165, 233, 0.06))',
-            boxShadow: isDark
-              ? '0 4px 20px rgba(14, 165, 233, 0.15)'
-              : '0 4px 20px rgba(2, 132, 199, 0.1)',
-            backdropFilter: 'blur(10px)',
-            border: isDark
-              ? '1px solid rgba(14, 165, 233, 0.2)'
-              : '1px solid rgba(2, 132, 199, 0.15)',
-          }}
-        >
-          <FiCode
-            size={30}
-            style={{
-              color: isDark ? '#38bdf8' : '#0284c7',
-              strokeWidth: 2
-            }}
-          />
-        </Box>
-      </Box>
-
-      <EnhancedPageTitle
-        title={t('skills.title', '技能与专长')}
-        subtitle={t('skills.subtitle', '我的技术栈与专业能力')}
-        textAlign="center"
-        withAnimation={withAnimation}
-      />
-
-      {/* 右侧装饰元素 */}
-      <Box
-        component={motion.div}
-        initial={withAnimation ? "hidden" : "visible"}
-        animate="visible"
-        variants={decorationVariants}
+        {t('skills.pageTitle', '专业技能')}
+      </Typography>
+      <Typography
+        variant="subtitle1"
+        gutterBottom
         sx={{
-          position: 'absolute',
-          bottom: 20,
-          right: '15%',
-          width: '35px',
-          height: '35px',
-          borderRadius: '8px',
-          transform: 'rotate(15deg)',
-          background: isDark
-            ? 'linear-gradient(135deg, #0ea5e9, #38bdf8)'
-            : 'linear-gradient(135deg, #0284c7, #0ea5e9)',
-          opacity: 0.15,
-          filter: 'blur(8px)',
-          zIndex: 0
+          textAlign: { xs: 'center', md: 'left' },
+          color: isDark ? alpha('#fff', 0.7) : alpha('#000', 0.7),
+          maxWidth: '700px',
+          mb: 3
         }}
-      />
+      >
+        {t('skills.pageSubtitle', '我的专业技术能力和熟练度概览，包括编程语言、框架和工具等')}
+      </Typography>
+    </>
+  );
+
+  if (!withAnimation) {
+    return (
+      <Box sx={{ mb: 4 }}>
+        {titleComponent}
+      </Box>
+    );
+  }
+
+  return (
+    <Box sx={{ mb: 4 }}>
+      <motion.div
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        <motion.div variants={itemVariants}>
+          {titleComponent}
+        </motion.div>
+      </motion.div>
     </Box>
   );
 };

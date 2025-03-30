@@ -36,8 +36,8 @@ interface NavRoute {
 
 interface EnhancedMobileNavMenuProps {
   routes: NavRoute[];
-  mobileOpen: boolean;
-  handleDrawerToggle: () => void;
+  open: boolean;
+  onClose: () => void;
   showLanguageSelector?: boolean;
   isActive: (path: string) => boolean;
 }
@@ -47,8 +47,8 @@ interface EnhancedMobileNavMenuProps {
  */
 const EnhancedMobileNavMenu: React.FC<EnhancedMobileNavMenuProps> = ({
   routes,
-  mobileOpen,
-  handleDrawerToggle,
+  open,
+  onClose,
   showLanguageSelector = true,
   isActive
 }) => {
@@ -59,14 +59,14 @@ const EnhancedMobileNavMenu: React.FC<EnhancedMobileNavMenuProps> = ({
 
   return (
     <AnimatePresence>
-      {mobileOpen && (
+      {open && (
         <motion.div
           initial="hidden"
           animate="visible"
           exit="hidden"
           variants={backdropVariants}
           style={getBackdropStyle()}
-          onClick={handleDrawerToggle}
+          onClick={onClose}
         >
           <motion.div
             onClick={(e) => e.stopPropagation()}
@@ -136,7 +136,7 @@ const EnhancedMobileNavMenu: React.FC<EnhancedMobileNavMenuProps> = ({
                 }}
               >
                 <AnimatedIconButton
-                  onClick={handleDrawerToggle}
+                  onClick={onClose}
                   icon={<FiX size={20} />}
                   size="medium"
                   variant="glass"
@@ -199,7 +199,7 @@ const EnhancedMobileNavMenu: React.FC<EnhancedMobileNavMenuProps> = ({
                       <ListItem
                         component={Link}
                         to={route.path}
-                        onClick={handleDrawerToggle}
+                        onClick={onClose}
                         sx={{
                           mb: 1.5,
                           py: 1.2,
@@ -358,7 +358,12 @@ const EnhancedMobileNavMenu: React.FC<EnhancedMobileNavMenuProps> = ({
                     '&:hover': {
                       transform: 'translateY(-2px)',
                       boxShadow: isDark ? '0 6px 12px rgba(0, 0, 0, 0.3)' : '0 6px 12px rgba(0, 0, 0, 0.1)',
-                    }
+                    },
+                    width: '42px',
+                    height: '42px',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center'
                   }}
                 >
                   <AnimatedIconButton
@@ -369,7 +374,7 @@ const EnhancedMobileNavMenu: React.FC<EnhancedMobileNavMenuProps> = ({
                     color="primary"
                     tooltipText={t('common.themeToggle')}
                     ariaLabel={t('common.themeToggle')}
-                    sx={{ background: 'transparent', boxShadow: 'none', border: 'none' }}
+                    sx={{ background: 'transparent', boxShadow: 'none', border: 'none', minWidth: 'auto', p: 0 }}
                   />
                 </Box>
               </motion.div>
@@ -393,12 +398,17 @@ const EnhancedMobileNavMenu: React.FC<EnhancedMobileNavMenuProps> = ({
                       '&:hover': {
                         transform: 'translateY(-2px)',
                         boxShadow: isDark ? '0 6px 12px rgba(0, 0, 0, 0.3)' : '0 6px 12px rgba(0, 0, 0, 0.1)',
-                      }
+                      },
+                      width: '42px',
+                      height: '42px',
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center'
                     }}
                   >
                     <LanguageSelector
                       size="small"
-                      sx={{ background: 'transparent', boxShadow: 'none', border: 'none' }}
+                      sx={{ background: 'transparent', boxShadow: 'none', border: 'none', minWidth: 'auto', p: 0 }}
                     />
                   </Box>
                 </motion.div>

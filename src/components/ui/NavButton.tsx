@@ -70,8 +70,8 @@ const NavButton: React.FC<NavButtonProps> = ({
   const getGradientBackground = () => {
     if (colorMode === 'gradient') {
       return isDark
-        ? 'linear-gradient(135deg, rgba(124, 77, 255, 0.2) 0%, rgba(68, 138, 255, 0.2) 100%)'
-        : 'linear-gradient(135deg, rgba(76, 140, 255, 0.1) 0%, rgba(124, 77, 255, 0.1) 100%)';
+        ? 'linear-gradient(135deg, rgba(124, 77, 255, 0.3) 0%, rgba(68, 138, 255, 0.3) 100%)'
+        : 'linear-gradient(135deg, rgba(76, 140, 255, 0.2) 0%, rgba(124, 77, 255, 0.2) 100%)';
     }
     return 'transparent';
   };
@@ -79,24 +79,30 @@ const NavButton: React.FC<NavButtonProps> = ({
   // 获取图标按钮样式
   if (variant === 'icon') {
     const button = (
-      <IconButton
-        onClick={handleClick}
-        sx={{
-          color: isActive ? getColor() : isDark ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)',
-          bgcolor: isActive
-            ? alpha(getColor(), isDark ? 0.15 : 0.1)
-            : 'transparent',
-          p: size === 'small' ? 0.8 : size === 'large' ? 1.2 : 1,
-          '&:hover': {
-            bgcolor: alpha(getColor(), isDark ? 0.2 : 0.15),
-            transform: 'translateY(-2px)',
-          },
-          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-          ...sx
-        }}
+      <motion.div
+        whileHover={{ scale: 1.05, y: -2 }}
+        whileTap={{ scale: 0.95 }}
+        transition={{ type: "spring", stiffness: 400, damping: 15 }}
       >
-        {icon}
-      </IconButton>
+        <IconButton
+          onClick={handleClick}
+          sx={{
+            color: isActive ? getColor() : isDark ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.8)',
+            bgcolor: isActive
+              ? alpha(getColor(), isDark ? 0.15 : 0.1)
+              : 'transparent',
+            p: size === 'small' ? 0.8 : size === 'large' ? 1.2 : 1,
+            '&:hover': {
+              bgcolor: alpha(getColor(), isDark ? 0.25 : 0.18),
+            },
+            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+            boxShadow: isActive ? `0 0 10px ${alpha(getColor(), 0.4)}` : 'none',
+            ...sx
+          }}
+        >
+          {icon}
+        </IconButton>
+      </motion.div>
     );
 
     return tooltipText ? (
@@ -175,40 +181,48 @@ const NavButton: React.FC<NavButtonProps> = ({
 
   // 默认按钮样式
   return (
-    <Button
-      component={to ? Link : 'button'}
-      to={to}
-      onClick={handleClick}
-      variant={variant}
-      size={size}
-      sx={{
-        textTransform: 'none',
-        fontWeight: isActive ? 600 : 500,
-        color: variant === 'contained'
-          ? '#fff'
-          : isActive ? getColor() : isDark ? 'rgba(255, 255, 255, 0.85)' : 'rgba(0, 0, 0, 0.85)',
-        bgcolor: variant === 'contained'
-          ? getColor()
-          : isActive ? alpha(getColor(), isDark ? 0.15 : 0.1) : 'transparent',
-        backgroundImage: getGradientBackground(),
-        borderColor: variant === 'outlined' ? getColor() : 'transparent',
-        '&:hover': {
+    <motion.div
+      whileHover={{ scale: 1.03, y: -2 }}
+      whileTap={{ scale: 0.97 }}
+      transition={{ type: "spring", stiffness: 400, damping: 15 }}
+    >
+      <Button
+        component={to ? Link : 'button'}
+        to={to}
+        onClick={handleClick}
+        variant={variant}
+        size={size}
+        sx={{
+          textTransform: 'none',
+          fontWeight: isActive ? 600 : 500,
+          color: variant === 'contained'
+            ? '#fff'
+            : isActive ? getColor() : isDark ? 'rgba(255, 255, 255, 0.85)' : 'rgba(0, 0, 0, 0.85)',
           bgcolor: variant === 'contained'
-            ? alpha(getColor(), 0.9)
-            : alpha(getColor(), isDark ? 0.2 : 0.15),
+            ? getColor()
+            : isActive ? alpha(getColor(), isDark ? 0.15 : 0.1) : 'transparent',
           backgroundImage: getGradientBackground(),
           borderColor: variant === 'outlined' ? getColor() : 'transparent',
-          transform: 'translateY(-2px)',
-          boxShadow: variant === 'contained'
-            ? `0 4px 12px ${alpha(getColor(), 0.4)}`
+          '&:hover': {
+            bgcolor: variant === 'contained'
+              ? alpha(getColor(), 0.9)
+              : alpha(getColor(), isDark ? 0.2 : 0.15),
+            backgroundImage: getGradientBackground(),
+            borderColor: variant === 'outlined' ? getColor() : 'transparent',
+            boxShadow: variant === 'contained'
+              ? `0 6px 15px ${alpha(getColor(), 0.5)}`
+              : `0 3px 8px ${alpha(getColor(), 0.3)}`,
+          },
+          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+          boxShadow: isActive || variant === 'contained'
+            ? `0 4px 10px ${alpha(getColor(), 0.4)}`
             : 'none',
-        },
-        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-        ...sx
-      }}
-    >
-      {buttonContent}
-    </Button>
+          ...sx
+        }}
+      >
+        {buttonContent}
+      </Button>
+    </motion.div>
   );
 };
 

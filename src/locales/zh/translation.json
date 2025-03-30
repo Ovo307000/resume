@@ -19,7 +19,9 @@
       "linkedin": "领英",
       "twitter": "推特",
       "email": "电子邮件"
-    }
+    },
+    "collapse": "收起",
+    "learnMore": "了解更多"
   },
   "header": {
     "home": "首页",
@@ -130,7 +132,15 @@
     "university": "大学",
     "date": "日期",
     "courses": "相关课程",
-    "certifications": "证书"
+    "certifications": "证书",
+    "activities": "活动经历",
+    "achievements": "成就与奖项",
+    "skills": "掌握技能",
+    "currentFocus": "当前专注",
+    "goals": "学习目标",
+    "ongoing": "在读",
+    "cardView": "卡片视图",
+    "timelineView": "时间轴视图"
   },
   "skills": {
     "title": "技能",
@@ -217,5 +227,11 @@
     "title": "页面未找到",
     "message": "您查找的页面可能已被移除或暂时不可用。",
     "back": "返回首页"
+  },
+  "availability": {
+    "schedule": "工作时间",
+    "workHours": "周一至周五 9:00-18:00",
+    "location": "所在地区",
+    "locationValue": "安徽合肥"
   }
 }

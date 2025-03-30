@@ -1,190 +1,244 @@
-import { useTheme as useMuiTheme } from '@mui/material';
-import CustomChip from '../common/CustomChip';
-import { useTheme } from '../../../contexts/ThemeContext';
+import React from 'react';
+import { Box, Typography, useTheme as useMuiTheme, alpha } from '@mui/material';
 import { motion } from 'framer-motion';
+import { useTheme } from '../../../contexts/ThemeContext';
+import { DiJava, DiJavascript1, DiPython, DiMysql, DiPostgresql, DiMongodb, DiReact, DiDocker, DiGit, DiRedis } from 'react-icons/di';
+import { SiTypescript, SiSpring, SiVuedotjs, SiTailwindcss, SiGradle, SiLinux, SiC, SiCplusplus, SiGo, SiRust, SiSharp } from 'react-icons/si';
+import { FiCode, FiSettings, FiServer } from 'react-icons/fi';
 
 interface TechnologyTagProps {
   name?: string;
-  tech?: string; // 添加 tech 属性作为替代
+  tech?: string; // 保持兼容性
+  icon?: React.ReactNode; // 允许直接传入图标
+  url?: string; // 允许直接传入URL
   size?: 'small' | 'medium';
-  index?: number; // 添加索引属性，用于设置动画延迟
-  darkMode?: boolean; // 添加暗黑模式属性
+  index?: number; // 用于动画延迟
+  darkMode?: boolean; // 允许覆盖主题
 }
 
+// 统一的获取图标函数
+const getTechnologyIcon = (name: string): React.ReactNode => {
+  const iconSize = 14; // 统一图标大小
+  const iconMap: Record<string, React.ReactNode> = {
+    'JAVA': <DiJava size={iconSize} />, // 大小写都覆盖
+    'Java': <DiJava size={iconSize} />,
+    'JavaScript': <DiJavascript1 size={iconSize} />,
+    'TypeScript': <SiTypescript size={iconSize} />,
+    'Python': <DiPython size={iconSize} />,
+    'C': <SiC size={iconSize} />,
+    'C++': <SiCplusplus size={iconSize} />,
+    'C#': <SiSharp size={iconSize} />,
+    'Go': <SiGo size={iconSize} />,
+    'Rust': <SiRust size={iconSize} />,
+    'Spring': <SiSpring size={iconSize} />,
+    'Spring Boot': <SiSpring size={iconSize} />,
+    'Spring MVC': <SiSpring size={iconSize} />,
+    'Spring JPA': <SiSpring size={iconSize} />,
+    'React.js': <DiReact size={iconSize} />,
+    'React': <DiReact size={iconSize} />,
+    'Vue.js': <SiVuedotjs size={iconSize} />,
+    'Vue': <SiVuedotjs size={iconSize} />,
+    'TailWind CSS': <SiTailwindcss size={iconSize} />,
+    'TailwindCSS': <SiTailwindcss size={iconSize} />,
+    'Tailwind': <SiTailwindcss size={iconSize} />,
+    'MySql': <DiMysql size={iconSize} />,
+    'MySQL': <DiMysql size={iconSize} />,
+    'PostgreSql': <DiPostgresql size={iconSize} />,
+    'PostgreSQL': <DiPostgresql size={iconSize} />,
+    'MongoDB': <DiMongodb size={iconSize} />,
+    'Redis': <DiRedis size={iconSize} />,
+    'Git': <DiGit size={iconSize} />,
+    'Linux': <SiLinux size={iconSize} />,
+    'Docker': <DiDocker size={iconSize} />,
+    'Maven': <FiServer size={iconSize} />, // 用通用服务器图标
+    'Gradle': <SiGradle size={iconSize} />,
+    'RESTAPI': <FiServer size={iconSize} />, // 用通用服务器图标
+    'REST API': <FiServer size={iconSize} />,
+    'Stable Diffusion': <FiSettings size={iconSize} />,
+    // 添加其他可能的技术...
+  };
+  const lowerCaseName = name.toLowerCase();
+  const foundKey = Object.keys(iconMap).find(k => k.toLowerCase() === lowerCaseName);
+  return foundKey ? iconMap[foundKey] : <FiCode size={iconSize} />; // 默认代码图标
+};
+
+// 统一的获取颜色函数
+const getColorForTechnology = (techName: string, defaultColor: string): string => {
+  const techColors: Record<string, string> = {
+    'java': '#b07219',
+    'javascript': '#f1e05a',
+    'typescript': '#3178c6',
+    'python': '#3572A5',
+    'c': '#555555',
+    'c++': '#f34b7d',
+    'c#': '#178600',
+    'go': '#00ADD8',
+    'rust': '#dea584',
+    'react': '#61dafb',
+    'react.js': '#61dafb',
+    'vue': '#4FC08D',
+    'vue.js': '#4FC08D',
+    'angular': '#DD0031',
+    'spring': '#6DB33F',
+    'spring boot': '#6DB33F',
+    'spring mvc': '#6DB33F',
+    'spring jpa': '#6DB33F',
+    'tailwind css': '#38B2AC',
+    'tailwindcss': '#38B2AC',
+    'tailwind': '#38B2AC',
+    'bootstrap': '#7952B3',
+    'mysql': '#4479A1',
+    'postgresql': '#336791',
+    'mongodb': '#4DB33D',
+    'redis': '#DC382D',
+    'sqlite': '#0f80cc',
+    'oracle': '#F80000',
+    'docker': '#2496ED',
+    'kubernetes': '#326CE5',
+    'git': '#F05032',
+    'linux': '#FCC624',
+    'gradle': '#02303A',
+    'maven': '#C71A36',
+    'jenkins': '#D33833',
+    'graphql': '#E535AB',
+    'rest api': '#0096c7',
+    'restapi': '#0096c7',
+    'socket.io': '#010101',
+    'websocket': '#4353af',
+    'jwt': '#000000',
+    'javafx': '#5382a1',
+    'stable diffusion': '#A020F0' // Purple for AI/ML
+  };
+  return techColors[techName.toLowerCase()] || defaultColor;
+};
+
+// 统一的获取URL函数 - 添加默认搜索链接
+const getUrlForTechnology = (techName: string): string | undefined => {
+  const techUrls: Record<string, string> = {
+    'java': 'https://www.java.com/',
+    'javascript': 'https://developer.mozilla.org/en-US/docs/Web/JavaScript',
+    'typescript': 'https://www.typescriptlang.org/',
+    'python': 'https://www.python.org/',
+    'c': 'https://en.cppreference.com/w/c',
+    'c++': 'https://isocpp.org/',
+    'c#': 'https://dotnet.microsoft.com/languages/csharp',
+    'go': 'https://golang.org/',
+    'rust': 'https://www.rust-lang.org/',
+    'mysql': 'https://www.mysql.com/',
+    'postgresql': 'https://www.postgresql.org/',
+    'mongodb': 'https://www.mongodb.com/',
+    'redis': 'https://redis.io/',
+    'react': 'https://reactjs.org/',
+    'react.js': 'https://reactjs.org/',
+    'vue': 'https://vuejs.org/',
+    'vue.js': 'https://vuejs.org/',
+    'spring': 'https://spring.io/',
+    'spring boot': 'https://spring.io/projects/spring-boot',
+    'socket.io': 'https://socket.io/',
+    'docker': 'https://www.docker.com/',
+    'git': 'https://git-scm.com/',
+    'linux': 'https://www.linux.org/',
+    'maven': 'https://maven.apache.org/',
+    'gradle': 'https://gradle.org/',
+    'tailwind css': 'https://tailwindcss.com/',
+    'tailwindcss': 'https://tailwindcss.com/',
+    'tailwind': 'https://tailwindcss.com/',
+    'stable diffusion': 'https://stability.ai/',
+    'javafx': 'https://openjfx.io/', // 添加 JavaFX 链接
+    'spring mvc': 'https://docs.spring.io/spring-framework/reference/web/webmvc.html', // 添加 Spring MVC
+    'spring jpa': 'https://spring.io/projects/spring-data-jpa', // 添加 Spring JPA
+    'bootstrap': 'https://getbootstrap.com/', // 添加 Bootstrap
+    'sqlite': 'https://www.sqlite.org/index.html', // 添加 SQLite
+    'flask': 'https://flask.palletsprojects.com/' // 添加 Flask
+  };
+  const lowerCaseName = techName.toLowerCase();
+  // 如果找到特定URL则返回，否则返回Google搜索链接
+  return techUrls[lowerCaseName] || `https://www.google.com/search?q=${encodeURIComponent(techName + ' technology')}`;
+};
+
 // 使用函数声明而不是箭头函数，有时这可以解决导出问题
-export function TechnologyTag({ name, tech, size = 'small', index = 0, darkMode }: TechnologyTagProps) {
+export function TechnologyTag({ name, tech, icon, url: propUrl, size = 'small', index = 0, darkMode }: TechnologyTagProps) {
   const { theme: contextTheme } = useTheme();
   const muiTheme = useMuiTheme();
   const theme = darkMode !== undefined ? (darkMode ? 'dark' : 'light') : contextTheme;
+  const isDark = theme === 'dark';
 
-  // 使用 name 或 tech 属性，优先使用 name
   const technologyName = name || tech || '';
+  if (!technologyName) return null;
 
-  // 获取技术对应的颜色 (借用 TechTagGroup 中的逻辑)
-  const getColorForTechnology = (techName: string): string => {
-    if (!techName) return muiTheme.palette.primary.main; // 如果技术名称为空，返回默认颜色
+  const finalIcon = icon || getTechnologyIcon(technologyName);
+  const color = getColorForTechnology(technologyName, muiTheme.palette.primary.main);
+  // 现在总会有一个 URL (官网或搜索链接)
+  const finalUrl = propUrl || getUrlForTechnology(technologyName);
 
-    // 技术名称到颜色的映射
-    const techColors: Record<string, string> = {
-      // 编程语言
-      'Java': '#b07219',
-      'JavaScript': '#f1e05a',
-      'TypeScript': '#3178c6',
-      'Python': '#3572A5',
-      'C': '#555555',
-      'C++': '#f34b7d',
-      'C#': '#178600',
-      'Go': '#00ADD8',
-      'Rust': '#dea584',
-
-      // 框架
-      'React': '#61dafb',
-      'React.js': '#61dafb',
-      'Vue': '#4FC08D',
-      'Vue.js': '#4FC08D',
-      'Angular': '#DD0031',
-      'Spring': '#6DB33F',
-      'Spring Boot': '#6DB33F',
-      'Spring MVC': '#6DB33F',
-      'Spring JPA': '#6DB33F',
-      'TailWind CSS': '#38B2AC',
-      'TailwindCSS': '#38B2AC',
-      'Tailwind': '#38B2AC',
-      'Bootstrap': '#7952B3',
-
-      // 数据库
-      'MySQL': '#4479A1',
-      'PostgreSQL': '#336791',
-      'MongoDB': '#4DB33D',
-      'Redis': '#DC382D',
-      'SQLite': '#0f80cc',
-      'Oracle': '#F80000',
-
-      // 工具与技术
-      'Docker': '#2496ED',
-      'Kubernetes': '#326CE5',
-      'Git': '#F05032',
-      'Linux': '#FCC624',
-      'Gradle': '#02303A',
-      'Maven': '#C71A36',
-      'Jenkins': '#D33833',
-      'GraphQL': '#E535AB',
-      'REST API': '#0096c7',
-      'Socket.IO': '#010101',
-      'WebSocket': '#4353af',
-      'JWT': '#000000',
-      'JavaFX': '#5382a1'
-    };
-
-    // 尝试匹配技术名称（不区分大小写）
-    // 增加空值检查防止 toLowerCase 被调用在 undefined 上
-    const key = Object.keys(techColors).find(
-      k => k.toLowerCase() === techName.toLowerCase()
-    );
-
-    return key ? techColors[key] : muiTheme.palette.primary.main;
-  };
-
-  // 获取技术对应的URL
-  const getUrlForTechnology = (techName: string): string | undefined => {
-    if (!techName) return undefined; // 如果技术名称为空，返回 undefined
-
-    // 技术名称到官方网站URL的映射
-    const techUrls: Record<string, string> = {
-      // 编程语言
-      'Java': 'https://www.java.com/',
-      'JavaScript': 'https://developer.mozilla.org/en-US/docs/Web/JavaScript',
-      'TypeScript': 'https://www.typescriptlang.org/',
-      'Python': 'https://www.python.org/',
-      'C': 'https://en.cppreference.com/w/c',
-      'C++': 'https://isocpp.org/',
-      'C#': 'https://dotnet.microsoft.com/languages/csharp',
-      'Go': 'https://golang.org/',
-      'Rust': 'https://www.rust-lang.org/',
-
-      // 数据库
-      'MySQL': 'https://www.mysql.com/',
-      'PostgreSQL': 'https://www.postgresql.org/',
-      'MongoDB': 'https://www.mongodb.com/',
-      'Redis': 'https://redis.io/',
-
-      // 框架和库
-      'React': 'https://reactjs.org/',
-      'React.js': 'https://reactjs.org/',
-      'Vue': 'https://vuejs.org/',
-      'Vue.js': 'https://vuejs.org/',
-      'Spring': 'https://spring.io/',
-      'Spring Boot': 'https://spring.io/projects/spring-boot',
-      'Socket.IO': 'https://socket.io/'
-    };
-
-    // 尝试匹配技术名称（不区分大小写）
-    // 增加空值检查防止 toLowerCase 被调用在 undefined 上
-    const key = Object.keys(techUrls).find(
-      k => k.toLowerCase() === techName.toLowerCase()
-    );
-
-    return key ? techUrls[key] : undefined;
-  };
-
-  const color = getColorForTechnology(technologyName);
-  const url = getUrlForTechnology(technologyName);
-
-  // 为标签添加动画效果
   const tagVariants = {
-    hidden: { opacity: 0, y: 10, scale: 0.8 },
+    hidden: { opacity: 0, scale: 0.5 },
     visible: {
       opacity: 1,
-      y: 0,
       scale: 1,
       transition: {
         type: "spring",
         stiffness: 300,
-        damping: 20,
-        delay: index * 0.05 // 根据索引设置延迟，实现标签的逐个显示
+        damping: 15,
+        delay: index * 0.05
       }
     },
     hover: {
-      y: -4,
-      scale: 1.05,
+      scale: 1.1,
+      boxShadow: `0 0 12px 3px ${alpha(color, 0.5)}`, // 悬停光晕更明显
       transition: { type: "spring", stiffness: 400, damping: 10 }
+    },
+    tap: {
+      scale: 0.95
+    }
+  };
+
+  const handleClick = () => {
+    if (finalUrl) {
+      window.open(finalUrl, '_blank', 'noopener,noreferrer');
     }
   };
 
   return (
     <motion.div
+      variants={tagVariants}
       initial="hidden"
       animate="visible"
-      whileHover="hover"
-      variants={tagVariants}
+      whileHover="hover" // 始终应用悬停效果
+      whileTap="tap"     // 始终应用点击效果
+      onClick={handleClick}
+      style={{ display: 'inline-block', cursor: 'pointer' }} // 始终显示指针
     >
-      <CustomChip
-        label={technologyName}
-        size={size}
-        color={color}
-        variant="filled"
-        url={url}
-        animate={false} // 我们使用自定义的motion动画，所以关闭CustomChip内部的动画
-        interactive={!!url}
-        customBgColor={theme === 'dark'
-          ? `rgba(${parseInt(color.slice(1, 3), 16)}, ${parseInt(color.slice(3, 5), 16)}, ${parseInt(color.slice(5, 7), 16)}, 0.2)`
-          : `rgba(${parseInt(color.slice(1, 3), 16)}, ${parseInt(color.slice(3, 5), 16)}, ${parseInt(color.slice(5, 7), 16)}, 0.1)`}
-        customTextColor={color}
-        customSx={{
+      <Box
+        sx={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 0.5,
+          px: size === 'small' ? 1 : 1.5,
+          py: size === 'small' ? 0.3 : 0.5,
+          borderRadius: '6px',
           fontSize: size === 'small' ? '0.75rem' : '0.875rem',
-          height: size === 'small' ? '24px' : '32px',
           fontWeight: 500,
-          borderRadius: '6px', // 减小圆角半径使其更现代
-          letterSpacing: '0.4px', // 增加字母间距，提高可读性
-          boxShadow: theme === 'dark'
-            ? `0 2px 8px rgba(${parseInt(color.slice(1, 3), 16)}, ${parseInt(color.slice(3, 5), 16)}, ${parseInt(color.slice(5, 7), 16)}, 0.2)`
-            : `0 2px 8px rgba(${parseInt(color.slice(1, 3), 16)}, ${parseInt(color.slice(3, 5), 16)}, ${parseInt(color.slice(5, 7), 16)}, 0.1)`,
-          // 添加边框以增强质感
-          border: `1px solid ${theme === 'dark'
-            ? `rgba(${parseInt(color.slice(1, 3), 16)}, ${parseInt(color.slice(3, 5), 16)}, ${parseInt(color.slice(5, 7), 16)}, 0.3)`
-            : `rgba(${parseInt(color.slice(1, 3), 16)}, ${parseInt(color.slice(3, 5), 16)}, ${parseInt(color.slice(5, 7), 16)}, 0.2)`}`,
+          lineHeight: 1.4,
+          // cursor: finalUrl ? 'pointer' : 'default', // 由 motion.div 控制
+          backgroundColor: alpha(color, isDark ? 0.15 : 0.1),
+          border: `1px solid ${alpha(color, isDark ? 0.4 : 0.3)}`,
+          color: color,
+          transition: 'background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease',
         }}
-      />
+      >
+        {finalIcon}
+        <Typography
+          component="span"
+          sx={{
+            fontSize: 'inherit',
+            fontWeight: 'inherit',
+            lineHeight: 'inherit'
+          }}
+        >
+          {technologyName}
+        </Typography>
+      </Box>
     </motion.div>
   );
 }

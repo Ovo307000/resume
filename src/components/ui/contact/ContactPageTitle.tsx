@@ -1,157 +1,142 @@
 import React from 'react';
-import { Box } from '@mui/material';
-import EnhancedPageTitle from '../common/EnhancedPageTitle';
+import { Box, Typography, Container } from '@mui/material';
+import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../../contexts/ThemeContext';
-import { FiMail } from 'react-icons/fi';
-import { motion } from 'framer-motion';
 
 interface ContactPageTitleProps {
   withAnimation?: boolean;
 }
 
 /**
- * 联系页面专用标题组件
- * 使用复用的EnhancedPageTitle组件，并添加联系页面特定的样式和动画
+ * 联系页面标题组件 - 简化版
+ * 更加简洁、优雅、精致的设计
  */
-const ContactPageTitle: React.FC<ContactPageTitleProps> = ({
-  withAnimation = true
-}) => {
+const ContactPageTitle: React.FC<ContactPageTitleProps> = ({ withAnimation = true }) => {
   const { t } = useTranslation();
   const { theme } = useTheme();
   const isDark = theme === 'dark';
 
-  // 装饰元素的动画
-  const decorationVariants = {
-    hidden: { opacity: 0, scale: 0.8, rotate: -10 },
-    visible: {
-      opacity: 1,
-      scale: 1,
-      rotate: 0,
-      transition: {
-        duration: 0.7,
-        delay: 0.3,
-        ease: [0.25, 0.1, 0.25, 1.0],
-      }
-    }
-  };
-
-  // 邮件图标的动画
-  const mailIconVariants = {
-    hidden: { opacity: 0, y: -15 },
+  // 标题动画变体
+  const titleVariants = {
+    hidden: { opacity: 0, y: -20 },
     visible: {
       opacity: 1,
       y: 0,
       transition: {
         duration: 0.5,
-        delay: 0.2,
-        ease: [0.25, 0.1, 0.25, 1.0],
+        ease: 'easeOut'
+      }
+    }
+  };
+
+  // 装饰线条动画变体
+  const lineVariants = {
+    hidden: { width: 0 },
+    visible: {
+      width: '80px',
+      transition: {
+        delay: 0.3,
+        duration: 0.8,
+        ease: 'easeOut'
+      }
+    }
+  };
+
+  // 副标题动画变体
+  const subtitleVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        delay: 0.4,
+        duration: 0.5
       }
     }
   };
 
   return (
-    <Box sx={{
-      position: 'relative',
-      mb: 5,
-    }}>
-      {/* 顶部装饰元素 - 左侧 */}
+    <Container maxWidth="md">
       <Box
-        component={motion.div}
-        initial={withAnimation ? "hidden" : "visible"}
-        animate="visible"
-        variants={decorationVariants}
         sx={{
-          position: 'absolute',
-          top: -15,
-          left: '15%',
-          width: '40px',
-          height: '40px',
-          borderRadius: '8px',
-          transform: 'rotate(-15deg)',
-          background: isDark
-            ? 'linear-gradient(135deg, #10b981, #34d399)'
-            : 'linear-gradient(135deg, #059669, #10b981)',
-          opacity: 0.15,
-          filter: 'blur(8px)',
-          zIndex: 0
-        }}
-      />
-
-      {/* 顶部图标 */}
-      <Box
-        component={motion.div}
-        initial={withAnimation ? "hidden" : "visible"}
-        animate="visible"
-        variants={mailIconVariants}
-        sx={{
-          display: 'flex',
-          justifyContent: 'center',
-          mb: 1.5,
+          textAlign: 'center',
           position: 'relative',
-          zIndex: 3
+          mb: 6
         }}
       >
+        <Box
+          component={withAnimation ? motion.div : 'div'}
+          variants={withAnimation ? titleVariants : undefined}
+          initial={withAnimation ? "hidden" : undefined}
+          animate={withAnimation ? "visible" : undefined}
+        >
+          <Typography
+            variant="h2"
+            component="h1"
+            sx={{
+              fontWeight: 700,
+              fontSize: { xs: '2rem', sm: '2.5rem', md: '3rem' },
+              backgroundImage: isDark
+                ? 'linear-gradient(90deg, #f0f0f0, #c0c0c0)'
+                : 'linear-gradient(90deg, #2c3e50, #4a5568)',
+              backgroundClip: 'text',
+              textFillColor: 'transparent',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              mb: 1
+            }}
+          >
+            {t('contact.title', '联系我')}
+          </Typography>
+        </Box>
+
         <Box
           sx={{
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
-            width: '60px',
-            height: '60px',
-            borderRadius: '50%',
-            background: isDark
-              ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(52, 211, 153, 0.08))'
-              : 'linear-gradient(135deg, rgba(5, 150, 105, 0.1), rgba(16, 185, 129, 0.06))',
-            boxShadow: isDark
-              ? '0 4px 20px rgba(16, 185, 129, 0.15)'
-              : '0 4px 20px rgba(5, 150, 105, 0.1)',
-            backdropFilter: 'blur(10px)',
-            border: isDark
-              ? '1px solid rgba(16, 185, 129, 0.2)'
-              : '1px solid rgba(5, 150, 105, 0.15)',
+            mb: 2
           }}
         >
-          <FiMail
-            size={30}
-            style={{
-              color: isDark ? '#34d399' : '#059669',
-              strokeWidth: 2
+          <Box
+            component={withAnimation ? motion.div : 'div'}
+            variants={withAnimation ? lineVariants : undefined}
+            initial={withAnimation ? "hidden" : undefined}
+            animate={withAnimation ? "visible" : undefined}
+            sx={{
+              height: '3px',
+              borderRadius: '2px',
+              background: isDark
+                ? 'linear-gradient(90deg, #64748b, #94a3b8)'
+                : 'linear-gradient(90deg, #475569, #94a3b8)',
             }}
           />
         </Box>
+
+        <Box
+          component={withAnimation ? motion.div : 'div'}
+          variants={withAnimation ? subtitleVariants : undefined}
+          initial={withAnimation ? "hidden" : undefined}
+          animate={withAnimation ? "visible" : undefined}
+        >
+          <Typography
+            variant="subtitle1"
+            sx={{
+              color: isDark ? 'grey.400' : 'text.secondary',
+              maxWidth: '650px',
+              margin: '0 auto',
+              lineHeight: 1.6,
+              fontWeight: 400
+            }}
+          >
+            {t(
+              'contact.subtitle',
+              '如果您有任何问题或者需要了解更多信息，欢迎随时联系我'
+            )}
+          </Typography>
+        </Box>
       </Box>
-
-      <EnhancedPageTitle
-        title={t('contact.title', '联系我')}
-        subtitle={t('contact.subtitle', '有合作或咨询，请与我联系')}
-        textAlign="center"
-        withAnimation={withAnimation}
-      />
-
-      {/* 右侧装饰元素 */}
-      <Box
-        component={motion.div}
-        initial={withAnimation ? "hidden" : "visible"}
-        animate="visible"
-        variants={decorationVariants}
-        sx={{
-          position: 'absolute',
-          bottom: 20,
-          right: '15%',
-          width: '35px',
-          height: '35px',
-          borderRadius: '8px',
-          transform: 'rotate(15deg)',
-          background: isDark
-            ? 'linear-gradient(135deg, #10b981, #34d399)'
-            : 'linear-gradient(135deg, #059669, #10b981)',
-          opacity: 0.15,
-          filter: 'blur(8px)',
-          zIndex: 0
-        }}
-      />
-    </Box>
+    </Container>
   );
 };
 

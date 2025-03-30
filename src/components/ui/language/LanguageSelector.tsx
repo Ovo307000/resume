@@ -52,15 +52,16 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({
   };
 
   const buttonSize = sizeMap[size];
-  // 紧凑模式下调整尺寸
-  const flagSize = compact ? buttonSize * 0.5 : buttonSize * 0.7;
+  // 固定国旗图标大小，不再根据compact变化
+  const flagSize = buttonSize * 0.65;
 
-  // 获取统一的背景颜色
+  // 获取背景颜色
   const getBackground = () => {
     if (isDark) {
       return 'rgba(32, 32, 35, 0.6)';
     }
-    return 'rgba(255, 255, 255, 0.7)';
+    // 提高亮色模式下的背景对比度
+    return 'rgba(240, 240, 250, 0.9)';
   };
 
   // 打开菜单
@@ -102,9 +103,10 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({
       title: `${countryCode} flag`,
       style: {
         borderRadius: '2px',
+        // 增强边框可见性
         boxShadow: isDark
-          ? '0 1px 3px rgba(0, 0, 0, 0.3)'
-          : '0 1px 3px rgba(0, 0, 0, 0.2)',
+          ? '0 1px 3px rgba(0, 0, 0, 0.5)'
+          : '0 1px 3px rgba(0, 0, 0, 0.3)',
       }
     };
 
@@ -140,12 +142,13 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({
             borderRadius: '12px',
             background: getBackground(),
             backdropFilter: 'blur(8px)',
+            // 增强边框可见性
             border: isDark
-              ? '1px solid rgba(255, 255, 255, 0.1)'
-              : '1px solid rgba(0, 0, 0, 0.05)',
+              ? '1px solid rgba(255, 255, 255, 0.15)'
+              : '1px solid rgba(0, 0, 0, 0.1)',
             boxShadow: isDark
               ? '0 4px 10px rgba(0, 0, 0, 0.25)'
-              : '0 4px 10px rgba(0, 0, 0, 0.08)',
+              : '0 4px 10px rgba(0, 0, 0, 0.12)',
             width: buttonSize,
             height: buttonSize,
             display: 'flex',
@@ -157,7 +160,7 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({
               transform: 'translateY(-2px)',
               boxShadow: isDark
                 ? '0 6px 12px rgba(0, 0, 0, 0.3)'
-                : '0 6px 12px rgba(0, 0, 0, 0.1)',
+                : '0 6px 12px rgba(0, 0, 0, 0.15)',
             },
             ...sx  // 应用自定义样式
           }}
@@ -239,7 +242,7 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({
             backdropFilter: 'blur(10px)',
             backgroundColor: isDark
               ? 'rgba(25, 25, 35, 0.8)'
-              : 'rgba(255, 255, 255, 0.8)',
+              : 'rgba(255, 255, 255, 0.9)',
             boxShadow: isDark
               ? '0 8px 20px rgba(0, 0, 0, 0.4)'
               : '0 8px 20px rgba(0, 0, 0, 0.15)',
@@ -275,7 +278,7 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({
           >
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
               <Box sx={{ width: 24, height: 18 }}>
-                {renderFlag(lang.countryCode, flagSize)}
+                {renderFlag(lang.countryCode, 24)}
               </Box>
               <Typography
                 variant="body2"
