@@ -1,29 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import {
   Typography,
   Box,
   Container,
   Grid,
-  Paper,
-  Tab,
-  Tabs,
   alpha,
   useTheme as useMuiTheme
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { FiCode, FiSettings, FiServer, FiLayers, FiDatabase, FiMonitor, FiTool, FiZap } from 'react-icons/fi';
-import { DiJava, DiJavascript1, DiPython, DiMysql, DiPostgresql, DiMongodb, DiReact, DiDocker, DiGit, DiRedis } from 'react-icons/di';
-import { SiTypescript, SiSpring, SiVuedotjs, SiTailwindcss, SiGradle, SiLinux, SiC, SiCplusplus, SiGo, SiRust, SiSharp } from 'react-icons/si';
+import { FiServer, FiDatabase, FiSettings, FiMonitor } from 'react-icons/fi';
 import { useTheme } from '../../contexts/ThemeContext';
 import GlassyBlobBackground from '../../components/ui/backgrounds/GlassyBlobBackground';
-import EnhancedPageTitle from '../../components/ui/common/EnhancedPageTitle';
 import SkillDetail from '../../components/ui/SkillDetail';
-import SkillBarGroup from '../../components/ui/skills/SkillBarGroup';
 import TagSphere from '../../components/ui/skills/TagSphere';
 import { Skill } from '../../types/skill';
 import { useLanguage } from '../../hooks/useLanguage';
-import CustomChip from '../../components/ui/common/CustomChip';
 import PageTransition from '../../components/ui/transitions/PageTransition';
 import SkillsPageTitle from '../../components/ui/skills/SkillsPageTitle';
 import TechnologyTag from '../../components/ui/projects/TechnologyTag';
@@ -41,14 +33,14 @@ interface SkillsPageProps {
 }
 
 /**
- * 技能页面组件
- * 展示编程语言、框架和工具等技能
+ * 技能页面组件 - 重构版
+ * 移除进度条，聚焦专业领域和标签云
  */
 const SkillsPage: React.FC<SkillsPageProps> = ({ data }) => {
   const { t } = useTranslation();
   const { theme } = useTheme();
   const muiTheme = useMuiTheme();
-  const [activeTab, setActiveTab] = useState(0);
+  const { language } = useLanguage();
 
   // 动画变体
   const containerVariants = {
@@ -67,208 +59,40 @@ const SkillsPage: React.FC<SkillsPageProps> = ({ data }) => {
     visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
   };
 
-  // 处理标签切换
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
-    setActiveTab(newValue);
-  };
-
-  // 获取技能图标
-  const getSkillIcon = (name: string) => {
-    const iconSize = 24;
-    const iconMap: Record<string, React.ReactNode> = {
-      'JAVA': <DiJava size={iconSize} />,
-      'Java': <DiJava size={iconSize} />,
-      'JavaScript': <DiJavascript1 size={iconSize} />,
-      'TypeScript': <SiTypescript size={iconSize} />,
-      'Python': <DiPython size={iconSize} />,
-      'C': <SiC size={iconSize} />,
-      'C++': <SiCplusplus size={iconSize} />,
-      'C#': <SiSharp size={iconSize} />,
-      'Go': <SiGo size={iconSize} />,
-      'Rust': <SiRust size={iconSize} />,
-      'Spring': <SiSpring size={iconSize} />,
-      'Spring Boot': <SiSpring size={iconSize} />,
-      'Spring MVC': <SiSpring size={iconSize} />,
-      'Spring JPA': <SiSpring size={iconSize} />,
-      'React.js': <DiReact size={iconSize} />,
-      'React': <DiReact size={iconSize} />,
-      'Vue.js': <SiVuedotjs size={iconSize} />,
-      'TailWind CSS': <SiTailwindcss size={iconSize} />,
-      'MySql': <DiMysql size={iconSize} />,
-      'MySQL': <DiMysql size={iconSize} />,
-      'PostgreSql': <DiPostgresql size={iconSize} />,
-      'MongoDB': <DiMongodb size={iconSize} />,
-      'Redis': <DiRedis size={iconSize} />,
-      'Git': <DiGit size={iconSize} />,
-      'Linux': <SiLinux size={iconSize} />,
-      'Docker': <DiDocker size={iconSize} />,
-      'Maven': <FiServer size={iconSize} />,
-      'Gradle': <SiGradle size={iconSize} />,
-      'RESTAPI': <FiServer size={iconSize} />,
-      'Stable Diffusion': <FiSettings size={iconSize} />
-    };
-
-    return iconMap[name] || <FiCode size={iconSize} />;
-  };
-
-  // 获取技能URL
-  const getSkillUrl = (name: string) => {
-    const urlMap: Record<string, string> = {
-      'JAVA': 'https://www.java.com/',
-      'Java': 'https://www.java.com/',
-      'JavaScript': 'https://developer.mozilla.org/en-US/docs/Web/JavaScript',
-      'TypeScript': 'https://www.typescriptlang.org/',
-      'Spring': 'https://spring.io/',
-      'Spring Boot': 'https://spring.io/projects/spring-boot',
-      'Spring MVC': 'https://docs.spring.io/spring-framework/docs/current/reference/html/web.html',
-      'Spring JPA': 'https://spring.io/projects/spring-data-jpa',
-      'React.js': 'https://reactjs.org/',
-      'React': 'https://reactjs.org/',
-      'Vue.js': 'https://vuejs.org/',
-      'TailWind CSS': 'https://tailwindcss.com/',
-      'MySql': 'https://www.mysql.com/',
-      'MySQL': 'https://www.mysql.com/',
-      'PostgreSql': 'https://www.postgresql.org/',
-      'MongoDB': 'https://www.mongodb.com/',
-      'Redis': 'https://redis.io/',
-      'Git': 'https://git-scm.com/',
-      'Linux': 'https://www.linux.org/',
-      'Docker': 'https://www.docker.com/',
-      'Maven': 'https://maven.apache.org/',
-      'Gradle': 'https://gradle.org/',
-      'RESTAPI': 'https://restfulapi.net/',
-      'Stable Diffusion': 'https://stability.ai/'
-    };
-
-    return urlMap[name] || undefined;
-  };
-
-  // 获取技能水平（模拟数据）
-  const getSkillLevel = (skill: string) => {
-    // 根据技能关键词返回模拟的技能熟练度
-    const skillLowerCase = skill.toLowerCase();
-
-    if (skillLowerCase.includes('java') || skillLowerCase.includes('spring')) {
-      return 90;
-    } else if (skillLowerCase.includes('mysql') || skillLowerCase.includes('sql')) {
-      return 85;
-    } else if (skillLowerCase.includes('docker') || skillLowerCase.includes('redis')) {
-      return 80;
-    } else if (skillLowerCase.includes('react') || skillLowerCase.includes('vue')) {
-      return 70;
-    } else {
-      // 随机生成65-85的熟练度
-      return Math.floor(Math.random() * 20) + 65;
-    }
-  };
-
-  // 按类别生成技能
-  const generateSkills = () => {
+  const generateSkills = useMemo(() => () => {
     const allSkills: Skill[] = [];
+    const combinedSkills = [
+        ...data.programmingLanguages.map(name => ({ name, category: 'language' })),
+        ...data.frameworks.map(name => ({ name, category: 'framework' })),
+        ...data.tools.map(name => ({ name, category: 'tool' }))
+    ];
 
-    // 编程语言
-    data.programmingLanguages.forEach(lang => {
-      allSkills.push({
-        name: lang,
-        value: getSkillLevel(lang),
-        level: getSkillLevel(lang),
-        icon: getSkillIcon(lang),
-        category: 'language',
-        url: getSkillUrl(lang)
-      });
-    });
+    const getSkillLevel = (skill: string) => {
+      const skillLowerCase = skill.toLowerCase();
+      if (skillLowerCase.includes('java') || skillLowerCase.includes('spring')) return 90;
+      if (skillLowerCase.includes('mysql') || skillLowerCase.includes('sql')) return 85;
+      if (skillLowerCase.includes('docker') || skillLowerCase.includes('redis')) return 80;
+      if (skillLowerCase.includes('react') || skillLowerCase.includes('vue')) return 70;
+      return Math.floor(Math.random() * 20) + 65;
+    };
 
-    // 框架
-    data.frameworks.forEach(framework => {
-      allSkills.push({
-        name: framework,
-        value: getSkillLevel(framework),
-        level: getSkillLevel(framework),
-        icon: getSkillIcon(framework),
-        category: 'framework',
-        url: getSkillUrl(framework)
-      });
-    });
-
-    // 工具
-    data.tools.forEach(tool => {
-      allSkills.push({
-        name: tool,
-        value: getSkillLevel(tool),
-        level: getSkillLevel(tool),
-        icon: getSkillIcon(tool),
-        category: 'tool',
-        url: getSkillUrl(tool)
-      });
+    combinedSkills.forEach(skillInfo => {
+        allSkills.push({
+            name: skillInfo.name,
+            value: getSkillLevel(skillInfo.name),
+            level: getSkillLevel(skillInfo.name),
+            category: skillInfo.category,
+        });
     });
 
     return allSkills;
-  };
+  }, [data]);
 
-  const skills = generateSkills();
-
-  // 按类别过滤技能
-  const filterSkillsByCategory = (category: string) => {
-    return skills.filter(skill => skill.category === category);
-  };
-
-  // 获取当前显示的技能
-  const getActiveSkills = () => {
-    if (activeTab === 0) {
-      // Overview选项卡展示所有技能
-      return skills;
-    } else {
-      // 其他选项卡按类别过滤
-      const categories = ['language', 'framework', 'tool'];
-      return filterSkillsByCategory(categories[activeTab - 1]);
-    }
-  };
-
-  // 获取类别图标
-  const getCategoryIcon = (index: number) => {
-    const icons = [
-      <FiServer key="overview" size={20} />, // Overview图标
-      <FiCode key="code" size={20} />,
-      <FiLayers key="layers" size={20} />,
-      <FiSettings key="settings" size={20} />
-    ];
-    return icons[index];
-  };
-
-  // 渲染技能进度条
-  const renderSkills = () => {
-    const activeSkills = getActiveSkills();
-    return (
-      <Box sx={{ mt: 2 }}>
-        <SkillBarGroup
-          skills={activeSkills}
-          showCategoryHeaders={activeTab === 0} // 只在Overview标签显示分类标题
-          categoryTranslations={{
-            language: t('skills.categories.language', '编程语言'),
-            framework: t('skills.categories.framework', '框架'),
-            tool: t('skills.categories.tools', '工具'),
-            database: t('skills.categories.database', '数据库'),
-            devops: t('skills.categories.devops', 'DevOps')
-          }}
-          animated={true}
-          variant="gradient" // 技能页面使用渐变样式区分
-          height={12}
-          glowEffect={true}
-          useGrid={true} // 使用网格布局
-          columnsPerRow={2} // 一行显示2个技能条
-        />
-      </Box>
-    );
-  };
-
-  // 渲染技术池 - 使用3D标签云
   const renderTechPool = () => {
-    // 生成所有技能并按熟练度排序
     const allSkills = generateSkills();
 
-    // 确保标签数据不为空
     if (!allSkills || allSkills.length === 0) {
-      return (
+       return (
         <Box sx={{
           display: 'flex',
           justifyContent: 'center',
@@ -290,63 +114,47 @@ const SkillsPage: React.FC<SkillsPageProps> = ({ data }) => {
             : '0 4px 20px rgba(0, 0, 0, 0.05)',
         }}>
           <Typography variant="body1" color="text.secondary">
-            {theme === 'dark' ? '✨' : '⚙️'} 暂无技能标签数据，请先添加技能
+            {theme === 'dark' ? '✨' : '⚙️'} 暂无技能标签数据
           </Typography>
         </Box>
       );
     }
 
-    // 将Skills转换为Tag格式
     const techTags = allSkills.map(skill => ({
       name: skill.name,
-      icon: skill.icon,
-      url: skill.url,
       value: skill.value
     }));
 
-    // 重新设计的标签云容器
     return (
-      <Box sx={{
-        width: '100%',
-        height: { xs: '350px', sm: '400px', md: '450px' }, // 增加高度
-        position: 'relative',
-        overflow: 'hidden',
-        borderRadius: '20px', // 增加圆角
-        background: theme === 'dark'
-          ? `radial-gradient(ellipse at center, ${alpha(muiTheme.palette.primary.dark, 0.1)} 0%, ${alpha(muiTheme.palette.background.paper, 0.1)} 70%)` // 暗色模式背景
-          : `radial-gradient(ellipse at center, ${alpha(muiTheme.palette.primary.light, 0.1)} 0%, ${alpha(muiTheme.palette.background.paper, 0.05)} 70%)`, // 亮色模式背景
-        my: 2,
-        border: `1px solid ${alpha(
-          theme === 'dark' ? '#ffffff' : '#000000',
-          theme === 'dark' ? 0.08 : 0.05 // 边框稍微明显一点
-        )}`,
-        boxShadow: theme === 'dark'
-          ? `0 8px 30px rgba(0, 0, 0, 0.3), inset 0 0 10px ${alpha(muiTheme.palette.primary.main, 0.1)}` // 增加阴影和内阴影
-          : `0 8px 30px rgba(0, 0, 0, 0.1), inset 0 0 10px ${alpha(muiTheme.palette.primary.main, 0.05)}`,
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        backdropFilter: 'blur(5px)', // 添加轻微模糊
-        WebkitBackdropFilter: 'blur(5px)'
-      }}>
+       <GlassyBlobBackground
+        colorSet="cool"
+        intensity="light"
+        glassEffect={true}
+        containerSx={{
+          width: '100%',
+          height: { xs: '350px', sm: '400px', md: '500px' },
+          position: 'relative',
+          margin: '0 auto',
+          maxWidth: '100%',
+          borderRadius: 4,
+        }}
+      >
         <TagSphere
           tags={techTags}
-          radius={200} // 稍微增大半径
-          initialSpeed={0.8} // 增加初始速度
+          radius={200}
+          initialSpeed={0.8}
           animated={true}
           enableSizing={true}
-          colorScheme="gradient" // 使用渐变色方案
-          glassEffect={false} // 关闭玻璃效果，避免与背景冲突
+          colorScheme="gradient"
           tagStyle={{
             fontWeight: 500,
-            textShadow: theme === 'dark' ? '0 1px 2px rgba(0,0,0,0.5)' : 'none' // 暗色模式加文字阴影
+            textShadow: theme === 'dark' ? '0 1px 2px rgba(0,0,0,0.5)' : 'none'
           }}
         />
-      </Box>
+       </GlassyBlobBackground>
     );
   };
 
-  // 添加技能详述部分
   const renderSkillDetails = () => {
     const skillDetails = [
       {
@@ -404,12 +212,10 @@ const SkillsPage: React.FC<SkillsPageProps> = ({ data }) => {
           initial="hidden"
           animate="visible"
         >
-          {/* 页面标题部分 - 使用专用标题组件 */}
           <motion.div variants={itemVariants}>
             <SkillsPageTitle withAnimation={false} />
           </motion.div>
 
-          {/* 技能概览部分 */}
           <motion.div variants={itemVariants}>
             <Typography
               variant="h5"
@@ -451,7 +257,6 @@ const SkillsPage: React.FC<SkillsPageProps> = ({ data }) => {
                   overflow: 'hidden'
                 }}
               >
-                {/* 装饰元素 - 左上角 */}
                 <Box
                   sx={{
                     position: 'absolute',
@@ -467,8 +272,6 @@ const SkillsPage: React.FC<SkillsPageProps> = ({ data }) => {
                     zIndex: 0
                   }}
                 />
-
-                {/* 装饰元素 - 右下角 */}
                 <Box
                   sx={{
                     position: 'absolute',
@@ -484,7 +287,6 @@ const SkillsPage: React.FC<SkillsPageProps> = ({ data }) => {
                     zIndex: 0
                   }}
                 />
-
                 <Box sx={{ position: 'relative', zIndex: 1 }}>
                   <Typography
                     variant="body1"
@@ -502,7 +304,6 @@ const SkillsPage: React.FC<SkillsPageProps> = ({ data }) => {
                   >
                     作为Java后端工程师，我擅长构建<Box component="span" sx={{ fontWeight: 600, color: theme === 'dark' ? '#b19fff' : '#4c6ef5' }}>高性能</Box>、<Box component="span" sx={{ fontWeight: 600, color: theme === 'dark' ? '#b19fff' : '#4c6ef5' }}>可扩展</Box>的系统。不断跟进行业最新技术，精通<Box component="span" sx={{ fontWeight: 600, color: theme === 'dark' ? '#ff9a76' : '#ff6b3d' }}>Spring生态</Box>和各种<Box component="span" sx={{ fontWeight: 600, color: theme === 'dark' ? '#64b5f6' : '#1976d2' }}>数据库技术</Box>，同时也对前端开发保持积极学习的态度。
                   </Typography>
-
                   <Box
                     sx={{
                       display: 'flex',
@@ -521,172 +322,26 @@ const SkillsPage: React.FC<SkillsPageProps> = ({ data }) => {
             </motion.div>
           </motion.div>
 
-          {/* 技能详述部分 */}
           <motion.div variants={itemVariants}>
             <Typography
               variant="h5"
-              sx={{
-                mb: 3,
-                fontWeight: 600,
-                textAlign: { xs: 'center', md: 'left' }
-              }}
+              sx={{ mb: 3, fontWeight: 600, textAlign: { xs: 'center', md: 'left' } }}
             >
               专业领域
             </Typography>
-
             <Box sx={{ mb: 6 }}>
               {renderSkillDetails()}
             </Box>
           </motion.div>
 
-          {/* 技能标签云 */}
           <motion.div variants={itemVariants}>
             <Typography
               variant="h5"
-              sx={{
-                mb: 3,
-                fontWeight: 600,
-                textAlign: { xs: 'center', md: 'left' }
-              }}
+              sx={{ mb: 3, fontWeight: 600, textAlign: { xs: 'center', md: 'left' } }}
             >
               技能标签云
             </Typography>
             {renderTechPool()}
-          </motion.div>
-
-          {/* 技能标签切换器 */}
-          <motion.div variants={itemVariants}>
-            <Typography
-              variant="h5"
-              sx={{
-                mb: 3,
-                fontWeight: 600,
-                textAlign: { xs: 'center', md: 'left' }
-              }}
-            >
-              技能图谱
-            </Typography>
-
-            <Paper
-              elevation={0}
-              sx={{
-                p: 1,
-                mb: 4,
-                borderRadius: '50px',
-                backdropFilter: 'blur(10px)',
-                backgroundColor: alpha(
-                  theme === 'dark' ? muiTheme.palette.background.paper : muiTheme.palette.background.paper,
-                  theme === 'dark' ? 0.2 : 0.3
-                ),
-                border: `1px solid ${alpha(
-                  theme === 'dark' ? muiTheme.palette.common.white : muiTheme.palette.common.black,
-                  0.05
-                )}`,
-              }}
-            >
-              <Tabs
-                value={activeTab}
-                onChange={handleTabChange}
-                variant="fullWidth"
-                indicatorColor="primary"
-                textColor="primary"
-                sx={{
-                  '& .MuiTab-root': {
-                    borderRadius: '50px',
-                    minHeight: '48px',
-                    transition: 'all 0.3s ease',
-                    '&.Mui-selected': {
-                      background: alpha(muiTheme.palette.primary.main, 0.1),
-                      color: theme === 'dark' ? muiTheme.palette.primary.light : muiTheme.palette.primary.main,
-                    },
-                  },
-                  '& .MuiTabs-indicator': {
-                    display: 'none', // 隐藏默认指示器，使用自定义背景代替
-                  },
-                }}
-              >
-                <Tab
-                  icon={getCategoryIcon(0)}
-                  label={t('skills.tabs.overview', '概览')}
-                  iconPosition="start"
-                  sx={{ textTransform: 'none', fontSize: '0.9rem' }}
-                />
-                <Tab
-                  icon={getCategoryIcon(1)}
-                  label={t('skills.tabs.programmingLanguages', '编程语言')}
-                  iconPosition="start"
-                  sx={{ textTransform: 'none', fontSize: '0.9rem' }}
-                />
-                <Tab
-                  icon={getCategoryIcon(2)}
-                  label={t('skills.tabs.frameworks', '框架')}
-                  iconPosition="start"
-                  sx={{ textTransform: 'none', fontSize: '0.9rem' }}
-                />
-                <Tab
-                  icon={getCategoryIcon(3)}
-                  label={t('skills.tabs.tools', '工具')}
-                  iconPosition="start"
-                  sx={{ textTransform: 'none', fontSize: '0.9rem' }}
-                />
-              </Tabs>
-            </Paper>
-          </motion.div>
-
-          {/* 技能列表 */}
-          <motion.div variants={itemVariants}>
-            <GlassyBlobBackground
-              colorSet="primary"
-              intensity="light"
-              containerSx={{
-                borderRadius: '16px',
-                p: { xs: 2, md: 4 },
-                mb: 6
-              }}
-            >
-              <Box sx={{ mt: 2, mb: 2 }}>
-                {activeTab === 0 && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.5 }}
-                  >
-                    {renderSkills()}
-                  </motion.div>
-                )}
-                {activeTab === 1 && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.5 }}
-                  >
-                    {renderSkills()}
-                  </motion.div>
-                )}
-                {activeTab === 2 && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.5 }}
-                  >
-                    {renderSkills()}
-                  </motion.div>
-                )}
-                {activeTab === 3 && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.5 }}
-                  >
-                    {renderSkills()}
-                  </motion.div>
-                )}
-              </Box>
-            </GlassyBlobBackground>
           </motion.div>
         </motion.div>
       </Container>
