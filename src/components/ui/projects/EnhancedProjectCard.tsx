@@ -303,7 +303,7 @@ const EnhancedProjectCard: React.FC<ProjectCardProps> = ({
               {technologies.length > (isMobile ? 2 : 3) && (
                  <Chip
                   label={`+${technologies.length - (isMobile ? 2 : 3)}`}
-                  size="small"
+                size="small"
                   icon={<FiTag size={12} style={{ marginRight: 4 }}/>}
                   sx={{
                     fontSize: '0.7rem',
@@ -357,24 +357,24 @@ const EnhancedProjectCard: React.FC<ProjectCardProps> = ({
             </Typography>
 
             <Stack direction="row" spacing={1} justifyContent="flex-end" alignItems="center">
-              {githubUrl && (
-                <AnimatedIconButton
+                {githubUrl && (
+                  <AnimatedIconButton
                   title="GitHub Repository"
-                  onClick={(e) => handleLinkClick(e, githubUrl)}
-                  size="small"
+                    onClick={(e) => handleLinkClick(e, githubUrl)}
+                    size="small"
                 >
                   <FiGithub size={18} />
                 </AnimatedIconButton>
-              )}
-              {url && (
-                <AnimatedIconButton
+                )}
+                {url && (
+                  <AnimatedIconButton
                   title="Live Demo / Website"
-                  onClick={(e) => handleLinkClick(e, url)}
-                  size="small"
+                    onClick={(e) => handleLinkClick(e, url)}
+                    size="small"
                 >
                   <FiExternalLink size={18} />
                 </AnimatedIconButton>
-              )}
+                )}
               {hasDetails && (
                  <AnimatedIconButton
                   title="View Details"
@@ -413,7 +413,7 @@ const EnhancedProjectCard: React.FC<ProjectCardProps> = ({
         closeAfterTransition
         BackdropComponent={Backdrop}
         BackdropProps={{
-          timeout: 500,
+            timeout: 500,
           sx: imagePreviewBackdropStyle,
         }}
         sx={imagePreviewModalStyle}
@@ -426,11 +426,11 @@ const EnhancedProjectCard: React.FC<ProjectCardProps> = ({
           style={imagePreviewContentStyle}
           onClick={(e) => e.stopPropagation()}
         >
-          <img
-            src={imageUrl}
+              <img
+                src={imageUrl}
             alt={`${language === 'en' ? name : nameZh} preview`}
-            style={{
-              display: 'block',
+                style={{
+                  display: 'block',
               maxWidth: isImageEnlarged ? 'none' : '100%',
               maxHeight: '90vh',
               width: isImageEnlarged ? 'auto' : '100%',
@@ -442,37 +442,37 @@ const EnhancedProjectCard: React.FC<ProjectCardProps> = ({
           />
           <IconButton
             onClick={() => setIsImagePreviewOpen(false)}
-            sx={{
-              position: 'absolute',
+                sx={{
+                  position: 'absolute',
               top: 8,
               right: 8,
               color: 'common.white',
               backgroundColor: alpha(muiTheme.palette.common.black, 0.4),
-              '&:hover': {
+                    '&:hover': {
                 backgroundColor: alpha(muiTheme.palette.common.black, 0.6),
               }
             }}
             size="small"
-          >
-            <FiX />
-          </IconButton>
-          <IconButton
+                >
+                  <FiX />
+                </IconButton>
+                  <IconButton
             onClick={handleImageDownload}
-            sx={{
-              position: 'absolute',
+                    sx={{
+                      position: 'absolute',
               bottom: 8,
               right: 8,
               color: 'common.white',
               backgroundColor: alpha(muiTheme.palette.common.black, 0.4),
-               '&:hover': {
+                      '&:hover': {
                 backgroundColor: alpha(muiTheme.palette.common.black, 0.6),
               }
             }}
             size="small"
           >
             <FiDownload />
-          </IconButton>
-        </motion.div>
+                  </IconButton>
+          </motion.div>
       </Modal>
     </>
   );

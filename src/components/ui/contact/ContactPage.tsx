@@ -84,7 +84,10 @@ const ContactPage: React.FC<ContactPageProps> = ({ userData }) => {
         if (userData.location) copyToClipboard(userData.location, t('contact.location', '地址'));
         break;
       case 'resume':
-        if (userData.resume) window.open(userData.resume, '_blank', 'noopener,noreferrer');
+        if (userData.resume) {
+          // 修复简历跳转，确保正确打开Resume.pdf
+          window.open(userData.resume, '_blank', 'noopener,noreferrer');
+        }
         break;
     }
   };
@@ -130,18 +133,20 @@ const ContactPage: React.FC<ContactPageProps> = ({ userData }) => {
     }
   };
 
-  // 箭头动画变体
-  const arrowVariants = {
-    hidden: { opacity: 0, x: -5 },
-    visible: { opacity: 1, x: 0 },
-    hover: {
-      x: 5,
-      scale: 1.2,
+  // 彩色条动画变体
+  const colorBarVariants = {
+    hidden: {
+      backgroundPosition: '0% 50%',
+      opacity: 0.7
+    },
+    visible: {
+      backgroundPosition: '100% 50%',
+      opacity: 1,
       transition: {
+        duration: 3,
+        ease: "easeInOut",
         repeat: Infinity,
-        repeatType: "reverse",
-        duration: 0.6,
-        ease: "easeInOut"
+        repeatType: "reverse"
       }
     }
   };
@@ -345,9 +350,9 @@ const ContactPage: React.FC<ContactPageProps> = ({ userData }) => {
         {/* 联系卡片容器 */}
         <Box
           component={motion.div}
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
           sx={{ mb: 5 }}
         >
           <Grid container spacing={3}>
@@ -381,6 +386,10 @@ const ContactPage: React.FC<ContactPageProps> = ({ userData }) => {
                     }}
                   >
                     <Box
+                      component={motion.div}
+                      variants={colorBarVariants}
+                      initial="hidden"
+                      animate="visible"
                       sx={{
                         position: 'absolute',
                         top: 0,
@@ -388,6 +397,7 @@ const ContactPage: React.FC<ContactPageProps> = ({ userData }) => {
                         width: '100%',
                         height: '4px',
                         background: card.gradient,
+                        backgroundSize: '200% 200%',
                       }}
                     />
                     <CardContent sx={{ p: 3 }}>
@@ -425,7 +435,7 @@ const ContactPage: React.FC<ContactPageProps> = ({ userData }) => {
                           </Typography>
                         </Box>
 
-                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', ml: 1 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', ml: 1 }}>
                           <Tooltip title={card.id === 'github' || card.id === 'linkedin' || card.id === 'resume' ?
                             t('contact.visit', '访问') : t('contact.copy', '复制')}>
                             <IconButton
@@ -437,8 +447,7 @@ const ContactPage: React.FC<ContactPageProps> = ({ userData }) => {
                                   bgcolor: alpha(card.color, 0.2),
                                   transform: 'scale(1.1)'
                                 },
-                                transition: 'all 0.2s ease',
-                                mb: 1
+                                transition: 'all 0.2s ease'
                               }}
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -449,31 +458,11 @@ const ContactPage: React.FC<ContactPageProps> = ({ userData }) => {
                                 <FiExternalLink size={16} /> : <FiCopy size={16} />}
                             </IconButton>
                           </Tooltip>
-
-                          <Box
-                            component={motion.div}
-                            variants={arrowVariants}
-                            initial="hidden"
-                            animate="visible"
-                            whileHover="hover"
-                            sx={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              width: 24,
-                              height: 24,
-                              borderRadius: '50%',
-                              background: alpha(card.color, 0.1),
-                              transition: 'all 0.2s ease'
-                            }}
-                          >
-                            <FiArrowUpRight size={14} color={card.color} />
-                          </Box>
                         </Box>
                       </Box>
                     </CardContent>
                   </Card>
-        </motion.div>
+                </motion.div>
               </Grid>
             ))}
           </Grid>
@@ -482,43 +471,56 @@ const ContactPage: React.FC<ContactPageProps> = ({ userData }) => {
         {/* 联系信息卡片 */}
         <Box
           component={motion.div}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5, duration: 0.5 }}
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
           sx={{ mb: 5 }}
         >
           <Grid container spacing={3}>
             {infoCards.map((card) => (
               <Grid item xs={12} sm={6} key={card.id}>
                 <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3, duration: 0.5 }}
-                  whileHover={{
-                    scale: 1.01,
-                    transition: {
-                      duration: 0.2
-                    }
-                  }}
+                  variants={cardVariants}
+                  whileHover="hover"
+                  whileTap="tap"
                 >
                   <Card
-            elevation={0}
-            sx={{
+                    elevation={0}
+                    sx={{
+                      height: '100%',
                       borderRadius: 4,
                       overflow: 'hidden',
-                      background: isDark
-                        ? 'rgba(30, 41, 59, 0.5)'
-                        : 'rgba(255, 255, 255, 0.8)',
-              backdropFilter: 'blur(10px)',
-              border: '1px solid',
-                      borderColor: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)',
-                      '&:hover': {
-                        boxShadow: `0 0 20px 5px ${alpha(isDark ? card.color : card.darkColor, 0.15)}`,
-                        borderColor: alpha(isDark ? card.color : card.darkColor, 0.2),
-                      },
+                      position: 'relative',
+                      bgcolor: isDark ? 'rgba(30, 41, 59, 0.5)' : 'rgba(255, 255, 255, 0.8)',
+                      backdropFilter: 'blur(12px)',
+                      border: '1px solid',
+                      borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)',
                       transition: 'all 0.3s ease',
+                      outline: 'none',
+                      '&:hover': {
+                        outline: 'none',
+                        boxShadow: `0 0 20px 5px ${alpha(isDark ? card.color : card.darkColor, isDark ? 0.3 : 0.2)}`,
+                        borderColor: alpha(isDark ? card.color : card.darkColor, 0.4),
+                      }
                     }}
                   >
+                    <Box
+                      component={motion.div}
+                      variants={colorBarVariants}
+                      initial="hidden"
+                      animate="visible"
+                      sx={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '4px',
+                        background: isDark
+                          ? `linear-gradient(90deg, ${card.color}, ${alpha(card.color, 0.6)}, ${card.color})`
+                          : `linear-gradient(90deg, ${card.darkColor}, ${alpha(card.darkColor, 0.6)}, ${card.darkColor})`,
+                        backgroundSize: '200% 200%',
+                      }}
+                    />
                     <CardContent sx={{ p: 3 }}>
                       <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
                         <Box
@@ -546,14 +548,14 @@ const ContactPage: React.FC<ContactPageProps> = ({ userData }) => {
                           >
                             {card.title}
                           </Typography>
-            <Typography
+                          <Typography
                             variant="body2"
-              sx={{
+                            sx={{
                               color: isDark ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.6)'
-              }}
-            >
+                            }}
+                          >
                             {card.description}
-            </Typography>
+                          </Typography>
                         </Box>
                       </Box>
                     </CardContent>
@@ -567,8 +569,9 @@ const ContactPage: React.FC<ContactPageProps> = ({ userData }) => {
         {/* 底部提示信息 */}
         <Box
           component={motion.div}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+          variants={cardVariants}
+          initial="hidden"
+          animate="visible"
           transition={{ delay: 0.7, duration: 0.5 }}
           sx={{
             p: { xs: 3, sm: 4 },
@@ -584,6 +587,21 @@ const ContactPage: React.FC<ContactPageProps> = ({ userData }) => {
             textAlign: 'center'
           }}
         >
+          <Box
+            component={motion.div}
+            variants={colorBarVariants}
+            initial="hidden"
+            animate="visible"
+            sx={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '4px',
+              background: 'linear-gradient(90deg, #6366F1, #3B82F6, #EC4899)',
+              backgroundSize: '200% 200%',
+            }}
+          />
           <Typography
             variant="body1"
             sx={{
