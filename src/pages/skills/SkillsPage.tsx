@@ -207,6 +207,12 @@ const SkillsPage: React.FC<SkillsPageProps> = ({ data }) => {
     );
   };
 
+  // 提取数据库技术的标签
+  const databaseTechnologies = useMemo(() => {
+    const dbDetails = renderSkillDetails().props.children[1]?.props.children.props;
+    return dbDetails?.technologies || [];
+  }, []);
+
   return (
     <PageTransition>
       <Container maxWidth="lg" sx={{ my: 4, position: 'relative' }}>
@@ -309,8 +315,8 @@ const SkillsPage: React.FC<SkillsPageProps> = ({ data }) => {
                       flexWrap: 'wrap'
                     }}
                   >
-                    {['Java', 'Spring Boot', 'MySQL', 'Redis', 'Docker'].map((tech, index) => (
-                      <TechnologyTag key={tech} tech={tech} index={index} size="medium" />
+                    {databaseTechnologies.map((tech: { name: string }, index: number) => (
+                      <TechnologyTag key={tech.name} tech={tech.name} index={index} size="medium" />
                     ))}
                   </Box>
                 </Box>

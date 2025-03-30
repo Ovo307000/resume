@@ -37,11 +37,14 @@ const TagText = ({ tag, position, scale, color, index }: {
   const isDark = theme === 'dark';
   const [isHovered, setIsHovered] = useState(false);
 
+  // 更平滑、自然的个体动画
   useFrame(({ clock }) => {
     if (!ref.current) return;
-    // 极轻微的自转，减少GPU计算
-    ref.current.rotation.x = Math.sin(clock.elapsedTime * 0.05 + index * 0.5) * 0.02;
-    ref.current.rotation.y = Math.sin(clock.elapsedTime * 0.03 + index * 0.7) * 0.02;
+    const elapsedTime = clock.elapsedTime;
+    // 微小的上下浮动
+    ref.current.position.y = position[1] + Math.sin(elapsedTime * 0.5 + index * 0.8) * 0.1;
+    // 微小的左右旋转
+    ref.current.rotation.y = Math.sin(elapsedTime * 0.3 + index * 0.5) * 0.05;
   });
 
   // 处理点击事件
@@ -63,15 +66,22 @@ const TagText = ({ tag, position, scale, color, index }: {
     document.body.style.cursor = 'default';
   };
 
-  const textScale = isHovered ? scale * 1.15 : scale; // 悬停时放大
+  // 计算最终颜色和轮廓
+  const finalColor = isHovered ? new THREE.Color(color).lerp(new THREE.Color("#ffffff"), 0.3).getHexString() : color;
+  const finalOutlineColor = isHovered ? (isDark ? '#ffffff' : '#000000') : (isDark ? '#000000' : '#ffffff');
+  const finalOutlineOpacity = isHovered ? 0.8 : 0.4;
+  const finalOutlineWidth = isHovered ? 0.03 : 0.025;
+
+  const textScale = isHovered ? scale * 1.15 : scale;
 
   return (
     <Text
       ref={ref}
+      // 使用原始position，内部动画修改实际位置
       position={position}
-      scale={[textScale, textScale, textScale]} // 应用悬停缩放
-      color={color}
-      fontSize={0.8}
+      scale={[textScale, textScale, textScale]}
+      color={finalColor} // 应用悬停颜色变化
+      fontSize={0.8} // 可以适当调整基础字号
       maxWidth={2}
       lineHeight={1}
       letterSpacing={0.02}
@@ -79,16 +89,15 @@ const TagText = ({ tag, position, scale, color, index }: {
       font="/fonts/Inter-Medium.woff"
       anchorX="center"
       anchorY="middle"
-      outlineWidth={isDark ? 0.01 : 0.005}
-      outlineColor={isDark ? "#000000" : "#ffffff"}
-      outlineOpacity={0.3}
+      outlineWidth={finalOutlineWidth}
+      outlineColor={finalOutlineColor}
+      outlineOpacity={finalOutlineOpacity}
       onPointerOver={handlePointerOver}
       onPointerOut={handlePointerOut}
       onClick={handleClick}
     >
       {tag.name}
-      {/* 使用更简单的基础材质，并渲染双面防止消失 */}
-      <meshBasicMaterial color={color} side={THREE.DoubleSide} toneMapped={false} />
+      <meshBasicMaterial color={finalColor} side={THREE.DoubleSide} toneMapped={false} />
     </Text>
   );
 };
@@ -356,12 +365,14 @@ const TagSphere: React.FC<TagSphereProps> = ({
           </Suspense>
 
           <OrbitControls
-            enableZoom={false}
+            enableZoom={true}
             enablePan={false}
             rotateSpeed={0.5}
             autoRotate={animated}
             autoRotateSpeed={initialSpeed}
             enableDamping={true}
+            minDistance={15}
+            maxDistance={40}
           />
 
           {process.env.NODE_ENV === 'development' && <Stats />}
