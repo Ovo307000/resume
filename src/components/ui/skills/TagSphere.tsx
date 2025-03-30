@@ -25,46 +25,6 @@ interface TagSphereProps {
   colorScheme?: 'rainbow' | 'blue' | 'purple' | 'green' | 'warmth' | 'mixed';
 }
 
-// 性能监控组件
-const PerformanceMonitor = ({ onPerformanceIssue }: { onPerformanceIssue: () => void }) => {
-  useEffect(() => {
-    let frameCount = 0;
-    let lastTime = performance.now();
-    let lowFpsCount = 0;
-
-    const checkPerformance = () => {
-      const now = performance.now();
-      const elapsed = now - lastTime;
-
-      if (elapsed >= 1000) { // 每秒检查一次
-        const fps = frameCount / (elapsed / 1000);
-
-        if (fps < 30) { // 低于30fps认为有性能问题
-          lowFpsCount++;
-          if (lowFpsCount >= 3) { // 连续3秒低帧率，触发性能问题回调
-            onPerformanceIssue();
-            lowFpsCount = 0;
-          }
-        } else {
-          lowFpsCount = 0;
-        }
-
-        frameCount = 0;
-        lastTime = now;
-      }
-
-      frameCount++;
-      requestAnimationFrame(checkPerformance);
-    };
-
-    const animationId = requestAnimationFrame(checkPerformance);
-
-    return () => cancelAnimationFrame(animationId);
-  }, [onPerformanceIssue]);
-
-  return null;
-};
-
 // 单个标签组件 - 性能优化版
 const TagText = ({ tag, position, scale, color, index }: {
   tag: Tag;
@@ -135,12 +95,11 @@ const TagText = ({ tag, position, scale, color, index }: {
 };
 
 // 标签云容器 - 优化空间分布
-const TagCloud = ({ tags, radius = 12, colorScheme, enableSizing, lowPerformanceMode }: {
+const TagCloud = ({ tags, radius = 12, colorScheme, enableSizing }: {
   tags: Tag[];
   radius: number;
   colorScheme: string;
   enableSizing: boolean;
-  lowPerformanceMode: boolean;
 }) => {
   const ref = useRef<THREE.Group>(null);
   const { theme } = useTheme();
@@ -256,13 +215,13 @@ const TagCloud = ({ tags, radius = 12, colorScheme, enableSizing, lowPerformance
       return {
         tag,
         position,
-        scale: lowPerformanceMode ? 0.8 : scale, // 低性能模式下所有标签大小一样
+        scale, // 移除条件判断，直接使用计算好的scale
         color,
         key: `tag-${i}-${tag.name}`,
         index: i
       };
     });
-  }, [tags, radius, getColors, enableSizing, lowPerformanceMode, isDark]);
+  }, [tags, radius, getColors, enableSizing, isDark]);
 
   // 整体旋转动画 - 降低旋转速度，减轻GPU压力
   useFrame(({ clock }) => {
@@ -301,16 +260,7 @@ const TagSphere: React.FC<TagSphereProps> = ({
   const { theme } = useTheme();
   const isDark = theme === 'dark';
   const muiTheme = useMuiTheme();
-  const [lowPerformanceMode, setLowPerformanceMode] = useState(false);
   const [showFallback, setShowFallback] = useState(false);
-
-  const handlePerformanceIssue = () => {
-    if (!lowPerformanceMode) {
-      setLowPerformanceMode(true);
-    } else if (!showFallback) {
-      setShowFallback(true);
-    }
-  };
 
   const isMobile = useMediaQuery(muiTheme.breakpoints.down('sm'));
   const isTablet = useMediaQuery(muiTheme.breakpoints.down('md'));
@@ -319,18 +269,16 @@ const TagSphere: React.FC<TagSphereProps> = ({
   const gpu = useDetectGPU();
 
   useEffect(() => {
-    if (gpu && (gpu.tier < 2 || isMobile)) {
-      setLowPerformanceMode(true);
+    if (gpu && gpu.tier < 1) {
+      setShowFallback(true);
     }
-  }, [gpu, isMobile]);
+  }, [gpu]);
 
   const limitedTags = useMemo(() => {
     if (!tags || tags.length === 0) {
       return [];
     }
-    const maxTags = lowPerformanceMode
-      ? (isMobile ? 15 : isTablet ? 20 : 25)
-      : (isMobile ? 20 : isTablet ? 30 : isWideScreen ? 50 : 40);
+    const maxTags = isMobile ? 20 : isTablet ? 30 : isWideScreen ? 50 : 40;
 
     if (tags.length > maxTags) {
       return [...tags]
@@ -338,7 +286,7 @@ const TagSphere: React.FC<TagSphereProps> = ({
         .slice(0, maxTags);
     }
     return tags;
-  }, [tags, isMobile, isTablet, isWideScreen, lowPerformanceMode]);
+  }, [tags, isMobile, isTablet, isWideScreen]);
 
   const responsiveRadius = useMemo(() => {
     const baseRadius = isMobile ? 8 : isTablet ? 10 : isWideScreen ? 14 : 12;
@@ -415,17 +363,15 @@ const TagSphere: React.FC<TagSphereProps> = ({
         // Remove background/boxShadow/border/backdropFilter here, handled by GlassyBlobBackground
       }}
     >
-      <PerformanceMonitor onPerformanceIssue={handlePerformanceIssue} />
-
       {tags && tags.length > 0 ? (
         <Canvas
-          dpr={lowPerformanceMode ? 1 : [1, 2]}
+          dpr={[1, 2]}
           camera={{ position: [0, 0, 25], fov: 45 }}
-          gl={{ antialias: !lowPerformanceMode }}
+          gl={{ antialias: true }}
           style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }} // Canvas fills the container
         >
           <ambientLight intensity={isDark ? 0.6 : 0.8} />
-          {!lowPerformanceMode && <pointLight position={[15, 15, 15]} intensity={isDark ? 0.3 : 0.4} />} // Slightly adjusted light
+          <pointLight position={[15, 15, 15]} intensity={isDark ? 0.3 : 0.4} />
 
           <Suspense fallback={null}>
             <TagCloud
@@ -433,7 +379,6 @@ const TagSphere: React.FC<TagSphereProps> = ({
               radius={responsiveRadius}
               colorScheme={colorScheme}
               enableSizing={enableSizing}
-              lowPerformanceMode={lowPerformanceMode}
             />
           </Suspense>
 
@@ -441,9 +386,9 @@ const TagSphere: React.FC<TagSphereProps> = ({
             enableZoom={false}
             enablePan={false}
             rotateSpeed={0.5}
-            autoRotate={animated && !lowPerformanceMode}
+            autoRotate={animated}
             autoRotateSpeed={initialSpeed}
-            enableDamping={!lowPerformanceMode}
+            enableDamping={true}
           />
 
           {process.env.NODE_ENV === 'development' && <Stats />}
