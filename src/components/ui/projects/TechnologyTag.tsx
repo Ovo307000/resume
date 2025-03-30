@@ -184,8 +184,8 @@ export function TechnologyTag({ name, tech, icon, url: propUrl, size = 'small', 
       }
     },
     hover: {
-      scale: 1.1,
-      boxShadow: `0 0 12px 3px ${alpha(color, 0.5)}`, // 悬停光晕更明显
+      scale: 1.08,
+      boxShadow: `0 0 8px 1px ${alpha(color, 0.4)}`,
       transition: { type: "spring", stiffness: 400, damping: 10 }
     },
     tap: {
@@ -204,10 +204,14 @@ export function TechnologyTag({ name, tech, icon, url: propUrl, size = 'small', 
       variants={tagVariants}
       initial="hidden"
       animate="visible"
-      whileHover="hover" // 始终应用悬停效果
-      whileTap="tap"     // 始终应用点击效果
+      whileHover="hover"
+      whileTap="tap"
       onClick={handleClick}
-      style={{ display: 'inline-block', cursor: 'pointer' }} // 始终显示指针
+      style={{
+        display: 'inline-block',
+        cursor: 'pointer',
+        borderRadius: '6px',
+      }}
     >
       <Box
         sx={{
@@ -220,7 +224,6 @@ export function TechnologyTag({ name, tech, icon, url: propUrl, size = 'small', 
           fontSize: size === 'small' ? '0.75rem' : '0.875rem',
           fontWeight: 500,
           lineHeight: 1.4,
-          // cursor: finalUrl ? 'pointer' : 'default', // 由 motion.div 控制
           backgroundColor: alpha(color, isDark ? 0.15 : 0.1),
           border: `1px solid ${alpha(color, isDark ? 0.4 : 0.3)}`,
           color: color,

@@ -262,7 +262,12 @@ const NewProjectsPage: React.FC = () => {
                       direction="row"
                       spacing={1}
                       flexWrap="wrap"
-                      sx={{ flex: '1 1 auto', gap: 1 }}
+                      sx={{
+                        flex: '1 1 auto',
+                        gap: 1,
+                        py: 0.5,
+                        px: 0.2
+                      }}
                     >
                       {(['all', 'web', 'mobile', 'other'] as CategoryType[]).map((category) => (
                         <Chip
@@ -271,18 +276,16 @@ const NewProjectsPage: React.FC = () => {
                           onClick={() => handleCategoryChange(category)}
                           color={selectedCategory === category ? 'primary' : 'default'}
                           variant={selectedCategory === category ? 'filled' : 'outlined'}
+                          component={motion.div}
+                          whileHover={{ scale: 1.08, y: -2 }}
+                          whileTap={{ scale: 0.95 }}
+                          transition={{ type: 'spring', stiffness: 400, damping: 15 }}
                           sx={{
                             fontWeight: 500,
                             px: 1,
                             borderRadius: '8px',
                             height: '32px',
-                            transition: 'all 0.2s ease',
-                            '&:hover': {
-                              transform: 'translateY(-2px)',
-                              boxShadow: isDark
-                                ? '0 4px 8px rgba(255, 255, 255, 0.1)'
-                                : '0 4px 8px rgba(0, 0, 0, 0.1)',
-                            }
+                            cursor: 'pointer',
                           }}
                         />
                       ))}

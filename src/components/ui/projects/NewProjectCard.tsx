@@ -330,7 +330,7 @@ const NewProjectCard: React.FC<NewProjectCardProps> = ({
             zIndex: 1,
             height: isList ? 'auto' : '100%',
             ...(isList && {
-              ml: 1, // 列表视图时添加左边距，分隔图片和内容
+              ml: 1,
             }),
           }}
         >
@@ -375,7 +375,7 @@ const NewProjectCard: React.FC<NewProjectCardProps> = ({
           </Box>
 
           {/* 技术标签和"查看详情"区域 */}
-          <Box>
+          <Box sx={{ paddingBottom: 0.5 /* Add some padding for scaled tags */ }}>
             {/* 技术标签 */}
             {project.technologies && project.technologies.length > 0 && (
               <Stack
@@ -386,7 +386,7 @@ const NewProjectCard: React.FC<NewProjectCardProps> = ({
                   mb: isList ? 1.5 : 2,
                   gap: 1,
                   maxWidth: '100%',
-                  overflow: 'hidden'
+                  // overflow: 'hidden' // Remove overflow hidden
                 }}
               >
                 {visibleTechnologies.map((tech, idx) => (
@@ -399,30 +399,11 @@ const NewProjectCard: React.FC<NewProjectCardProps> = ({
                 ))}
 
                 {hasMoreTech && (
-                  <Chip
-                    label={`+${hiddenTechCount}`}
+                  <TechnologyTag
+                    key="expand-tags"
+                    tech={`+${hiddenTechCount}`}
                     size="small"
                     onClick={handleExpandTags}
-                    sx={{
-                      height: 24,
-                      fontSize: '0.7rem',
-                      fontWeight: 600,
-                      color: muiTheme.palette.primary.main,
-                      backgroundColor: isDark
-                        ? alpha(muiTheme.palette.primary.main, 0.1)
-                        : alpha(muiTheme.palette.primary.main, 0.05),
-                      border: `1px solid ${alpha(muiTheme.palette.primary.main, 0.3)}`,
-                      borderRadius: '6px',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s ease',
-                      ...(isHovered && {
-                        transform: 'scale(1.05)',
-                        boxShadow: `0 0 8px 2px ${alpha(muiTheme.palette.primary.main, 0.2)}`,
-                        backgroundColor: isDark
-                          ? alpha(muiTheme.palette.primary.main, 0.2)
-                          : alpha(muiTheme.palette.primary.main, 0.15),
-                      })
-                    }}
                   />
                 )}
               </Stack>
