@@ -264,8 +264,9 @@ const SkillsPage: React.FC<SkillsPageProps> = ({ data }) => {
               transition={{ duration: 0.7, delay: 0.3 }}
             >
               <GlassyBlobBackground
-                colorSet="warm"
+                colorSet="cool"
                 intensity="light"
+                glassEffect={true}
                 containerSx={{
                   borderRadius: '20px',
                   p: { xs: 3, md: 4 },
@@ -276,42 +277,12 @@ const SkillsPage: React.FC<SkillsPageProps> = ({ data }) => {
                       : 'rgba(0, 0, 0, 0.05)'
                   }`,
                   boxShadow: theme === 'dark'
-                    ? '0 10px 30px rgba(0, 0, 0, 0.2), 0 0 8px rgba(120, 70, 255, 0.15) inset'
-                    : '0 10px 30px rgba(0, 0, 0, 0.07), 0 0 8px rgba(80, 130, 255, 0.08) inset',
+                    ? '0 8px 32px rgba(0, 0, 0, 0.2)'
+                    : '0 8px 32px rgba(0, 0, 0, 0.08)',
                   position: 'relative',
                   overflow: 'hidden'
                 }}
               >
-                <Box
-                  sx={{
-                    position: 'absolute',
-                    top: '-20px',
-                    left: '-20px',
-                    width: '100px',
-                    height: '100px',
-                    borderRadius: '50%',
-                    background: theme === 'dark'
-                      ? 'radial-gradient(circle, rgba(130, 80, 255, 0.15) 0%, transparent 70%)'
-                      : 'radial-gradient(circle, rgba(90, 120, 255, 0.1) 0%, transparent 70%)',
-                    opacity: 0.7,
-                    zIndex: 0
-                  }}
-                />
-                <Box
-                  sx={{
-                    position: 'absolute',
-                    bottom: '-30px',
-                    right: '-30px',
-                    width: '150px',
-                    height: '150px',
-                    borderRadius: '50%',
-                    background: theme === 'dark'
-                      ? 'radial-gradient(circle, rgba(255, 100, 100, 0.1) 0%, transparent 70%)'
-                      : 'radial-gradient(circle, rgba(255, 120, 80, 0.08) 0%, transparent 70%)',
-                    opacity: 0.6,
-                    zIndex: 0
-                  }}
-                />
                 <Box sx={{ position: 'relative', zIndex: 1 }}>
                   <Typography
                     variant="body1"
