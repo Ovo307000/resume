@@ -4,7 +4,6 @@ import { useTheme } from '../../../contexts/ThemeContext';
 import { Canvas, useFrame, ThreeEvent } from '@react-three/fiber';
 import { Text, OrbitControls, useDetectGPU, Stats } from '@react-three/drei';
 import * as THREE from 'three';
-import GlassyBlobBackground from '../backgrounds/GlassyBlobBackground'; // 导入玻璃容器
 
 // 定义标签接口
 interface Tag {
@@ -299,27 +298,14 @@ const TagSphere: React.FC<TagSphereProps> = ({
       <Box
         sx={{
           width: '100%',
-          height: isMobile ? '350px' : isTablet ? '400px' : '500px',
-          position: 'relative',
-          margin: '0 auto',
-          padding: 3,
-          maxWidth: '100%',
-          overflow: 'hidden',
-          borderRadius: 4,
-          boxShadow: isDark
-            ? `0 10px 30px ${alpha('#000', 0.3)}, 0 0 20px ${alpha('#7c4dff', 0.2)} inset`
-            : `0 10px 30px ${alpha('#000', 0.1)}, 0 0 20px ${alpha('#4c8cff', 0.1)} inset`,
-          background: isDark
-            ? 'linear-gradient(135deg, rgba(20, 20, 35, 0.7) 0%, rgba(30, 30, 50, 0.7) 100%)'
-            : 'linear-gradient(135deg, rgba(240, 240, 255, 0.7) 0%, rgba(250, 250, 255, 0.7) 100%)',
-          backdropFilter: 'blur(10px)', // Assuming fallback should also have blur
-          border: `1px solid ${isDark ? alpha('#ffffff', 0.1) : alpha('#000000', 0.05)}`,
+          height: '100%', // 让 fallback 充满容器
           display: 'flex',
           flexWrap: 'wrap',
           justifyContent: 'center',
           alignItems: 'center',
           alignContent: 'center',
-          gap: 2
+          gap: 2,
+          padding: 3 // 内边距
         }}
       >
         {limitedTags.map((tag, index) => (
@@ -347,22 +333,9 @@ const TagSphere: React.FC<TagSphereProps> = ({
     );
   }
 
-  // Use GlassyBlobBackground as the main container
+  // 移除GlassyBlobBackground，直接返回Canvas或"无数据"Box
   return (
-    <GlassyBlobBackground
-      colorSet="cool" // Choose a color set (e.g., cool)
-      intensity="light"
-      glassEffect={true} // Enable glass effect
-      containerSx={{
-        width: '100%',
-        height: isMobile ? '350px' : isTablet ? '400px' : '500px',
-        position: 'relative',
-        margin: '0 auto',
-        maxWidth: '100%',
-        borderRadius: 4,
-        // Remove background/boxShadow/border/backdropFilter here, handled by GlassyBlobBackground
-      }}
-    >
+    <>
       {tags && tags.length > 0 ? (
         <Canvas
           dpr={[1, 2]}
@@ -408,7 +381,7 @@ const TagSphere: React.FC<TagSphereProps> = ({
           </Typography>
         </Box>
       )}
-    </GlassyBlobBackground>
+    </>
   );
 };
 

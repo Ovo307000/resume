@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import {
   Typography,
@@ -15,7 +15,6 @@ import GlassyBlobBackground from '../../components/ui/backgrounds/GlassyBlobBack
 import SkillDetail from '../../components/ui/SkillDetail';
 import TagSphere from '../../components/ui/skills/TagSphere';
 import { Skill } from '../../types/skill';
-import { useLanguage } from '../../hooks/useLanguage';
 import PageTransition from '../../components/ui/transitions/PageTransition';
 import SkillsPageTitle from '../../components/ui/skills/SkillsPageTitle';
 import TechnologyTag from '../../components/ui/projects/TechnologyTag';
@@ -40,7 +39,6 @@ const SkillsPage: React.FC<SkillsPageProps> = ({ data }) => {
   const { t } = useTranslation();
   const { theme } = useTheme();
   const muiTheme = useMuiTheme();
-  const { language } = useLanguage();
 
   // 动画变体
   const containerVariants = {
@@ -126,7 +124,7 @@ const SkillsPage: React.FC<SkillsPageProps> = ({ data }) => {
     }));
 
     return (
-       <GlassyBlobBackground
+      <GlassyBlobBackground
         colorSet="cool"
         intensity="light"
         glassEffect={true}
@@ -136,22 +134,27 @@ const SkillsPage: React.FC<SkillsPageProps> = ({ data }) => {
           position: 'relative',
           margin: '0 auto',
           maxWidth: '100%',
-          borderRadius: 4,
+          borderRadius: '20px',
+          overflow: 'hidden',
+          border: `1px solid ${
+            theme === 'dark'
+              ? 'rgba(255, 255, 255, 0.08)'
+              : 'rgba(0, 0, 0, 0.05)'
+          }`,
+          boxShadow: theme === 'dark'
+            ? '0 8px 32px rgba(0, 0, 0, 0.2)'
+            : '0 8px 32px rgba(0, 0, 0, 0.08)',
+          p: 0
         }}
       >
         <TagSphere
           tags={techTags}
-          radius={200}
           initialSpeed={0.8}
           animated={true}
           enableSizing={true}
-          colorScheme="gradient"
-          tagStyle={{
-            fontWeight: 500,
-            textShadow: theme === 'dark' ? '0 1px 2px rgba(0,0,0,0.5)' : 'none'
-          }}
+          colorScheme="rainbow"
         />
-       </GlassyBlobBackground>
+      </GlassyBlobBackground>
     );
   };
 
@@ -221,6 +224,28 @@ const SkillsPage: React.FC<SkillsPageProps> = ({ data }) => {
               variant="h5"
               sx={{
                 mb: 3,
+                mt: 6,
+                fontWeight: 600,
+                textAlign: { xs: 'center', md: 'left' },
+                background: theme === 'dark'
+                  ? 'linear-gradient(90deg, #ffeb3b 0%, #ff9800 100%)'
+                  : 'linear-gradient(90deg, #f57f17 0%, #ef6c00 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                letterSpacing: '0.5px'
+              }}
+            >
+              {t('skills.techCloudTitle', '技术标签云')}
+            </Typography>
+            {renderTechPool()}
+          </motion.div>
+
+          <motion.div variants={itemVariants}>
+            <Typography
+              variant="h5"
+              sx={{
+                mb: 3,
+                mt: 6,
                 fontWeight: 600,
                 textAlign: { xs: 'center', md: 'left' },
                 background: theme === 'dark'
@@ -231,7 +256,7 @@ const SkillsPage: React.FC<SkillsPageProps> = ({ data }) => {
                 letterSpacing: '0.5px'
               }}
             >
-              技能概述
+              {t('skills.overviewTitle', '技能概述')}
             </Typography>
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -320,28 +345,7 @@ const SkillsPage: React.FC<SkillsPageProps> = ({ data }) => {
                 </Box>
               </GlassyBlobBackground>
             </motion.div>
-          </motion.div>
-
-          <motion.div variants={itemVariants}>
-            <Typography
-              variant="h5"
-              sx={{ mb: 3, fontWeight: 600, textAlign: { xs: 'center', md: 'left' } }}
-            >
-              专业领域
-            </Typography>
-            <Box sx={{ mb: 6 }}>
-              {renderSkillDetails()}
-            </Box>
-          </motion.div>
-
-          <motion.div variants={itemVariants}>
-            <Typography
-              variant="h5"
-              sx={{ mb: 3, fontWeight: 600, textAlign: { xs: 'center', md: 'left' } }}
-            >
-              技能标签云
-            </Typography>
-            {renderTechPool()}
+            {renderSkillDetails()}
           </motion.div>
         </motion.div>
       </Container>
