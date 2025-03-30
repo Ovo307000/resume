@@ -293,7 +293,7 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
         '添加监控日志，实现系统性能实时监控'
       ],
       techs: ['Java', 'Spring Boot', 'MySQL', 'Redis', 'Vue.js', 'Element-UI', 'RabbitMQ'],
-      image: 'https://via.placeholder.com/400x250/777777/FFFFFF?text=Sky-Take-Out'
+      image: 'https://picsum.photos/seed/sky-take-out/400/250'
     },
     {
       name: 'Lease',
@@ -307,7 +307,7 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
         '集成第三方支付接口，实现安全支付'
       ],
       techs: ['Java', 'Spring Cloud', 'MySQL', 'Redis', 'RabbitMQ', 'Docker'],
-      image: 'https://via.placeholder.com/400x250/555555/FFFFFF?text=Lease'
+      image: 'https://picsum.photos/seed/lease-project/400/250'
     }
   ];
 
@@ -868,7 +868,7 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
                             }
                           }}
                           onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
-                            e.currentTarget.src = 'https://via.placeholder.com/300x200?text=Project+Image';
+                            e.currentTarget.src = 'https://picsum.photos/seed/image-error/300/200';
                           }}
                         />
                       </Grid>
