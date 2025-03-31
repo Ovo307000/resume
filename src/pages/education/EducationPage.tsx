@@ -31,6 +31,7 @@ import { useTranslation } from 'react-i18next';
 import educationData from '../../data/educationData';
 import { useSwipeable } from 'react-swipeable';
 import EnhancedPageTitle from '../../components/ui/common/EnhancedPageTitle';
+import TechnologyTag from '../../components/ui/projects/TechnologyTag';
 
 // 本地化文本接口
 export interface LocalizedText {
@@ -366,19 +367,11 @@ const EducationPage: React.FC = () => {
           <Box sx={{ p: 2 }}>
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
               {currentEducation.skills.map((skill, index) => (
-                <Chip
+                <TechnologyTag
                   key={index}
-                  label={getLocalizedText(skill)}
+                  name={getLocalizedText(skill)}
                   size="small"
-                  sx={{
-                    bgcolor: isDark ? 'rgba(16, 185, 129, 0.2)' : 'rgba(16, 185, 129, 0.1)',
-                    color: isDark ? '#6EE7B7' : '#059669',
-                    border: '1px solid',
-                    borderColor: isDark ? 'rgba(16, 185, 129, 0.4)' : 'rgba(16, 185, 129, 0.2)',
-                    '&:hover': {
-                      bgcolor: isDark ? 'rgba(16, 185, 129, 0.3)' : 'rgba(16, 185, 129, 0.2)',
-                    }
-                  }}
+                  index={index}
                 />
               ))}
             </Box>
