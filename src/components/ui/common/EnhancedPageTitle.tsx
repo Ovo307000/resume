@@ -53,8 +53,8 @@ const EnhancedPageTitle: React.FC<EnhancedPageTitleProps> = ({
   };
 
   const MotionBox = withAnimation ? motion.div : Box;
-  const MotionTypography = withAnimation ? motion(Typography) : Typography;
-  const MotionDivider = withAnimation ? motion(Divider) : Divider;
+  const MotionTypography = withAnimation ? motion.create(Typography) : Typography;
+  const MotionDivider = withAnimation ? motion.create(Divider) : Divider;
 
   // 更现代的标题渐变
   const titleGradient = isDark

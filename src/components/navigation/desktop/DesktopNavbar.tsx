@@ -134,7 +134,7 @@ const DesktopNavbar: React.FC<NavbarProps> = ({ routes, isActive, isCompact = fa
           top: 0,
           left: 0,
           right: 0,
-          height: '3px',
+          height: '4px',
           transformOrigin: '0%',
           scaleX: springScrollProgress,
           zIndex: 1200,
@@ -155,6 +155,8 @@ const DesktopNavbar: React.FC<NavbarProps> = ({ routes, isActive, isCompact = fa
             ? '0 0 6px rgba(79, 70, 229, 0.4)'
             : '0 0 6px rgba(79, 70, 229, 0.25)',
           backdropFilter: 'blur(3px)',
+          borderRadius: '0 0 4px 0',
+          overflow: 'hidden',
         }}
       />
 
