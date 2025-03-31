@@ -680,6 +680,29 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
                         color: isDark ? 'grey.300' : 'grey.800'
                       }}
                     >
+                      {t('about.learning_focus', '学习重点')}:
+                    </Typography>
+
+                    <Box component="ul" sx={{ pl: 2, mb: 2 }}>
+                      <Typography component="li" variant="body2" sx={{ color: isDark ? 'grey.400' : 'grey.700', mb: 0.75 }}>
+                        掌握Java编程语言核心概念与应用
+                      </Typography>
+                      <Typography component="li" variant="body2" sx={{ color: isDark ? 'grey.400' : 'grey.700', mb: 0.75 }}>
+                        理解数据库设计原理与SQL实践
+                      </Typography>
+                      <Typography component="li" variant="body2" sx={{ color: isDark ? 'grey.400' : 'grey.700', mb: 0.75 }}>
+                        学习Web前端基础技术与交互实现
+                      </Typography>
+                    </Box>
+
+                    <Typography
+                      variant="subtitle2"
+                      sx={{
+                        fontWeight: 600,
+                        mb: 1,
+                        color: isDark ? 'grey.300' : 'grey.800'
+                      }}
+                    >
                       {t('about.skills', '技能')}:
                     </Typography>
 
