@@ -20,7 +20,7 @@ import { useLanguage } from '../../hooks/useLanguage';
 import GlassyBlobBackground from '../../components/ui/backgrounds/GlassyBlobBackground';
 import PageTransition from '../../components/ui/transitions/PageTransition';
 import EnhancedProjectCard from '../../components/ui/projects/EnhancedProjectCard';
-import ProjectsPageTitle from '../../components/ui/projects/ProjectsPageTitle';
+import EnhancedPageTitle from '../../components/ui/common/EnhancedPageTitle';
 import projectsData from '../../data/projectsData';
 import { useSwipeable } from 'react-swipeable';
 
@@ -423,7 +423,12 @@ const ProjectsPage: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <ProjectsPageTitle withAnimation={true} />
+            <EnhancedPageTitle
+              title={t('projects.title', '项目展示')}
+              subtitle={t('projects.subtitle', '我参与开发的应用与项目作品')}
+              textAlign="center"
+              withAnimation={true}
+            />
           </motion.div>
 
           {/* 项目筛选 - 移动端和桌面端优化 */}

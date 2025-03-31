@@ -16,8 +16,8 @@ import SkillDetail from '../../components/ui/SkillDetail';
 import TagSphere from '../../components/ui/skills/TagSphere';
 import { Skill } from '../../types/skill';
 import PageTransition from '../../components/ui/transitions/PageTransition';
-import SkillsPageTitle from '../../components/ui/skills/SkillsPageTitle';
 import TechnologyTag from '../../components/ui/projects/TechnologyTag';
+import EnhancedPageTitle from '../../components/ui/common/EnhancedPageTitle';
 
 interface SkillsPageProps {
   data: {
@@ -222,7 +222,12 @@ const SkillsPage: React.FC<SkillsPageProps> = ({ data }) => {
           animate="visible"
         >
           <motion.div variants={itemVariants}>
-            <SkillsPageTitle withAnimation={false} />
+            <EnhancedPageTitle
+              title={t('skills.title', '技能栈')}
+              subtitle={t('skills.subtitle', '我的技术与专长领域')}
+              textAlign="center"
+              withAnimation={true}
+            />
           </motion.div>
 
           <motion.div variants={itemVariants}>

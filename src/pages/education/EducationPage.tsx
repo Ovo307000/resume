@@ -622,7 +622,7 @@ const EducationPage: React.FC = () => {
       }}
     >
       <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 1 }}>
-        {/* 页面标题 - 使用EnhancedPageTitle组件 */}
+        {/* Re-added EnhancedPageTitle component */}
         <EnhancedPageTitle
           title={t('education.title', '教育经历')}
           subtitle={t('education.subtitle', '我的学术背景以及学习经历')}

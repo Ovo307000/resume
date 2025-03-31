@@ -11,7 +11,6 @@ import {
   Tooltip,
   useTheme as useMuiTheme,
   useMediaQuery,
-  Divider
 } from '@mui/material';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
@@ -24,7 +23,6 @@ import {
   FiMessageSquare,
   FiCopy,
   FiExternalLink,
-  FiArrowUpRight,
   FiMapPin,
   FiFileText,
   FiLinkedin,
@@ -126,22 +124,6 @@ const ContactPage: React.FC<ContactPageProps> = ({ userData }) => {
         type: 'spring',
         stiffness: 400,
         damping: 15
-      }
-    }
-  };
-
-  // 箭头动画变体
-  const arrowVariants = {
-    hidden: { opacity: 0, x: -5 },
-    visible: { opacity: 1, x: 0 },
-    hover: {
-      x: 5,
-      scale: 1.2,
-      transition: {
-        repeat: Infinity,
-        repeatType: "reverse",
-        duration: 0.6,
-        ease: "easeInOut"
       }
     }
   };
@@ -484,26 +466,6 @@ const ContactPage: React.FC<ContactPageProps> = ({ userData }) => {
                                 <FiExternalLink size={16} /> : <FiCopy size={16} />}
                             </IconButton>
                           </Tooltip>
-
-                          <Box
-                            component={motion.div}
-                            variants={arrowVariants}
-                            initial="hidden"
-                            animate="visible"
-                            whileHover="hover"
-                            sx={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              width: 24,
-                              height: 24,
-                              borderRadius: '50%',
-                              background: alpha(card.color, 0.1),
-                              transition: 'all 0.2s ease'
-                            }}
-                          >
-                            <FiArrowUpRight size={14} color={card.color} />
-                          </Box>
                         </Box>
                       </Box>
                     </CardContent>

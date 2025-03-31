@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Typography, alpha } from '@mui/material';
+import { Box, Typography, Divider, SxProps, Theme } from '@mui/material';
 import { motion } from 'framer-motion';
 import { useTheme } from '../../../contexts/ThemeContext';
 import { Link } from 'react-router-dom';
@@ -12,6 +12,9 @@ interface EnhancedPageTitleProps {
   actionText?: string;
   textAlign?: 'left' | 'center' | 'right';
   withAnimation?: boolean;
+  sx?: SxProps<Theme>;
+  titleSx?: SxProps<Theme>;
+  subtitleSx?: SxProps<Theme>;
 }
 
 /**
@@ -23,37 +26,35 @@ const EnhancedPageTitle: React.FC<EnhancedPageTitleProps> = ({
   subtitle,
   actionLink,
   actionText,
-  textAlign = 'left',
+  textAlign = 'center',
   withAnimation = true,
+  sx = {},
+  titleSx = {},
+  subtitleSx = {}
 }) => {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
 
-  // 动画变体 - 增强版，更平滑的动画效果
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: {
-        when: "beforeChildren",
-        staggerChildren: 0.12,
-        duration: 0.6,
-        ease: [0.25, 0.1, 0.25, 1.0],
-      }
+      transition: { staggerChildren: 0.2, delayChildren: 0.1 }
     }
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, y: -25 },
+    hidden: { opacity: 0, y: 20 },
     visible: {
       opacity: 1,
       y: 0,
-      transition: {
-        duration: 0.6,
-        ease: [0.25, 0.1, 0.25, 1.0],
-      }
+      transition: { type: 'spring', stiffness: 100, damping: 12 }
     }
   };
+
+  const MotionBox = withAnimation ? motion.div : Box;
+  const MotionTypography = withAnimation ? motion(Typography) : Typography;
+  const MotionDivider = withAnimation ? motion(Divider) : Divider;
 
   // 更现代的标题渐变
   const titleGradient = isDark
@@ -66,29 +67,12 @@ const EnhancedPageTitle: React.FC<EnhancedPageTitleProps> = ({
     : 'linear-gradient(135deg, #0070F3 0%, #00DFD8 100%)';
 
   return (
-    <Box
-      component={motion.div}
+    <MotionBox
+      component={withAnimation ? motion.div : Box}
       variants={containerVariants}
-      initial={withAnimation ? "hidden" : "visible"}
-      animate="visible"
-      sx={{
-        textAlign,
-        mb: 5,
-        position: 'relative',
-        zIndex: 2,
-        p: { xs: 2, md: 3 },
-        borderRadius: '16px',
-        background: isDark
-          ? 'linear-gradient(135deg, rgba(26, 26, 46, 0.7), rgba(25, 25, 45, 0.3))'
-          : 'linear-gradient(135deg, rgba(245, 245, 255, 0.8), rgba(235, 235, 255, 0.4))',
-        backdropFilter: 'blur(10px)',
-        boxShadow: isDark
-          ? '0 8px 32px rgba(0, 0, 0, 0.2)'
-          : '0 8px 32px rgba(0, 0, 30, 0.08)',
-        border: isDark
-          ? '1px solid rgba(255, 255, 255, 0.08)'
-          : '1px solid rgba(255, 255, 255, 0.7)',
-      }}
+      initial={withAnimation ? "hidden" : undefined}
+      animate={withAnimation ? "visible" : undefined}
+      sx={{ textAlign, mb: { xs: 4, md: 6 }, ...sx }}
     >
       {/* 装饰元素 */}
       <Box
@@ -112,105 +96,101 @@ const EnhancedPageTitle: React.FC<EnhancedPageTitleProps> = ({
         }}
       />
 
-      <motion.div variants={itemVariants}>
-        <Typography
-          variant="h2"
-          component="h1"
-          sx={{
-            fontSize: { xs: '2.25rem', md: '3rem' },
-            fontWeight: 800,
-            mb: 1.5,
-            lineHeight: 1.1,
-            letterSpacing: '-0.02em',
-            background: titleGradient,
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text',
-            textShadow: isDark
-              ? '0 4px 16px rgba(100, 100, 255, 0.25)'
-              : '0 4px 12px rgba(0, 0, 30, 0.12)',
-            position: 'relative',
-            zIndex: 2,
-          }}
-        >
-          {title}
-        </Typography>
-      </motion.div>
+      <MotionTypography
+        component={withAnimation ? motion.h1 : 'h1'}
+        variants={itemVariants}
+        variant="h2"
+        sx={{
+          fontWeight: 800,
+          mb: 1,
+          letterSpacing: '0.5px',
+          background: isDark
+            ? 'linear-gradient(120deg, #a5b4fc 20%, #fbc2eb 80%)'
+            : 'linear-gradient(120deg, #4f46e5 30%, #7c3aed 70%)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          textShadow: isDark ? '0 2px 15px rgba(165, 180, 252, 0.2)' : '0 2px 10px rgba(79, 70, 229, 0.1)',
+          ...titleSx,
+        }}
+      >
+        {title}
+      </MotionTypography>
 
       {subtitle && (
-        <motion.div variants={itemVariants}>
-          <Typography
-            variant="body1"
-            sx={{
-              mb: 3,
-              maxWidth: 650,
-              fontSize: { xs: '1.05rem', md: '1.2rem' },
-              lineHeight: 1.7,
-              color: isDark ? alpha('#fff', 0.75) : alpha('#000', 0.75),
-              marginLeft: textAlign === 'center' ? 'auto' : undefined,
-              marginRight: textAlign === 'center' ? 'auto' : undefined,
-              position: 'relative',
-              zIndex: 2,
-            }}
-          >
-            {subtitle}
-          </Typography>
-        </motion.div>
+        <MotionTypography
+          component={withAnimation ? motion.p : 'p'}
+          variants={itemVariants}
+          variant="h6"
+          sx={{
+            fontWeight: 400,
+            color: isDark ? 'grey.400' : 'grey.600',
+            mb: 2,
+            letterSpacing: '0.2px',
+            ...subtitleSx,
+          }}
+        >
+          {subtitle}
+        </MotionTypography>
       )}
 
-      {actionLink && actionText && (
-        <motion.div variants={itemVariants}>
-          <Box sx={{ mt: 2.5, mb: 1, position: 'relative', zIndex: 2 }}>
-            <Link to={actionLink} style={{ textDecoration: 'none' }}>
-              <Box
-                sx={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  px: 3.5,
-                  py: 1.5,
-                  borderRadius: '50px',
-                  fontWeight: 600,
-                  fontSize: '1rem',
-                  textDecoration: 'none',
-                  color: '#fff',
-                  background: buttonGradient,
-                  transition: 'all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1.0)',
-                  '&:hover': {
-                    transform: 'translateY(-3px)',
-                    boxShadow: isDark
-                      ? '0 8px 20px rgba(100, 0, 200, 0.25)'
-                      : '0 8px 20px rgba(0, 112, 243, 0.25)'
-                  }
-                }}
-              >
-                {actionText}
-                <FiArrowRight style={{ marginLeft: 10, strokeWidth: 2.5 }} />
-              </Box>
-            </Link>
-          </Box>
-        </motion.div>
-      )}
-
-      {/* 装饰线条 */}
-      <Box
-        component={motion.div}
-        initial={withAnimation ? { opacity: 0, width: '30%' } : { opacity: 1, width: '80%' }}
-        animate={{ opacity: 1, width: '80%' }}
-        transition={{ duration: 0.8, delay: 0.4 }}
+      <MotionDivider
+        component={withAnimation ? motion.hr : Divider}
+        variants={itemVariants}
         sx={{
-          position: 'absolute',
-          bottom: -2,
-          left: '10%',
-          right: '10%',
+          width: '80px',
           height: '3px',
-          borderRadius: '3px',
+          mx: textAlign === 'center' ? 'auto' : (textAlign === 'right' ? '0' : '0'),
+          ml: textAlign === 'right' ? 'auto' : undefined,
           background: isDark
-            ? 'linear-gradient(90deg, transparent, rgba(100, 100, 255, 0.3), transparent)'
-            : 'linear-gradient(90deg, transparent, rgba(100, 100, 255, 0.2), transparent)',
-          zIndex: 1
+            ? 'linear-gradient(90deg, #a5b4fc, #fbc2eb)'
+            : 'linear-gradient(90deg, #4f46e5, #7c3aed)',
+          borderRadius: '2px',
+          border: 'none',
+          boxShadow: isDark ? '0 0 10px rgba(165, 180, 252, 0.3)' : '0 0 8px rgba(79, 70, 229, 0.2)',
         }}
       />
-    </Box>
+
+      {actionLink && actionText && (
+        <MotionTypography
+          component={withAnimation ? motion.p : 'p'}
+          variants={itemVariants}
+          variant="body1"
+          sx={{
+            fontWeight: 600,
+            color: isDark ? 'grey.400' : 'grey.600',
+            mt: 2,
+            letterSpacing: '0.2px',
+          }}
+        >
+          <Link to={actionLink} style={{ textDecoration: 'none' }}>
+            <Box
+              sx={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                px: 3.5,
+                py: 1.5,
+                borderRadius: '50px',
+                fontWeight: 600,
+                fontSize: '1rem',
+                textDecoration: 'none',
+                color: '#fff',
+                background: buttonGradient,
+                transition: 'all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1.0)',
+                '&:hover': {
+                  transform: 'translateY(-3px)',
+                  boxShadow: isDark
+                    ? '0 8px 20px rgba(100, 0, 200, 0.25)'
+                    : '0 8px 20px rgba(0, 112, 243, 0.25)'
+                }
+              }}
+            >
+              {actionText}
+              <FiArrowRight style={{ marginLeft: 10, strokeWidth: 2.5 }} />
+            </Box>
+          </Link>
+        </MotionTypography>
+      )}
+    </MotionBox>
   );
 };
 

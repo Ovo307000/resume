@@ -42,9 +42,9 @@ import {
 } from 'react-icons/si';
 import { Skill } from '../../types/skill';
 import { useTheme } from '../../contexts/ThemeContext';
-import AboutPageTitle from '../../components/ui/about/AboutPageTitle';
 import GlassyBlobBackground from '../../components/ui/backgrounds/GlassyBlobBackground';
 import TechnologyTag from '../../components/ui/projects/TechnologyTag';
+import EnhancedPageTitle from '../../components/ui/common/EnhancedPageTitle';
 
 interface AboutPageProps {
   data: {
@@ -445,11 +445,14 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
           initial="hidden"
           animate="visible"
         >
-          {/* 页面标题 */}
+          {/* 使用新的 EnhancedPageTitle 组件 */}
           <motion.div variants={itemVariants}>
-            <Box sx={{ mb: 6 }}>
-              <AboutPageTitle withAnimation={false} />
-            </Box>
+            <EnhancedPageTitle
+              title={t('about.title', '关于我')}
+              subtitle={t('about.subtitle', '我的旅程和驱动力')}
+              textAlign="center"
+              withAnimation={true}
+            />
           </motion.div>
 
           {/* 个人简介 */}
