@@ -364,16 +364,18 @@ const Footer = ({ data = {} }: FooterProps) => {
                 gap: { xs: 1, sm: 0.5 }
               }}
             >
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{ fontSize: '0.8rem' }}
-              >
-                © {currentYear} Portfolio.{' '}
-                {/* Wrap Link and Icon in a Box for hover detection */}
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ fontSize: '0.8rem' }}
+                >
+                  © {currentYear} Portfolio.{' '}
+                </Typography>
+
+                {/* 将链接移出Typography组件 */}
                 <Box
-                  component="span"
-                  sx={{ position: 'relative', display: 'inline-block' }}
+                  sx={{ position: 'relative', display: 'inline-block', ml: 0.5 }}
                   onMouseEnter={() => setIsCopyrightHovered(true)}
                   onMouseLeave={() => setIsCopyrightHovered(false)}
                 >
@@ -382,7 +384,8 @@ const Footer = ({ data = {} }: FooterProps) => {
                     target="_blank"
                     rel="noopener"
                     sx={{
-                      color: 'inherit',
+                      color: 'text.secondary',
+                      fontSize: '0.8rem',
                       textDecoration: 'none',
                       position: 'relative',
                       transition: 'color 0.2s ease-in-out',
@@ -410,18 +413,18 @@ const Footer = ({ data = {} }: FooterProps) => {
                     ovo307000
                   </MuiLink>
 
-                  {/* Animated External Link Icon */}
+                  {/* 外部链接图标 */}
                   <Box
                     sx={{
                       position: 'absolute',
-                      right: -18, // Adjust position as needed
+                      right: -18,
                       top: '50%',
                       transform: 'translateY(-50%)',
                       pointerEvents: 'none',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      pl: '2px' // Small padding
+                      pl: '2px'
                     }}
                   >
                     <AnimatePresence>
@@ -439,7 +442,7 @@ const Footer = ({ data = {} }: FooterProps) => {
                     </AnimatePresence>
                   </Box>
                 </Box>
-              </Typography>
+              </Box>
             </Box>
 
             {/* Tech stack */}

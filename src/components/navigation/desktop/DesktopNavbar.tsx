@@ -217,13 +217,74 @@ const DesktopNavbar: React.FC<NavbarProps> = ({ routes, isActive, isCompact = fa
 
             {/* Right Side Utils - 与移动端统一尺寸 */}
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <NavButton
-                icon={theme === 'dark' ? <FiSun size={18} /> : <FiMoon size={18} />}
-                variant="icon"
-                size="small"
-                tooltipText={theme === 'dark' ? "切换到亮色模式" : "切换到暗色模式"}
-                onClick={toggleTheme}
-              />
+              <Box
+                sx={{
+                  position: 'relative',
+                  '&:hover .tooltip': {
+                    opacity: 1,
+                    transform: 'translateY(0)',
+                    visibility: 'visible'
+                  }
+                }}
+              >
+                <motion.div
+                  whileHover={{ y: -2, boxShadow: isDark ? '0 6px 12px rgba(0, 0, 0, 0.3)' : '0 6px 12px rgba(0, 0, 0, 0.1)' }}
+                  whileTap={{ y: 0, scale: 0.98, boxShadow: isDark ? '0 2px 5px rgba(0, 0, 0, 0.2)' : '0 2px 5px rgba(0, 0, 0, 0.05)' }}
+                  style={{
+                    borderRadius: '12px',
+                    background: isDark ? 'rgba(32, 32, 35, 0.6)' : 'rgba(240, 240, 250, 0.9)',
+                    backdropFilter: 'blur(8px)',
+                    border: isDark ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid rgba(0, 0, 0, 0.1)',
+                    boxShadow: isDark ? '0 4px 10px rgba(0, 0, 0, 0.25)' : '0 4px 10px rgba(0, 0, 0, 0.12)',
+                    width: 40,
+                    height: 40,
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease',
+                  }}
+                  onClick={toggleTheme}
+                >
+                  {theme === 'dark' ? <FiSun size={18} color="#FDB813" /> : <FiMoon size={18} color="#5C6BC0" />}
+                </motion.div>
+
+                {/* 自定义工具提示 */}
+                <Box
+                  className="tooltip"
+                  sx={{
+                    position: 'absolute',
+                    bottom: '-30px',
+                    left: '50%',
+                    transform: 'translateX(-50%) translateY(10px)',
+                    backgroundColor: isDark ? 'rgba(30, 30, 40, 0.9)' : 'rgba(50, 50, 60, 0.9)',
+                    color: '#fff',
+                    padding: '4px 8px',
+                    borderRadius: '4px',
+                    fontSize: '12px',
+                    opacity: 0,
+                    visibility: 'hidden',
+                    transition: 'all 0.3s ease',
+                    zIndex: 1500,
+                    whiteSpace: 'nowrap',
+                    backdropFilter: 'blur(8px)',
+                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                    border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)'}`,
+                    '&::before': {
+                      content: '""',
+                      position: 'absolute',
+                      top: '-6px',
+                      left: '50%',
+                      transform: 'translateX(-50%)',
+                      borderWidth: '0 6px 6px',
+                      borderStyle: 'solid',
+                      borderColor: `transparent transparent ${isDark ? 'rgba(30, 30, 40, 0.9)' : 'rgba(50, 50, 60, 0.9)'}`
+                    }
+                  }}
+                >
+                  {theme === 'dark' ? "切换到亮色模式" : "切换到暗色模式"}
+                </Box>
+              </Box>
               <LanguageSelector size="small" />
             </Box>
           </Toolbar>
