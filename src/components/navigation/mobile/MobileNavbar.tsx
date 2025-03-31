@@ -86,32 +86,27 @@ const MobileNavbar: React.FC<MobileNavbarProps> = ({
 
   // 处理抽屉开关
   const handleDrawerToggle = () => {
+    // 完全禁用自动关闭功能，只能通过显式动作关闭菜单
     setMobileOpen(!mobileOpen);
   };
 
   // 监听路由变化关闭抽屉
   useEffect(() => {
+    // 路由变化时关闭菜单
     setMobileOpen(false);
   }, [location.pathname]);
 
   // 处理滚动事件
   useEffect(() => {
-    let lastScrollTop = 0;
     const handleScroll = () => {
       // 在每次滚动时重新计算 docHeight，确保获取最新的可滚动高度
       const currentDocHeight = document.documentElement.scrollHeight - window.innerHeight;
       docHeight.set(currentDocHeight);
 
       const currentScrollPos = window.scrollY;
-      const scrollingDown = currentScrollPos > lastScrollTop;
+      // 不再自动关闭菜单，避免干扰用户体验
 
-      // 如果向下滚动并且菜单已打开，则自动关闭菜单
-      if (scrollingDown && mobileOpen) {
-        setMobileOpen(false);
-      }
-
-      // 更新最后一次滚动位置
-      lastScrollTop = currentScrollPos <= 0 ? 0 : currentScrollPos;
+      // 更新滚动位置
       setScrollPos(currentScrollPos);
       scrollY.set(currentScrollPos);
 
@@ -131,7 +126,7 @@ const MobileNavbar: React.FC<MobileNavbarProps> = ({
       clearTimeout(timeoutId);
       window.removeEventListener('scroll', handleScroll);
     };
-  }, [scrollY, scrollYProgress, docHeight, mobileOpen]); // 保持依赖项
+  }, [scrollY, scrollYProgress, docHeight]); // 移除 mobileOpen 依赖项
 
   // 回到顶部功能
   const scrollToTop = () => {
@@ -158,7 +153,7 @@ const MobileNavbar: React.FC<MobileNavbarProps> = ({
           top: 0,
           left: 0,
           right: 0,
-          height: '3px',
+          height: '4px',
           transformOrigin: '0%',
           scaleX: springScrollProgress,
           zIndex: 1200,
@@ -179,6 +174,8 @@ const MobileNavbar: React.FC<MobileNavbarProps> = ({
             ? '0 0 6px rgba(79, 70, 229, 0.4)'
             : '0 0 6px rgba(79, 70, 229, 0.25)',
           backdropFilter: 'blur(3px)',
+          borderRadius: '0 0 4px 0',
+          overflow: 'hidden',
         }}
       />
 
@@ -263,7 +260,7 @@ const MobileNavbar: React.FC<MobileNavbarProps> = ({
                   }}
                 >
                   <AnimatedIconButton
-                    icon={isDark ? <FiSun size={20} /> : <FiMoon size={20} />}
+                    icon={isDark ? <FiSun size={20} color="#FDB813" /> : <FiMoon size={20} color="#5C6BC0" />}
                     size="small"
                     variant="glass"
                     color="primary"
@@ -324,7 +321,7 @@ const MobileNavbar: React.FC<MobileNavbarProps> = ({
                   }}
                 >
                   <AnimatedIconButton
-                    icon={<FiMenu size={20} />}
+                    icon={<FiMenu size={20} color={isDark ? "#A5B4FC" : "#4F46E5"} />}
                     size="small"
                     variant="glass"
                     color="primary"

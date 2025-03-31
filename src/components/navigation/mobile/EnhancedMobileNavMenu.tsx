@@ -50,23 +50,75 @@ const EnhancedMobileNavMenu: React.FC<EnhancedMobileNavMenuProps> = ({
   const isDark = theme === 'dark';
   const navTitles = getNavTitles();
 
+  // 在菜单打开时锁定页面滚动
+  React.useEffect(() => {
+    if (open) {
+      // 锁定滚动
+      document.body.style.overflow = 'hidden';
+    } else {
+      // 恢复滚动
+      document.body.style.overflow = '';
+    }
+    // 在组件卸载时清理
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [open]);
+
+  // 简化菜单关闭逻辑 - 只有明确点击关闭按钮或导航项才关闭
+  const handleClose = (e?: React.MouseEvent) => {
+    if (e) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+    // 简单关闭菜单，不再通过冒泡或其他方式触发
+    onClose();
+  };
+
   return (
-    <AnimatePresence>
+    <AnimatePresence mode="wait">
       {open && (
         <motion.div
           initial="hidden"
           animate="visible"
           exit="hidden"
           variants={backdropVariants}
-          style={getBackdropStyle()}
-          onClick={onClose}
+          style={{
+            ...getBackdropStyle(),
+            touchAction: 'none', // 禁用触摸事件
+            WebkitOverflowScrolling: 'auto', // 正确的值应该是 'auto' 或 'touch'，不是 'none'
+          }}
+          onClick={(e) => {
+            e.stopPropagation();
+            // 只有直接点击背景才关闭
+            if (e.target === e.currentTarget) {
+              handleClose();
+            }
+          }}
         >
           <motion.div
-            onClick={(e) => e.stopPropagation()}
+            onClick={(e) => {
+              // 强制阻止事件冒泡，防止菜单立即关闭
+              e.stopPropagation();
+            }}
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+            exit={{
+              opacity: 0,
+              scale: 0.95,
+              y: 50,
+              transition: {
+                duration: 0.3,
+                ease: [0.32, 0.72, 0, 1]
+              }
+            }}
+            transition={{
+              type: 'spring',
+              stiffness: 300,
+              damping: 30,
+              delayChildren: 0.1,
+              staggerChildren: 0.05
+            }}
             style={{
               position: 'fixed',
               bottom: '20px',
@@ -129,8 +181,8 @@ const EnhancedMobileNavMenu: React.FC<EnhancedMobileNavMenuProps> = ({
                 }}
               >
                 <AnimatedIconButton
-                  onClick={onClose}
-                  icon={<FiX size={20} />}
+                  onClick={handleClose}
+                  icon={<FiX size={20} color={isDark ? "#F87171" : "#EF4444"} />}
                   size="medium"
                   variant="glass"
                   tooltipText={t('common.close')}
@@ -192,7 +244,14 @@ const EnhancedMobileNavMenu: React.FC<EnhancedMobileNavMenuProps> = ({
                       <ListItem
                         component={Link}
                         to={route.path}
-                        onClick={onClose}
+                        onClick={(e) => {
+                          // 阻止事件冒泡
+                          e.stopPropagation();
+                          // 添加短暂延迟再关闭菜单，确保路由跳转平滑
+                          setTimeout(() => {
+                            handleClose();
+                          }, 100);
+                        }}
                         sx={{
                           mb: 1.5,
                           py: 1.2,
@@ -338,7 +397,7 @@ const EnhancedMobileNavMenu: React.FC<EnhancedMobileNavMenuProps> = ({
                 >
                   <AnimatedIconButton
                     onClick={toggleTheme}
-                    icon={isDark ? <FiSun size={20} /> : <FiMoon size={20} />}
+                    icon={isDark ? <FiSun size={20} color="#FDB813" /> : <FiMoon size={20} color="#5C6BC0" />}
                     size="medium"
                     variant="glass"
                     color="primary"
