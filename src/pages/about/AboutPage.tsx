@@ -261,56 +261,6 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
     }
   ];
 
-  // 教育经历
-  const educations = [
-    {
-      school: '安徽财经大学',
-      degree: '本科',
-      major: '计算机科学与技术',
-      period: '2022 - 2026',
-      description: '专注于计算机科学基础理论学习和软件工程实践，参与多个校内项目和竞赛，获得优异成绩。'
-    },
-    {
-      school: '安徽工商职业学院',
-      degree: '大专',
-      major: '软件技术',
-      period: '2019 - 2022',
-      description: '学习软件开发基础知识和实用技能，参与多个实训项目，获得国家奖学金和多项技能证书。'
-    }
-  ];
-
-  // 项目经验
-  const projects = [
-    {
-      name: 'Sky-Take-Out',
-      role: '全栈开发',
-      period: '2023年3月 - 2023年7月',
-      description: '基于Spring Boot和Vue.js开发的餐饮外卖管理系统。实现了订单管理、菜品管理、员工管理等功能，通过Redis缓存和消息队列优化性能，支持高并发访问。',
-      achievements: [
-        '独立设计并实现了后端API和前端界面',
-        '集成Redis实现数据缓存，提升系统响应速度',
-        '使用RabbitMQ实现异步消息处理，提高系统吞吐量',
-        '添加监控日志，实现系统性能实时监控'
-      ],
-      techs: ['Java', 'Spring Boot', 'MySQL', 'Redis', 'Vue.js', 'Element-UI', 'RabbitMQ'],
-      image: 'https://picsum.photos/seed/sky-take-out/400/250'
-    },
-    {
-      name: 'Lease',
-      role: '后端开发',
-      period: '2022年10月 - 2023年1月',
-      description: '针对短期租赁市场的服务平台，采用Spring Boot微服务架构，实现了用户管理、房源发布、预订管理、支付集成等功能，通过分布式设计支持高可用和水平扩展。',
-      achievements: [
-        '设计并实现RESTful API',
-        '开发基于Spring Security的认证鉴权系统',
-        '实现分布式事务处理，确保数据一致性',
-        '集成第三方支付接口，实现安全支付'
-      ],
-      techs: ['Java', 'Spring Cloud', 'MySQL', 'Redis', 'RabbitMQ', 'Docker'],
-      image: 'https://picsum.photos/seed/lease-project/400/250'
-    }
-  ];
-
   // 容器动画
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -336,7 +286,7 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
     }
   };
 
-  // 技能分类
+  // 根据简历数据更新技能数据
   const backendSkills = skills.filter(skill => skill.category === 'backend');
   const frontendSkills = skills.filter(skill => skill.category === 'frontend');
   const databaseSkills = skills.filter(skill => skill.category === 'database');
@@ -344,30 +294,6 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
 
   const { theme } = useTheme();
   const isDark = theme === 'dark';
-
-  // 根据技术名称判断分类
-  const getTagCategory = (techName: string): string => {
-    techName = techName.toLowerCase();
-
-    // 后端语言和技术
-    if ([ 'java', 'python', 'c#', 'c', 'spring', 'spring mvc', 'spring boot', 'spring jpa', 'rest api', 'graphql', 'node.js', 'socket.io'].includes(techName)) {
-      return 'backend';
-    }
-    // 前端技术
-    if (['typescript', 'react.js', 'vue.js', 'tailwind css', 'javascript', 'jquery'].includes(techName)) {
-      return 'frontend';
-    }
-    // 数据库
-    if (['mysql', 'postgresql', 'redis'].includes(techName)) {
-      return 'database';
-    }
-    // 工具和平台
-    if (['maven', 'gradle', 'git', 'linux', 'docker', 'rabbitmq', 'spring cloud', 'element-ui'].includes(techName)) {
-      return 'tool';
-    }
-
-    return 'other'; // 默认分类
-  };
 
   // 创建一个统一的玻璃容器组件
   interface GlassyContainerProps {
@@ -545,7 +471,7 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
           {/* 技能 */}
           <motion.div variants={itemVariants}>
             <GlassyContainer
-              title={t('about.title.skills', '技能栈')}
+              title={t('about.title.skills', '技术栈')}
               titleIcon={<FiZap size={24} />}
               colorSet="cool"
             >
@@ -658,73 +584,241 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
               colorSet="primary"
             >
               <Grid container spacing={3}>
-                {educations.map((education, index) => (
-                  <Grid item xs={12} sm={6} key={index}>
-                    <Box
+                <Grid item xs={12} sm={6}>
+                  <Box
+                    sx={{
+                      p: 3,
+                      height: '100%',
+                      borderRadius: 2,
+                      bgcolor: isDark ? 'rgba(17, 25, 40, 0.5)' : 'rgba(255, 255, 255, 0.4)',
+                      backdropFilter: 'blur(16px)',
+                      border: '1px solid',
+                      borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.5)',
+                      boxShadow: 'none',
+                      transition: 'all 0.3s ease',
+                      '&:hover': {
+                        transform: 'translateY(-5px)',
+                        boxShadow: isDark
+                          ? '0 0 25px rgba(99, 102, 241, 0.5)'
+                          : '0 0 25px rgba(79, 70, 229, 0.3)',
+                        borderColor: isDark ? 'rgba(99, 102, 241, 0.5)' : 'rgba(79, 70, 229, 0.3)'
+                      }
+                    }}
+                  >
+                    <Typography
+                      variant="h6"
+                      component="h3"
                       sx={{
-                        p: 3,
-                        height: '100%',
-                        borderRadius: 2,
-                        bgcolor: isDark ? 'rgba(17, 25, 40, 0.5)' : 'rgba(255, 255, 255, 0.4)',
-                        backdropFilter: 'blur(16px)',
-                        border: '1px solid',
-                        borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.5)',
-                        boxShadow: 'none',
-                        transition: 'all 0.3s ease',
-                        '&:hover': {
-                          transform: 'translateY(-5px)',
-                          boxShadow: isDark
-                            ? '0 0 25px rgba(99, 102, 241, 0.5)'
-                            : '0 0 25px rgba(79, 70, 229, 0.3)',
-                          borderColor: isDark ? 'rgba(99, 102, 241, 0.5)' : 'rgba(79, 70, 229, 0.3)'
-                        }
+                        fontWeight: 600,
+                        color: isDark ? 'primary.light' : 'primary.main',
+                        mb: 1,
                       }}
                     >
-                      <Typography
-                        variant="h6"
-                        component="h3"
-                        sx={{
-                          fontWeight: 600,
-                          color: isDark ? 'primary.light' : 'primary.main',
-                          mb: 1,
-                        }}
-                      >
-                        {education.school}
-                      </Typography>
+                      安徽工贸学院
+                    </Typography>
 
-                      <Typography
-                        variant="body2"
-                        sx={{
-                          fontWeight: 500,
-                          color: isDark ? 'grey.400' : 'grey.700',
-                          mb: 0.5
-                        }}
-                      >
-                        {education.degree} · {education.major}
-                      </Typography>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        fontWeight: 500,
+                        color: isDark ? 'grey.400' : 'grey.700',
+                        mb: 0.5
+                      }}
+                    >
+                      大专 · 软件技术
+                    </Typography>
 
-                      <Typography
-                        variant="body2"
-                        sx={{
-                          color: isDark ? 'grey.500' : 'grey.600',
-                          mb: 2
-                        }}
-                      >
-                        {education.period}
-                      </Typography>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: isDark ? 'grey.500' : 'grey.600',
+                        mb: 2
+                      }}
+                    >
+                      2020年10月 - 2023年6月
+                    </Typography>
 
-                      <Typography
-                        variant="body2"
-                        sx={{
-                          color: isDark ? 'grey.400' : 'grey.700',
-                          lineHeight: 1.6
-                        }}
-                      >
-                        {education.description}
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: isDark ? 'grey.400' : 'grey.700',
+                        lineHeight: 1.6,
+                        mb: 2
+                      }}
+                    >
+                      专注于软件技术专业学习，掌握编程基础知识与实践技能，对软件开发流程有系统认识。
+                    </Typography>
+
+                    <Typography
+                      variant="subtitle2"
+                      sx={{
+                        fontWeight: 600,
+                        mb: 1,
+                        color: isDark ? 'grey.300' : 'grey.800'
+                      }}
+                    >
+                      {t('about.achievements', '主要经历')}:
+                    </Typography>
+
+                    <Box component="ul" sx={{ pl: 2, mb: 2 }}>
+                      <Typography component="li" variant="body2" sx={{ color: isDark ? 'grey.400' : 'grey.700', mb: 0.75 }}>
+                        参与校园技术社团活动，探索Web开发基础
+                      </Typography>
+                      <Typography component="li" variant="body2" sx={{ color: isDark ? 'grey.400' : 'grey.700', mb: 0.75 }}>
+                        完成多个课程项目，应用Java和数据库技术解决模拟问题
+                      </Typography>
+                      <Typography component="li" variant="body2" sx={{ color: isDark ? 'grey.400' : 'grey.700', mb: 0.75 }}>
+                        关注业界动态，学习主流开发框架与工具
                       </Typography>
                     </Box>
-                  </Grid>
-                ))}
+
+                    <Typography
+                      variant="subtitle2"
+                      sx={{
+                        fontWeight: 600,
+                        mb: 1,
+                        color: isDark ? 'grey.300' : 'grey.800'
+                      }}
+                    >
+                      {t('about.skills', '技能')}:
+                    </Typography>
+
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
+                      <TechnologyTag name="Java" size="small" />
+                      <TechnologyTag name="MySQL" size="small" />
+                      <TechnologyTag name="Spring Boot" size="small" />
+                    </Box>
+                  </Box>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <Box
+                    sx={{
+                      p: 3,
+                      height: '100%',
+                      borderRadius: 2,
+                      bgcolor: isDark ? 'rgba(17, 25, 40, 0.5)' : 'rgba(255, 255, 255, 0.4)',
+                      backdropFilter: 'blur(16px)',
+                      border: '1px solid',
+                      borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.5)',
+                      boxShadow: 'none',
+                      transition: 'all 0.3s ease',
+                      '&:hover': {
+                        transform: 'translateY(-5px)',
+                        boxShadow: isDark
+                          ? '0 0 25px rgba(99, 102, 241, 0.5)'
+                          : '0 0 25px rgba(79, 70, 229, 0.3)',
+                        borderColor: isDark ? 'rgba(99, 102, 241, 0.5)' : 'rgba(79, 70, 229, 0.3)'
+                      }
+                    }}
+                  >
+                    <Typography
+                      variant="h6"
+                      component="h3"
+                      sx={{
+                        fontWeight: 600,
+                        color: isDark ? 'primary.light' : 'primary.main',
+                        mb: 1,
+                      }}
+                    >
+                      安徽财经大学
+                    </Typography>
+
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        fontWeight: 500,
+                        color: isDark ? 'grey.400' : 'grey.700',
+                        mb: 0.5
+                      }}
+                    >
+                      本科 · 计算机科学与技术
+                    </Typography>
+
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: isDark ? 'grey.500' : 'grey.600',
+                        mb: 2
+                      }}
+                    >
+                      2024年3月 - 至今
+                    </Typography>
+
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: isDark ? 'grey.400' : 'grey.700',
+                        lineHeight: 1.6,
+                        mb: 2
+                      }}
+                    >
+                      通过专升本考试进入本科学习，深入探索计算机科学与技术领域，拓展知识广度的同时增强专业深度。
+                    </Typography>
+
+                    <Typography
+                      variant="subtitle2"
+                      sx={{
+                        fontWeight: 600,
+                        mb: 1,
+                        color: isDark ? 'grey.300' : 'grey.800'
+                      }}
+                    >
+                      {t('about.current_focus', '学习重点')}:
+                    </Typography>
+
+                    <Box component="ul" sx={{ pl: 2, mb: 2 }}>
+                      <Typography component="li" variant="body2" sx={{ color: isDark ? 'grey.400' : 'grey.700', mb: 0.75 }}>
+                        深入学习计算机网络与操作系统原理
+                      </Typography>
+                      <Typography component="li" variant="body2" sx={{ color: isDark ? 'grey.400' : 'grey.700', mb: 0.75 }}>
+                        研究算法设计与数据结构优化
+                      </Typography>
+                      <Typography component="li" variant="body2" sx={{ color: isDark ? 'grey.400' : 'grey.700', mb: 0.75 }}>
+                        关注云计算与分布式系统发展趋势
+                      </Typography>
+                    </Box>
+
+                    <Typography
+                      variant="subtitle2"
+                      sx={{
+                        fontWeight: 600,
+                        mb: 1,
+                        color: isDark ? 'grey.300' : 'grey.800'
+                      }}
+                    >
+                      {t('about.achievements', '主要活动')}:
+                    </Typography>
+
+                    <Box component="ul" sx={{ pl: 2, mb: 2 }}>
+                      <Typography component="li" variant="body2" sx={{ color: isDark ? 'grey.400' : 'grey.700', mb: 0.75 }}>
+                        参与技术学习小组，交流编程技巧与心得
+                      </Typography>
+                      <Typography component="li" variant="body2" sx={{ color: isDark ? 'grey.400' : 'grey.700', mb: 0.75 }}>
+                        完成基于Python的数据处理与分析课程项目
+                      </Typography>
+                      <Typography component="li" variant="body2" sx={{ color: isDark ? 'grey.400' : 'grey.700', mb: 0.75 }}>
+                        利用Linux环境进行开发与实验
+                      </Typography>
+                    </Box>
+
+                    <Typography
+                      variant="subtitle2"
+                      sx={{
+                        fontWeight: 600,
+                        mb: 1,
+                        color: isDark ? 'grey.300' : 'grey.800'
+                      }}
+                    >
+                      {t('about.skills', '技能')}:
+                    </Typography>
+
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                      <TechnologyTag name="C" size="small" />
+                      <TechnologyTag name="Python" size="small" />
+                      <TechnologyTag name="Linux" size="small" />
+                    </Box>
+                  </Box>
+                </Grid>
               </Grid>
             </GlassyContainer>
           </motion.div>
@@ -737,147 +831,247 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
               colorSet="cool"
             >
               <Stack spacing={4}>
-                {projects.map((project, index) => (
-                  <Box
-                    key={index}
-                    component={motion.div}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 * index, duration: 0.5 }}
-                    sx={{
-                      p: { xs: 2, sm: 3 },
-                      borderRadius: 2,
-                      bgcolor: isDark ? 'rgba(17, 25, 40, 0.5)' : 'rgba(255, 255, 255, 0.4)',
-                      backdropFilter: 'blur(16px)',
-                      border: '1px solid',
-                      borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.5)',
-                      boxShadow: 'none',
-                      transition: 'all 0.3s ease',
-                      '&:hover': {
-                        transform: 'translateY(-5px)',
-                        boxShadow: isDark
-                          ? '0 0 25px rgba(16, 185, 129, 0.5)'
-                          : '0 0 25px rgba(16, 185, 129, 0.3)',
-                         borderColor: isDark ? 'rgba(16, 185, 129, 0.5)' : 'rgba(16, 185, 129, 0.3)'
-                      }
-                    }}
-                  >
-                    <Grid container spacing={3}>
-                      <Grid item xs={12} md={8}>
-                        <Typography
-                          variant="h6"
-                          component="h3"
-                          sx={{
-                            fontWeight: 600,
-                            color: isDark ? 'primary.light' : 'primary.main',
-                            mb: 1,
-                          }}
-                        >
-                          {project.name}
-                        </Typography>
-
-                        <Typography
-                          variant="body2"
-                          sx={{
-                            fontWeight: 500,
-                            color: isDark ? 'grey.400' : 'grey.700',
-                            mb: 0.5
-                          }}
-                        >
-                          {project.role} | {project.period}
-                        </Typography>
-
-                        <Typography
-                          variant="body2"
-                          sx={{
-                            color: isDark ? 'grey.400' : 'grey.700',
-                            lineHeight: 1.6,
-                            mb: 2
-                          }}
-                        >
-                          {project.description}
-                        </Typography>
-
-                        <Typography
-                          variant="subtitle2"
-                          sx={{
-                            fontWeight: 600,
-                            mb: 1,
-                            color: isDark ? 'grey.300' : 'grey.800'
-                          }}
-                        >
-                          {t('about.achievements', '主要成果')}:
-                        </Typography>
-
-                        <Box component="ul" sx={{ pl: 2, mb: 2 }}>
-                          {project.achievements.map((achievement, i) => (
-                            <Typography
-                              component="li"
-                              variant="body2"
-                              key={i}
-                              sx={{
-                                color: isDark ? 'grey.400' : 'grey.700',
-                                mb: 0.75
-                              }}
-                            >
-                              {achievement}
-                            </Typography>
-                          ))}
-                        </Box>
-
-                        <Typography
-                          variant="subtitle2"
-                          sx={{
-                            fontWeight: 600,
-                            mb: 1,
-                            color: isDark ? 'grey.300' : 'grey.800'
-                          }}
-                        >
-                          {t('about.technologies', '技术栈')}:
-                        </Typography>
-                        {renderTechTags(project.techs.map(tech => ({ name: tech, category: getTagCategory(tech) })), 'project-' + index)}
-                      </Grid>
-
-                      <Grid
-                        item
-                        xs={12}
-                        md={4}
+                <Box
+                  component={motion.div}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1, duration: 0.5 }}
+                  sx={{
+                    p: { xs: 2, sm: 3 },
+                    borderRadius: 2,
+                    bgcolor: isDark ? 'rgba(17, 25, 40, 0.5)' : 'rgba(255, 255, 255, 0.4)',
+                    backdropFilter: 'blur(16px)',
+                    border: '1px solid',
+                    borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.5)',
+                    boxShadow: 'none',
+                    transition: 'all 0.3s ease',
+                    '&:hover': {
+                      transform: 'translateY(-5px)',
+                      boxShadow: isDark
+                        ? '0 0 25px rgba(16, 185, 129, 0.5)'
+                        : '0 0 25px rgba(16, 185, 129, 0.3)',
+                       borderColor: isDark ? 'rgba(16, 185, 129, 0.5)' : 'rgba(16, 185, 129, 0.3)'
+                    }
+                  }}
+                >
+                  <Grid container spacing={3}>
+                    <Grid item xs={12} md={8}>
+                      <Typography
+                        variant="h6"
+                        component="h3"
                         sx={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center'
+                          fontWeight: 600,
+                          color: isDark ? 'primary.light' : 'primary.main',
+                          mb: 1,
                         }}
                       >
-                        <Box
-                          component="img"
-                          src={project.image}
-                          alt={project.name}
-                          sx={{
-                            width: '100%',
-                            height: 'auto',
-                            borderRadius: 2,
-                            border: '1px solid',
-                            borderColor: isDark
-                              ? 'rgba(255, 255, 255, 0.1)'
-                              : 'rgba(0, 0, 0, 0.05)',
-                            boxShadow: 'none',
-                            objectFit: 'cover',
-                            transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-                            '&:hover': {
-                              transform: 'scale(1.03)',
-                              boxShadow: isDark
-                                ? '0 8px 25px rgba(0, 0, 0, 0.4)'
-                                : '0 8px 25px rgba(0, 0, 0, 0.15)',
-                            }
-                          }}
-                          onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
-                            e.currentTarget.src = 'https://picsum.photos/seed/image-error/300/200';
-                          }}
-                        />
-                      </Grid>
+                        苍穹外卖（Sky-Take-Out）
+                      </Typography>
+
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          fontWeight: 500,
+                          color: isDark ? 'grey.400' : 'grey.700',
+                          mb: 0.5
+                        }}
+                      >
+                        全栈开发
+                      </Typography>
+
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          color: isDark ? 'grey.400' : 'grey.700',
+                          lineHeight: 1.6,
+                          mb: 2
+                        }}
+                      >
+                        专为餐饮企业（餐厅、饭店）定制的一款软件产品，包括系统管理后台和小程序端应用两部分。其中系统管理后台主要提供给餐饮企业内部员工使用，可以对餐厅的分类、菜品、套餐、订单、员工等进行管理维护，对餐厅的各类数据进行统计，同时也可进行来单语音播报功能。小程序端主要提供给消费者使用，可以在线浏览菜品、添加购物车、下单、支付、催单等。
+                      </Typography>
+
+                      <Typography
+                        variant="subtitle2"
+                        sx={{
+                          fontWeight: 600,
+                          mb: 1,
+                          color: isDark ? 'grey.300' : 'grey.800'
+                        }}
+                      >
+                        {t('about.technologies', '技术栈')}:
+                      </Typography>
+                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
+                        <TechnologyTag name="Spring Boot" />
+                        <TechnologyTag name="SpringMVC" />
+                        <TechnologyTag name="Redis" />
+                        <TechnologyTag name="MySQL" />
+                        <TechnologyTag name="Docker" />
+                        <TechnologyTag name="Nginx" />
+                        <TechnologyTag name="WebSocket" />
+                      </Box>
                     </Grid>
-                  </Box>
-                ))}
+
+                    <Grid
+                      item
+                      xs={12}
+                      md={4}
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}
+                    >
+                      <Box
+                        component="img"
+                        src="https://img.php.cn/upload/image/550/982/756/1684488126246446.png"
+                        alt="Sky-Take-Out"
+                        sx={{
+                          width: '100%',
+                          height: 'auto',
+                          borderRadius: 2,
+                          border: '1px solid',
+                          borderColor: isDark
+                            ? 'rgba(255, 255, 255, 0.1)'
+                            : 'rgba(0, 0, 0, 0.05)',
+                          boxShadow: 'none',
+                          objectFit: 'cover',
+                          transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+                          '&:hover': {
+                            transform: 'scale(1.03)',
+                            boxShadow: isDark
+                              ? '0 8px 25px rgba(0, 0, 0, 0.4)'
+                              : '0 8px 25px rgba(0, 0, 0, 0.15)',
+                          }
+                        }}
+                        onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
+                          e.currentTarget.src = 'https://picsum.photos/seed/image-error/300/200';
+                        }}
+                      />
+                    </Grid>
+                  </Grid>
+                </Box>
+
+                <Box
+                  component={motion.div}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2, duration: 0.5 }}
+                  sx={{
+                    p: { xs: 2, sm: 3 },
+                    borderRadius: 2,
+                    bgcolor: isDark ? 'rgba(17, 25, 40, 0.5)' : 'rgba(255, 255, 255, 0.4)',
+                    backdropFilter: 'blur(16px)',
+                    border: '1px solid',
+                    borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.5)',
+                    boxShadow: 'none',
+                    transition: 'all 0.3s ease',
+                    '&:hover': {
+                      transform: 'translateY(-5px)',
+                      boxShadow: isDark
+                        ? '0 0 25px rgba(16, 185, 129, 0.5)'
+                        : '0 0 25px rgba(16, 185, 129, 0.3)',
+                       borderColor: isDark ? 'rgba(16, 185, 129, 0.5)' : 'rgba(16, 185, 129, 0.3)'
+                    }
+                  }}
+                >
+                  <Grid container spacing={3}>
+                    <Grid item xs={12} md={8}>
+                      <Typography
+                        variant="h6"
+                        component="h3"
+                        sx={{
+                          fontWeight: 600,
+                          color: isDark ? 'primary.light' : 'primary.main',
+                          mb: 1,
+                        }}
+                      >
+                        尚庭公寓（Lease）
+                      </Typography>
+
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          fontWeight: 500,
+                          color: isDark ? 'grey.400' : 'grey.700',
+                          mb: 0.5
+                        }}
+                      >
+                        后端开发
+                      </Typography>
+
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          color: isDark ? 'grey.400' : 'grey.700',
+                          lineHeight: 1.6,
+                          mb: 2
+                        }}
+                      >
+                        尚庭公寓是一个公寓租赁平台项目，包含移动端和后台管理系统，其中移动端面向广大用户，提供找房、看房预约、租约管理等功能，后台管理系统面向管理员，提供公寓（房源）管理、租赁管理、用户管理等功能。
+                      </Typography>
+
+                      <Typography
+                        variant="subtitle2"
+                        sx={{
+                          fontWeight: 600,
+                          mb: 1,
+                          color: isDark ? 'grey.300' : 'grey.800'
+                        }}
+                      >
+                        {t('about.technologies', '技术栈')}:
+                      </Typography>
+                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                        <TechnologyTag name="Spring Boot" />
+                        <TechnologyTag name="SpringMVC" />
+                        <TechnologyTag name="MyBatis/Plus" />
+                        <TechnologyTag name="Redis" />
+                        <TechnologyTag name="MySQL" />
+                        <TechnologyTag name="MinIO" />
+                        <TechnologyTag name="Nginx" />
+                        <TechnologyTag name="WebSocket" />
+                        <TechnologyTag name="Docker" />
+                      </Box>
+                    </Grid>
+
+                    <Grid
+                      item
+                      xs={12}
+                      md={4}
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}
+                    >
+                      <Box
+                        component="img"
+                        src="https://st.360buyimg.com/img/jfs/t19900/341/1848316057/14821/82c04044/5b3c3bbbN26c90e9a.jpg"
+                        alt="Lease"
+                        sx={{
+                          width: '100%',
+                          height: 'auto',
+                          borderRadius: 2,
+                          border: '1px solid',
+                          borderColor: isDark
+                            ? 'rgba(255, 255, 255, 0.1)'
+                            : 'rgba(0, 0, 0, 0.05)',
+                          boxShadow: 'none',
+                          objectFit: 'cover',
+                          transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+                          '&:hover': {
+                            transform: 'scale(1.03)',
+                            boxShadow: isDark
+                              ? '0 8px 25px rgba(0, 0, 0, 0.4)'
+                              : '0 8px 25px rgba(0, 0, 0, 0.15)',
+                          }
+                        }}
+                        onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
+                          e.currentTarget.src = 'https://picsum.photos/seed/image-error/300/200';
+                        }}
+                      />
+                    </Grid>
+                  </Grid>
+                </Box>
               </Stack>
             </GlassyContainer>
           </motion.div>

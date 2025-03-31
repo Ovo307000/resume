@@ -111,7 +111,14 @@ const EducationPage: React.FC = () => {
 
   // 本地化文本处理
   const getLocalizedText = (text: LocalizedText): string => {
-    return i18n.language === 'zh' ? text.zh : text.en;
+    switch (i18n.language) {
+      case 'zh':
+        return text.zh;
+      case 'en':
+        return text.en;
+      default:
+        return text.zh;
+    }
   };
 
   // 格式化日期显示

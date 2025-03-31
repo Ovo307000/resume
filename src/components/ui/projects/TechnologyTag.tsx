@@ -3,8 +3,8 @@ import { Box, Typography, useTheme as useMuiTheme, alpha } from '@mui/material';
 import { motion } from 'framer-motion';
 import { useTheme } from '../../../contexts/ThemeContext';
 import { DiJava, DiJavascript1, DiPython, DiMysql, DiPostgresql, DiMongodb, DiReact, DiDocker, DiGit, DiRedis } from 'react-icons/di';
-import { SiTypescript, SiSpring, SiVuedotjs, SiTailwindcss, SiGradle, SiLinux, SiC, SiCplusplus, SiGo, SiRust, SiSharp } from 'react-icons/si';
-import { FiCode, FiSettings, FiServer } from 'react-icons/fi';
+import { SiTypescript, SiSpring, SiVuedotjs, SiTailwindcss, SiGradle, SiLinux, SiC, SiCplusplus, SiGo, SiRust, SiSharp, SiNginx } from 'react-icons/si';
+import { FiCode, FiSettings, FiServer, FiWifi, FiDatabase, FiPackage } from 'react-icons/fi';
 
 interface TechnologyTagProps {
   name?: string;
@@ -33,6 +33,7 @@ const getTechnologyIcon = (name: string): React.ReactNode => {
     'Spring': <SiSpring size={iconSize} />,
     'Spring Boot': <SiSpring size={iconSize} />,
     'Spring MVC': <SiSpring size={iconSize} />,
+    'SpringMVC': <SiSpring size={iconSize} />,
     'Spring JPA': <SiSpring size={iconSize} />,
     'React.js': <DiReact size={iconSize} />,
     'React': <DiReact size={iconSize} />,
@@ -50,11 +51,17 @@ const getTechnologyIcon = (name: string): React.ReactNode => {
     'Git': <DiGit size={iconSize} />,
     'Linux': <SiLinux size={iconSize} />,
     'Docker': <DiDocker size={iconSize} />,
-    'Maven': <FiServer size={iconSize} />, // 用通用服务器图标
+    'Maven': <FiPackage size={iconSize} />,
     'Gradle': <SiGradle size={iconSize} />,
-    'RESTAPI': <FiServer size={iconSize} />, // 用通用服务器图标
+    'RESTAPI': <FiServer size={iconSize} />,
     'REST API': <FiServer size={iconSize} />,
     'Stable Diffusion': <FiSettings size={iconSize} />,
+    'WebSocket': <FiWifi size={iconSize} />,
+    'Nginx': <SiNginx size={iconSize} />,
+    'MinIO': <FiDatabase size={iconSize} />,
+    'MyBatis-Plus': <FiPackage size={iconSize} />,
+    'MyBatis': <FiPackage size={iconSize} />,
+    'MyBatis/Plus': <FiPackage size={iconSize} />,
     // 添加其他可能的技术...
   };
   const lowerCaseName = name.toLowerCase();
@@ -82,6 +89,7 @@ const getColorForTechnology = (techName: string, defaultColor: string): string =
     'spring': '#6DB33F',
     'spring boot': '#6DB33F',
     'spring mvc': '#6DB33F',
+    'springmvc': '#6DB33F',
     'spring jpa': '#6DB33F',
     'tailwind css': '#38B2AC',
     'tailwindcss': '#38B2AC',
@@ -105,6 +113,11 @@ const getColorForTechnology = (techName: string, defaultColor: string): string =
     'restapi': '#0096c7',
     'socket.io': '#010101',
     'websocket': '#4353af',
+    'nginx': '#009639',
+    'minio': '#C72C48',
+    'mybatis': '#3E6E93',
+    'mybatis-plus': '#3E6E93',
+    'mybatis/plus': '#3E6E93',
     'jwt': '#000000',
     'javafx': '#5382a1',
     'stable diffusion': '#A020F0' // Purple for AI/ML
@@ -134,7 +147,15 @@ const getUrlForTechnology = (techName: string): string | undefined => {
     'vue.js': 'https://vuejs.org/',
     'spring': 'https://spring.io/',
     'spring boot': 'https://spring.io/projects/spring-boot',
+    'spring mvc': 'https://docs.spring.io/spring-framework/reference/web/webmvc.html',
+    'springmvc': 'https://docs.spring.io/spring-framework/reference/web/webmvc.html',
     'socket.io': 'https://socket.io/',
+    'websocket': 'https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API',
+    'nginx': 'https://nginx.org/',
+    'minio': 'https://min.io/',
+    'mybatis': 'https://mybatis.org/',
+    'mybatis-plus': 'https://baomidou.com/',
+    'mybatis/plus': 'https://baomidou.com/',
     'docker': 'https://www.docker.com/',
     'git': 'https://git-scm.com/',
     'linux': 'https://www.linux.org/',
@@ -145,7 +166,6 @@ const getUrlForTechnology = (techName: string): string | undefined => {
     'tailwind': 'https://tailwindcss.com/',
     'stable diffusion': 'https://stability.ai/',
     'javafx': 'https://openjfx.io/', // 添加 JavaFX 链接
-    'spring mvc': 'https://docs.spring.io/spring-framework/reference/web/webmvc.html', // 添加 Spring MVC
     'spring jpa': 'https://spring.io/projects/spring-data-jpa', // 添加 Spring JPA
     'bootstrap': 'https://getbootstrap.com/', // 添加 Bootstrap
     'sqlite': 'https://www.sqlite.org/index.html', // 添加 SQLite
