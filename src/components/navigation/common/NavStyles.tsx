@@ -9,19 +9,6 @@ import { keyframes } from '@emotion/react';
  * 提供可复用的导航栏样式和组件，统一不同场景下的视觉效果
  */
 
-// 添加卡片发光效果动画
-export const glowKeyframes = keyframes`
-  0% {
-    box-shadow: 0 0 5px rgba(100, 100, 255, 0.3), 0 0 8px rgba(100, 100, 255, 0);
-  }
-  50% {
-    box-shadow: 0 0 10px rgba(100, 100, 255, 0.5), 0 0 12px rgba(100, 100, 255, 0.2);
-  }
-  100% {
-    box-shadow: 0 0 5px rgba(100, 100, 255, 0.3), 0 0 8px rgba(100, 100, 255, 0);
-  }
-`;
-
 // 添加闪烁动画
 export const shimmerKeyframes = keyframes`
   0% {
@@ -242,16 +229,4 @@ export const DragPreview: React.FC<DragPreviewProps> = ({ theme, position, direc
       </Box>
     </div>
   );
-};
-
-export default {
-  getBaseCardStyle,
-  getDividerStyle,
-  getDragPreviewStyle,
-  getNavLinkItemStyle,
-  getBackdropStyle,
-  menuItemVariants,
-  toolbarItemVariants,
-  backdropVariants,
-  DragPreview
 };
