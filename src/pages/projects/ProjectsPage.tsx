@@ -571,39 +571,41 @@ const ProjectsPage: React.FC = () => {
                       </Typography>
                     </motion.div>
 
-                    {/* 视图模式切换按钮 */}
-                    <Stack direction="row" spacing={1} sx={{ flex: 1, justifyContent: 'flex-end' }}>
-                      <Tooltip title={language === 'zh' ? '网格视图' : 'Grid View'}>
-                        <IconButton
-                          onClick={() => handleViewModeChange('grid')}
-                          color={viewMode === 'grid' ? 'primary' : 'default'}
-                          size="small"
-                          sx={{
-                            border: viewMode === 'grid'
-                              ? `1px solid ${muiTheme.palette.primary.main}`
-                              : `1px solid ${alpha(theme === 'dark' ? '#fff' : '#000', 0.1)}`,
-                            borderRadius: '8px',
-                          }}
-                        >
-                          <FiGrid />
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip title={language === 'zh' ? '列表视图' : 'List View'}>
-                        <IconButton
-                          onClick={() => handleViewModeChange('list')}
-                          color={viewMode === 'list' ? 'primary' : 'default'}
-                          size="small"
-                          sx={{
-                            border: viewMode === 'list'
-                              ? `1px solid ${muiTheme.palette.primary.main}`
-                              : `1px solid ${alpha(theme === 'dark' ? '#fff' : '#000', 0.1)}`,
-                            borderRadius: '8px',
-                          }}
-                        >
-                          <FiList />
-                        </IconButton>
-                      </Tooltip>
-                    </Stack>
+                    {/* 视图模式切换按钮 - 只在桌面端显示 */}
+                    {!isMobile && (
+                      <Stack direction="row" spacing={1} sx={{ flex: 1, justifyContent: 'flex-end' }}>
+                        <Tooltip title={language === 'zh' ? '网格视图' : 'Grid View'}>
+                          <IconButton
+                            onClick={() => handleViewModeChange('grid')}
+                            color={viewMode === 'grid' ? 'primary' : 'default'}
+                            size="small"
+                            sx={{
+                              border: viewMode === 'grid'
+                                ? `1px solid ${muiTheme.palette.primary.main}`
+                                : `1px solid ${alpha(theme === 'dark' ? '#fff' : '#000', 0.1)}`,
+                              borderRadius: '8px',
+                            }}
+                          >
+                            <FiGrid />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title={language === 'zh' ? '列表视图' : 'List View'}>
+                          <IconButton
+                            onClick={() => handleViewModeChange('list')}
+                            color={viewMode === 'list' ? 'primary' : 'default'}
+                            size="small"
+                            sx={{
+                              border: viewMode === 'list'
+                                ? `1px solid ${muiTheme.palette.primary.main}`
+                                : `1px solid ${alpha(theme === 'dark' ? '#fff' : '#000', 0.1)}`,
+                              borderRadius: '8px',
+                            }}
+                          >
+                            <FiList />
+                          </IconButton>
+                        </Tooltip>
+                      </Stack>
+                    )}
                   </Box>
 
                   {/* 分类按钮组 */}
@@ -959,6 +961,55 @@ const ProjectsPage: React.FC = () => {
                 </Grid>
               </motion.div>
             </AnimatePresence>
+          )}
+
+          {/* 移动端视图切换悬浮按钮 */}
+          {isMobile && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ delay: 0.5, type: 'spring', stiffness: 300, damping: 25 }}
+              style={{
+                position: 'fixed',
+                bottom: '20px',
+                right: '20px',
+                zIndex: 1000
+              }}
+            >
+              <Box
+                sx={{
+                  backdropFilter: 'blur(16px)',
+                  WebkitBackdropFilter: 'blur(16px)',
+                  backgroundColor: alpha(
+                    theme === 'dark' ? muiTheme.palette.background.paper : muiTheme.palette.background.paper,
+                    theme === 'dark' ? 0.7 : 0.8
+                  ),
+                  borderRadius: '50%',
+                  p: 0.8,
+                  boxShadow: theme === 'dark'
+                    ? '0 4px 20px rgba(0,0,0,0.5)'
+                    : '0 4px 20px rgba(0,0,0,0.2)',
+                  border: `1px solid ${alpha(
+                    theme === 'dark' ? muiTheme.palette.common.white : muiTheme.palette.common.black,
+                    theme === 'dark' ? 0.1 : 0.05
+                  )}`,
+                }}
+              >
+                <IconButton
+                  onClick={() => handleViewModeChange(viewMode === 'grid' ? 'list' : 'grid')}
+                  color="primary"
+                  size="medium"
+                  sx={{
+                    p: 1.2,
+                    '&:hover': {
+                      backgroundColor: alpha(muiTheme.palette.primary.main, 0.1)
+                    }
+                  }}
+                >
+                  {viewMode === 'grid' ? <FiList size={22} /> : <FiGrid size={22} />}
+                </IconButton>
+              </Box>
+            </motion.div>
           )}
 
           {/* 空状态提示 */}
