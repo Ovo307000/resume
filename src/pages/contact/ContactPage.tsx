@@ -36,7 +36,7 @@ const ContactPageContainer: React.FC = () => {
 
       {/* 联系卡片 */}
       <ContactPage userData={userData} />
-    </Container>
+        </Container>
   );
 };
 
