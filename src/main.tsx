@@ -11,7 +11,7 @@ import { SpeedInsights } from '@vercel/speed-insights/react';
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <App />
-    <Analytics />
-    <SpeedInsights />
+    <Analytics debug={true} />
+    <SpeedInsights debug={true} sampleRate={1.0} />
   </React.StrictMode>,
 )

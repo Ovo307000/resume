@@ -48,5 +48,8 @@
       "source": "/(.*)",
       "destination": "/index.html"
     }
-  ]
+  ],
+  "analytics": {
+    "enabled": true
+  }
 }
