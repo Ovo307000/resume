@@ -68,17 +68,30 @@ const DesktopNavbar: React.FC<NavbarProps> = ({ routes, isActive, isCompact = fa
   // 更新滚动位置
   useEffect(() => {
     const handleScroll = () => {
-      scrollY.set(window.scrollY);
+      // 在每次滚动时重新计算 docHeight，确保获取最新的可滚动高度
+      const currentDocHeight = document.documentElement.scrollHeight - window.innerHeight;
+      docHeight.set(currentDocHeight);
+
+      const currentScrollY = window.scrollY;
+      scrollY.set(currentScrollY);
+
       // 计算滚动进度百分比
-      if (docHeight.get() > 0) {
-        scrollYProgress.set(window.scrollY / docHeight.get());
+      if (currentDocHeight > 0) {
+        scrollYProgress.set(currentScrollY / currentDocHeight);
+      } else {
+        scrollYProgress.set(0); // 处理高度为0或负数的情况
       }
     };
 
-    handleScroll(); // 初始化
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [scrollY, scrollYProgress, docHeight]);
+    // 添加延迟确保初始计算时页面已渲染
+    const timeoutId = setTimeout(handleScroll, 100); // 延迟100ms执行初始计算
+    window.addEventListener('scroll', handleScroll, { passive: true }); // 使用 passive 提升性能
+
+    return () => {
+      clearTimeout(timeoutId);
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [scrollY, scrollYProgress, docHeight]); // 保持依赖项，因为我们仍然设置它们
 
   // 隐藏系统导航进度条
   useEffect(() => {
@@ -145,6 +158,7 @@ const DesktopNavbar: React.FC<NavbarProps> = ({ routes, isActive, isCompact = fa
         }}
       />
 
+      {/* The AppBar and its content should be inside the main Box */}
       <AppBar
         position="relative"
         elevation={0}

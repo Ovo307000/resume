@@ -10,7 +10,7 @@ import {
   alpha,
   Tooltip
 } from '@mui/material';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   FiGithub,
@@ -70,6 +70,7 @@ interface TechItem {
 const Footer = ({ data = {} }: FooterProps) => {
   const { theme } = useTheme();
   const { t } = useTranslation();
+  const location = useLocation();
   // 使用全局复制通知
   const { copyToClipboard } = useCopyNotification();
   const currentYear = new Date().getFullYear();
@@ -151,14 +152,6 @@ const Footer = ({ data = {} }: FooterProps) => {
     }
   };
 
-  // 联系方式链接悬停动画
-  const contactLinkHoverVariants = {
-    hover: {
-      x: 5,
-      transition: { type: 'spring', stiffness: 400 }
-    }
-  };
-
   return (
     <Box
       component="footer"
@@ -210,22 +203,28 @@ const Footer = ({ data = {} }: FooterProps) => {
                 {navLinks.map((link) => (
                   <Grid item xs={6} key={link.path}>
                     <motion.div
-                      whileHover={{ x: 5 }}
-                      transition={{ type: 'spring', stiffness: 400 }}
+                      whileHover={{ y: -3 }}
+                      transition={{ type: 'spring', stiffness: 400, damping: 15 }}
                     >
                       <MuiLink
                         component={Link}
                         to={link.path}
                         underline="none"
+                        onClick={() => window.scrollTo(0, 0)}
                         sx={{
-                          color: 'text.secondary',
+                          color: location?.pathname === link.path
+                            ? link.color
+                            : 'text.secondary',
                           display: 'flex',
                           alignItems: 'center',
                           gap: 1.5,
-                          transition: 'color 0.2s',
+                          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                          fontWeight: location?.pathname === link.path ? 600 : 500,
                           '&:hover': {
                             color: link.color,
-                          }
+                          },
+                          py: 0.8,
+                          px: 0.5,
                         }}
                       >
                         <Box
@@ -233,7 +232,8 @@ const Footer = ({ data = {} }: FooterProps) => {
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            color: link.color
+                            color: link.color,
+                            fontSize: '1rem'
                           }}
                         >
                           {link.icon}
@@ -261,39 +261,51 @@ const Footer = ({ data = {} }: FooterProps) => {
                 {contactLinks.map((link) => (
                   <Grid item xs={12} sm={6} key={link.name}>
                     <motion.div
-                      variants={contactLinkHoverVariants}
-                      whileHover="hover"
+                      whileHover={{
+                        y: -5,
+                        scale: 1.03,
+                        boxShadow: `0 10px 20px ${alpha(link.color || (theme === 'dark' ? '#6366F1' : '#4F46E5'), 0.2)}`
+                      }}
+                      transition={{ type: 'spring', stiffness: 300, damping: 15 }}
+                      style={{
+                        background: theme === 'dark' ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.02)',
+                        borderRadius: '12px',
+                        padding: '16px',
+                        height: '100%',
+                        overflow: 'hidden',
+                        cursor: 'pointer'
+                      }}
                     >
                       <Box
                         sx={{
                           display: 'flex',
                           alignItems: 'center',
-                          p: 1.5,
-                          borderRadius: 2,
+                          height: '100%'
                         }}
                       >
                         <Box
                           sx={{
-                            width: 36,
-                            height: 36,
+                            width: 40,
+                            height: 40,
                             borderRadius: '50%',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            bgcolor: theme === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)',
+                            bgcolor: alpha(link.color || (theme === 'dark' ? '#6366F1' : '#4F46E5'), 0.15),
                             color: link.color || (theme === 'dark' ? '#6366F1' : '#4F46E5'),
                             mr: 2,
-                            flexShrink: 0
+                            flexShrink: 0,
+                            transition: 'all 0.3s ease'
                           }}
                         >
                           {link.icon}
                         </Box>
 
-                        <Box>
+                        <Box sx={{ flexGrow: 1 }}>
                           <Typography
                             variant="body2"
                             color="text.secondary"
-                            sx={{ fontSize: '0.8rem', mb: 0.3 }}
+                            sx={{ fontSize: '0.8rem', mb: 0.5, opacity: 0.8 }}
                           >
                             {link.name}
                           </Typography>
@@ -303,7 +315,8 @@ const Footer = ({ data = {} }: FooterProps) => {
                               value={link.value || ''}
                               label={link.name}
                               copyIcon={link.copyIcon || <FiCopy size={14} />}
-                              linkColor={link.color || (theme === 'dark' ? '#6366F1' : '#4F46E5')}
+                              linkColor={link.color || (theme === 'dark' ? '#A5B4FC' : '#4F46E5')}
+                              fontSize="0.95rem"
                               onCopy={(text, label) => copyToClipboard(text, label)}
                             />
                           ) : (
@@ -312,7 +325,8 @@ const Footer = ({ data = {} }: FooterProps) => {
                               to={link.url || '#'}
                               isExternal={link.url?.startsWith('http')}
                               externalIcon={<FiExternalLink size={14} />}
-                              linkColor={link.color || (theme === 'dark' ? '#6366F1' : '#4F46E5')}
+                              linkColor={link.color || (theme === 'dark' ? '#A5B4FC' : '#4F46E5')}
+                              fontSize="0.95rem"
                             />
                           )}
                         </Box>
@@ -360,9 +374,26 @@ const Footer = ({ data = {} }: FooterProps) => {
                   sx={{
                     color: 'inherit',
                     textDecoration: 'none',
+                    position: 'relative',
+                    transition: 'color 0.2s ease-in-out',
+                    '&::after': {
+                      content: '""',
+                      position: 'absolute',
+                      width: '100%',
+                      transform: 'scaleX(0)',
+                      height: '1px',
+                      bottom: '-2px',
+                      left: 0,
+                      backgroundColor: theme === 'dark' ? '#8B5CF6' : '#6366F1',
+                      transformOrigin: 'bottom right',
+                      transition: 'transform 0.25s ease-out',
+                    },
                     '&:hover': {
-                      textDecoration: 'underline',
-                      color: theme === 'dark' ? '#6366F1' : '#4F46E5'
+                      color: theme === 'dark' ? '#A5B4FC' : '#4F46E5',
+                    },
+                    '&:hover::after': {
+                      transform: 'scaleX(1)',
+                      transformOrigin: 'bottom left',
                     }
                   }}
                 >
