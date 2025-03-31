@@ -59,7 +59,11 @@ const DesktopNavbar: React.FC<NavbarProps> = ({ routes, isActive, isCompact = fa
   const springBoxShadow = useSpring(boxShadowOpacity, { damping: 15, stiffness: 100 });
   const springOpacity = useSpring(opacity, { damping: 15, stiffness: 100 });
   const springTranslateY = useSpring(translateY, { damping: 20, stiffness: 120 });
-  const springScrollProgress = useSpring(scrollYProgress, { damping: 20, stiffness: 100 });
+  const springScrollProgress = useSpring(scrollYProgress, {
+    damping: 30,
+    stiffness: 90,
+    restDelta: 0.001
+  });
 
   // 更新滚动位置
   useEffect(() => {
@@ -110,28 +114,34 @@ const DesktopNavbar: React.FC<NavbarProps> = ({ routes, isActive, isCompact = fa
         pointerEvents: 'none'
       }}
     >
-      {/* 自定义滚动进度条 */}
+      {/* 自定义滚动进度条 - 更优雅的设计 */}
       <motion.div
         style={{
           position: 'fixed',
           top: 0,
           left: 0,
           right: 0,
-          height: '4px',
+          height: '3px',
           transformOrigin: '0%',
           scaleX: springScrollProgress,
           zIndex: 1200,
-          background: `linear-gradient(to right,
-            ${isDark ? '#4338CA' : '#4338CA'},
-            ${isDark ? '#10B981' : '#10B981'},
-            ${isDark ? '#F59E0B' : '#F59E0B'},
-            ${isDark ? '#8B5CF6' : '#8B5CF6'},
-            ${isDark ? '#EC4899' : '#EC4899'},
-            ${isDark ? '#06B6D4' : '#06B6D4'}
-          )`,
+          background: isDark
+            ? `linear-gradient(to right,
+                rgba(67, 56, 202, 0.9),
+                rgba(16, 185, 129, 0.9),
+                rgba(245, 158, 11, 0.9),
+                rgba(139, 92, 246, 0.9),
+                rgba(236, 72, 153, 0.9))`
+            : `linear-gradient(to right,
+                rgba(67, 56, 202, 0.8),
+                rgba(16, 185, 129, 0.8),
+                rgba(245, 158, 11, 0.8),
+                rgba(139, 92, 246, 0.8),
+                rgba(236, 72, 153, 0.8))`,
           boxShadow: isDark
-            ? '0 0 10px rgba(79, 70, 229, 0.5)'
-            : '0 0 10px rgba(79, 70, 229, 0.3)',
+            ? '0 0 6px rgba(79, 70, 229, 0.4)'
+            : '0 0 6px rgba(79, 70, 229, 0.25)',
+          backdropFilter: 'blur(3px)',
         }}
       />
 

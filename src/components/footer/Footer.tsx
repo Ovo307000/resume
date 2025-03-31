@@ -352,7 +352,22 @@ const Footer = ({ data = {} }: FooterProps) => {
                 color="text.secondary"
                 sx={{ fontSize: '0.8rem' }}
               >
-                © {currentYear} Portfolio. {t('footer.copyright')}
+                © {currentYear} Portfolio.{' '}
+                <MuiLink
+                  href="https://github.com/ovo307000"
+                  target="_blank"
+                  rel="noopener"
+                  sx={{
+                    color: 'inherit',
+                    textDecoration: 'none',
+                    '&:hover': {
+                      textDecoration: 'underline',
+                      color: theme === 'dark' ? '#6366F1' : '#4F46E5'
+                    }
+                  }}
+                >
+                  ovo307000
+                </MuiLink>
               </Typography>
             </Box>
 
@@ -366,35 +381,33 @@ const Footer = ({ data = {} }: FooterProps) => {
                 gap: 0.5
               }}
             >
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{ fontSize: '0.8rem', mr: 1 }}
-              >
-                {t('footer.madeWith')}
-              </Typography>
-
               {techStack.map((tech) => (
                 <Tooltip key={tech.name} title={tech.name} arrow placement="top">
-                  <IconButton
-                    component="a"
-                    href={tech.url}
-                    target="_blank"
-                    size="small"
-                    sx={{
-                      color: tech.color,
-                      fontSize: '0.8rem',
-                      padding: '4px',
-                      '&:hover': {
-                        backgroundColor: alpha(tech.color, 0.1),
-                        transform: 'translateY(-2px)',
-                      },
-                      transition: 'transform 0.2s ease'
+                  <motion.div
+                    whileHover={{
+                      y: -4,
+                      scale: 1.1,
+                      transition: { type: 'spring', stiffness: 400 }
                     }}
-                    aria-label={tech.name}
                   >
-                    {tech.icon}
-                  </IconButton>
+                    <IconButton
+                      component="a"
+                      href={tech.url}
+                      target="_blank"
+                      size="small"
+                      sx={{
+                        color: tech.color,
+                        fontSize: '0.8rem',
+                        padding: '4px',
+                        '&:hover': {
+                          backgroundColor: alpha(tech.color, 0.1),
+                        },
+                      }}
+                      aria-label={tech.name}
+                    >
+                      {tech.icon}
+                    </IconButton>
+                  </motion.div>
                 </Tooltip>
               ))}
             </Box>

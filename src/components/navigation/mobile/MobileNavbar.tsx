@@ -5,13 +5,7 @@ import {
   Toolbar,
   Zoom,
   useTheme as useMuiTheme,
-  IconButton,
-  Container,
-  Drawer,
-  List,
-  ListItem,
-  Typography,
-  useMediaQuery
+  IconButton
 } from '@mui/material';
 import { useLocation } from 'react-router-dom';
 import { useTheme } from '../../../contexts/ThemeContext';
@@ -54,7 +48,6 @@ const MobileNavbar: React.FC<MobileNavbarProps> = ({
   const { theme, toggleTheme } = useTheme();
   const { t } = useTranslation();
   const isDark = theme === 'dark';
-  const isMobile = useMediaQuery(muiTheme.breakpoints.down('md'));
 
   // 导航栏是否处于紧凑模式（滚动一定距离后）
   const isCompact = scrollPos > 50;
@@ -86,7 +79,11 @@ const MobileNavbar: React.FC<MobileNavbarProps> = ({
   // 弹性动画效果
   const springBoxShadow = useSpring(boxShadowOpacity, { damping: 15, stiffness: 100 });
   const springOpacity = useSpring(opacity, { damping: 15, stiffness: 100 });
-  const springScrollProgress = useSpring(scrollYProgress, { damping: 20, stiffness: 100 });
+  const springScrollProgress = useSpring(scrollYProgress, {
+    damping: 30,
+    stiffness: 90,
+    restDelta: 0.001
+  });
 
   // 处理抽屉开关
   const handleDrawerToggle = () => {
@@ -146,7 +143,7 @@ const MobileNavbar: React.FC<MobileNavbarProps> = ({
 
   return (
     <>
-      {/* 自定义滚动进度条 */}
+      {/* 自定义滚动进度条 - 更优雅的设计 */}
       <motion.div
         style={{
           position: 'fixed',
@@ -157,17 +154,23 @@ const MobileNavbar: React.FC<MobileNavbarProps> = ({
           transformOrigin: '0%',
           scaleX: springScrollProgress,
           zIndex: 1200,
-          background: `linear-gradient(to right,
-            ${isDark ? '#4338CA' : '#4338CA'},
-            ${isDark ? '#10B981' : '#10B981'},
-            ${isDark ? '#F59E0B' : '#F59E0B'},
-            ${isDark ? '#8B5CF6' : '#8B5CF6'},
-            ${isDark ? '#EC4899' : '#EC4899'},
-            ${isDark ? '#06B6D4' : '#06B6D4'}
-          )`,
+          background: isDark
+            ? `linear-gradient(to right,
+                rgba(67, 56, 202, 0.9),
+                rgba(16, 185, 129, 0.9),
+                rgba(245, 158, 11, 0.9),
+                rgba(139, 92, 246, 0.9),
+                rgba(236, 72, 153, 0.9))`
+            : `linear-gradient(to right,
+                rgba(67, 56, 202, 0.8),
+                rgba(16, 185, 129, 0.8),
+                rgba(245, 158, 11, 0.8),
+                rgba(139, 92, 246, 0.8),
+                rgba(236, 72, 153, 0.8))`,
           boxShadow: isDark
-            ? '0 0 8px rgba(79, 70, 229, 0.5)'
-            : '0 0 8px rgba(79, 70, 229, 0.3)',
+            ? '0 0 6px rgba(79, 70, 229, 0.4)'
+            : '0 0 6px rgba(79, 70, 229, 0.25)',
+          backdropFilter: 'blur(3px)',
         }}
       />
 
