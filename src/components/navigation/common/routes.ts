@@ -1,6 +1,5 @@
 import { useTranslation } from 'react-i18next';
 import { NavRoute } from './types';
-import { FiHome, FiUser, FiTool, FiBriefcase, FiBookOpen, FiMail } from 'react-icons/fi'; // 导入图标
 
 /**
  * 获取导航路由配置的Hook
@@ -10,12 +9,12 @@ export const useNavRoutes = (): NavRoute[] => {
   const { t } = useTranslation();
 
   return [
-    { path: '/', label: t('header.home'), color: '#4338CA', icon: <FiHome /> },         // 首页 - 靛蓝色 + 图标
-    { path: '/about', label: t('header.about'), color: '#10B981', icon: <FiUser /> },   // 关于 - 翡翠绿 + 图标
-    { path: '/skills', label: t('header.skills'), color: '#F59E0B', icon: <FiTool /> }, // 技能 - 琥珀黄 + 图标
-    { path: '/projects', label: t('header.projects'), color: '#8B5CF6', icon: <FiBriefcase /> }, // 项目 - 紫罗兰 + 图标
-    { path: '/education', label: t('header.education'), color: '#EC4899', icon: <FiBookOpen /> }, // 教育 - 粉红色 + 图标
-    { path: '/contact', label: t('header.contact'), color: '#06B6D4', icon: <FiMail /> }, // 联系 - 蓝绿色 + 图标
+    { path: '/', label: t('header.home'), color: '#4338CA' },         // 首页 - 靛蓝色
+    { path: '/about', label: t('header.about'), color: '#10B981' },   // 关于 - 翡翠绿
+    { path: '/skills', label: t('header.skills'), color: '#F59E0B' }, // 技能 - 琥珀黄
+    { path: '/projects', label: t('header.projects'), color: '#8B5CF6' }, // 项目 - 紫罗兰
+    { path: '/education', label: t('header.education'), color: '#EC4899' }, // 教育 - 粉红色
+    { path: '/contact', label: t('header.contact'), color: '#06B6D4' }, // 联系 - 蓝绿色
   ];
 };
 

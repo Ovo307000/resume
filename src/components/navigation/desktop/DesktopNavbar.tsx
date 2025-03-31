@@ -5,7 +5,7 @@ import {
   Container,
   Toolbar
 } from '@mui/material';
-import { useMotionValue, useTransform, useSpring } from 'framer-motion';
+import { useMotionValue, useTransform, useSpring, motion } from 'framer-motion';
 import { useTheme } from '../../../contexts/ThemeContext';
 import { NavRoute } from '../common/types';
 import LogoAvatar from '../../ui/LogoAvatar';
@@ -24,9 +24,11 @@ interface NavbarProps {
  * 添加粘性跟随和平滑过渡动画
  * 导航栏固定在顶部，呈现玻璃胶囊效果
  * 使用统一的导航样式，保持与移动端一致的视觉效果
+ * 添加自定义进度条，隐藏系统默认进度条
  */
 const DesktopNavbar: React.FC<NavbarProps> = ({ routes, isActive, isCompact = false }) => {
   const { theme, toggleTheme } = useTheme();
+  const isDark = theme === 'dark';
 
   // 监听滚动位置，用于平滑过渡效果
   const scrollY = useMotionValue(0);
@@ -36,21 +38,63 @@ const DesktopNavbar: React.FC<NavbarProps> = ({ routes, isActive, isCompact = fa
   const borderOpacity = useTransform(scrollProgress, [0, 1], [0.05, 0.12]);
   const translateY = useTransform(scrollProgress, [0, 1], [20, 0]);
 
+  // 计算滚动进度
+  const docHeight = useMotionValue(0);
+  const windowHeight = useMotionValue(0);
+  const scrollYProgress = useMotionValue(0);
+
+  // 计算文档高度和窗口高度
+  useEffect(() => {
+    const updateDocHeight = () => {
+      docHeight.set(document.documentElement.scrollHeight - window.innerHeight);
+      windowHeight.set(window.innerHeight);
+    };
+
+    updateDocHeight();
+    window.addEventListener('resize', updateDocHeight);
+    return () => window.removeEventListener('resize', updateDocHeight);
+  }, [docHeight, windowHeight]);
+
   // 弹性动画效果
   const springBoxShadow = useSpring(boxShadowOpacity, { damping: 15, stiffness: 100 });
   const springOpacity = useSpring(opacity, { damping: 15, stiffness: 100 });
   const springTranslateY = useSpring(translateY, { damping: 20, stiffness: 120 });
+  const springScrollProgress = useSpring(scrollYProgress, { damping: 20, stiffness: 100 });
 
   // 更新滚动位置
   useEffect(() => {
     const handleScroll = () => {
       scrollY.set(window.scrollY);
+      // 计算滚动进度百分比
+      if (docHeight.get() > 0) {
+        scrollYProgress.set(window.scrollY / docHeight.get());
+      }
     };
 
     handleScroll(); // 初始化
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [scrollY]);
+  }, [scrollY, scrollYProgress, docHeight]);
+
+  // 隐藏系统导航进度条
+  useEffect(() => {
+    // 添加样式以隐藏系统导航进度条
+    const style = document.createElement('style');
+    style.innerHTML = `
+      html::-webkit-scrollbar-track {
+        display: none;
+      }
+      html::-webkit-scrollbar {
+        width: 0;
+        background: transparent;
+      }
+    `;
+    document.head.appendChild(style);
+
+    return () => {
+      document.head.removeChild(style);
+    };
+  }, []);
 
   return (
     <Box
@@ -66,6 +110,31 @@ const DesktopNavbar: React.FC<NavbarProps> = ({ routes, isActive, isCompact = fa
         pointerEvents: 'none'
       }}
     >
+      {/* 自定义滚动进度条 */}
+      <motion.div
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: '4px',
+          transformOrigin: '0%',
+          scaleX: springScrollProgress,
+          zIndex: 1200,
+          background: `linear-gradient(to right,
+            ${isDark ? '#4338CA' : '#4338CA'},
+            ${isDark ? '#10B981' : '#10B981'},
+            ${isDark ? '#F59E0B' : '#F59E0B'},
+            ${isDark ? '#8B5CF6' : '#8B5CF6'},
+            ${isDark ? '#EC4899' : '#EC4899'},
+            ${isDark ? '#06B6D4' : '#06B6D4'}
+          )`,
+          boxShadow: isDark
+            ? '0 0 10px rgba(79, 70, 229, 0.5)'
+            : '0 0 10px rgba(79, 70, 229, 0.3)',
+        }}
+      />
+
       <AppBar
         position="relative"
         elevation={0}

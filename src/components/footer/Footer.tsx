@@ -7,7 +7,8 @@ import {
   Link as MuiLink,
   IconButton,
   Divider as MuiDivider,
-  alpha
+  alpha,
+  Tooltip
 } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -24,7 +25,7 @@ import {
   FiCopy,
   FiExternalLink,
 } from 'react-icons/fi';
-import { SiWechat, SiReact, SiMui } from 'react-icons/si';
+import { SiWechat, SiReact, SiMui, SiTypescript, SiRedux, SiTailwindcss, SiFramer, SiGooglegemini, SiOpenai, SiAnthropic } from 'react-icons/si';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useTranslation } from 'react-i18next';
 // 导入全局复制通知Hook
@@ -54,6 +55,14 @@ interface ContactLink {
   color?: string;
 }
 
+// 技术栈项类型
+interface TechItem {
+  name: string;
+  icon: React.ReactNode;
+  url: string;
+  color: string;
+}
+
 /**
  * 页脚组件
  * 提供现代化、具有一致风格的页脚设计
@@ -72,12 +81,25 @@ const Footer = ({ data = {} }: FooterProps) => {
 
   // 网站导航链接
   const navLinks = [
-    { name: t('header.home'), path: '/', icon: <FiHome size={16} /> },
-    { name: t('header.about'), path: '/about', icon: <FiUser size={16} /> },
-    { name: t('header.skills'), path: '/skills', icon: <FiCode size={16} /> },
-    { name: t('header.projects'), path: '/projects', icon: <FiBriefcase size={16} /> },
-    { name: t('header.education'), path: '/education', icon: <FiBook size={16} /> },
-    { name: t('header.contact'), path: '/contact', icon: <FiMessageCircle size={16} /> }
+    { name: t('header.home'), path: '/', icon: <FiHome size={16} />, color: '#4338CA' }, // 首页 - 靛蓝色
+    { name: t('header.about'), path: '/about', icon: <FiUser size={16} />, color: '#10B981' }, // 关于 - 翡翠绿
+    { name: t('header.skills'), path: '/skills', icon: <FiCode size={16} />, color: '#F59E0B' }, // 技能 - 琥珀黄
+    { name: t('header.projects'), path: '/projects', icon: <FiBriefcase size={16} />, color: '#8B5CF6' }, // 项目 - 紫罗兰
+    { name: t('header.education'), path: '/education', icon: <FiBook size={16} />, color: '#EC4899' }, // 教育 - 粉红色
+    { name: t('header.contact'), path: '/contact', icon: <FiMessageCircle size={16} />, color: '#06B6D4' }, // 联系 - 蓝绿色
+  ];
+
+  // 技术栈列表
+  const techStack: TechItem[] = [
+    { name: 'React', icon: <SiReact size={16} />, url: 'https://react.dev/', color: '#61DAFB' },
+    { name: 'TypeScript', icon: <SiTypescript size={16} />, url: 'https://www.typescriptlang.org/', color: '#3178C6' },
+    { name: 'Material UI', icon: <SiMui size={16} />, url: 'https://mui.com/', color: '#007FFF' },
+    { name: 'Redux', icon: <SiRedux size={16} />, url: 'https://redux.js.org/', color: '#764ABC' },
+    { name: 'Tailwind', icon: <SiTailwindcss size={16} />, url: 'https://tailwindcss.com/', color: '#38B2AC' },
+    { name: 'Framer Motion', icon: <SiFramer size={16} />, url: 'https://www.framer.com/motion/', color: '#0055FF' },
+    { name: 'Gemini', icon: <SiGooglegemini size={16} />, url: 'https://gemini.google.com/', color: '#1A73E8' },
+    { name: 'Claude', icon: <SiAnthropic size={16} />, url: 'https://claude.ai/', color: '#732BCF' },
+    { name: 'GPT', icon: <SiOpenai size={16} />, url: 'https://openai.com/', color: '#10a37f' },
   ];
 
   // 社交媒体链接
@@ -202,7 +224,7 @@ const Footer = ({ data = {} }: FooterProps) => {
                           gap: 1.5,
                           transition: 'color 0.2s',
                           '&:hover': {
-                            color: 'primary.main',
+                            color: link.color,
                           }
                         }}
                       >
@@ -211,7 +233,7 @@ const Footer = ({ data = {} }: FooterProps) => {
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            color: theme === 'dark' ? alpha('#6366F1', 0.9) : '#6366F1'
+                            color: link.color
                           }}
                         >
                           {link.icon}
@@ -339,36 +361,42 @@ const Footer = ({ data = {} }: FooterProps) => {
               sx={{
                 display: 'flex',
                 alignItems: 'center',
+                flexWrap: 'wrap',
+                justifyContent: { xs: 'center', sm: 'flex-end' },
                 gap: 0.5
               }}
             >
               <Typography
                 variant="body2"
                 color="text.secondary"
-                sx={{ fontSize: '0.8rem' }}
+                sx={{ fontSize: '0.8rem', mr: 1 }}
               >
                 {t('footer.madeWith')}
               </Typography>
-              <IconButton
-                component="a"
-                href="https://react.dev/"
-                target="_blank"
-                size="small"
-                sx={{ color: '#61DAFB' }}
-                aria-label="React"
-              >
-                <SiReact size={14} />
-              </IconButton>
-              <IconButton
-                component="a"
-                href="https://mui.com/"
-                target="_blank"
-                size="small"
-                sx={{ color: '#007FFF' }}
-                aria-label="Material UI"
-              >
-                <SiMui size={14} />
-              </IconButton>
+
+              {techStack.map((tech) => (
+                <Tooltip key={tech.name} title={tech.name} arrow placement="top">
+                  <IconButton
+                    component="a"
+                    href={tech.url}
+                    target="_blank"
+                    size="small"
+                    sx={{
+                      color: tech.color,
+                      fontSize: '0.8rem',
+                      padding: '4px',
+                      '&:hover': {
+                        backgroundColor: alpha(tech.color, 0.1),
+                        transform: 'translateY(-2px)',
+                      },
+                      transition: 'transform 0.2s ease'
+                    }}
+                    aria-label={tech.name}
+                  >
+                    {tech.icon}
+                  </IconButton>
+                </Tooltip>
+              ))}
             </Box>
           </Box>
         </motion.div>

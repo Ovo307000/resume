@@ -5,7 +5,13 @@ import {
   Toolbar,
   Zoom,
   useTheme as useMuiTheme,
-  IconButton
+  IconButton,
+  Container,
+  Drawer,
+  List,
+  ListItem,
+  Typography,
+  useMediaQuery
 } from '@mui/material';
 import { useLocation } from 'react-router-dom';
 import { useTheme } from '../../../contexts/ThemeContext';
@@ -31,8 +37,10 @@ interface MobileNavbarProps {
 
 /**
  * 移动端导航栏组件
- * 简化导航栏，将导航项转移到可展开的侧边导航菜单
- * 使用玻璃胶囊形状，营造悬浮效果
+ * 添加粘性跟随和平滑过渡动画
+ * 导航栏固定在顶部，呈现玻璃胶囊效果
+ * 抽屉式侧边菜单提供主要导航功能
+ * 添加自定义进度条，隐藏系统默认进度条
  */
 const MobileNavbar: React.FC<MobileNavbarProps> = ({
   routes,
@@ -46,20 +54,39 @@ const MobileNavbar: React.FC<MobileNavbarProps> = ({
   const { theme, toggleTheme } = useTheme();
   const { t } = useTranslation();
   const isDark = theme === 'dark';
+  const isMobile = useMediaQuery(muiTheme.breakpoints.down('md'));
 
   // 导航栏是否处于紧凑模式（滚动一定距离后）
   const isCompact = scrollPos > 50;
 
   // 动画相关的值
   const scrollY = useMotionValue(0);
-  const scrollProgress = useTransform(scrollY, [0, 100], [0, 1]);
-  const opacity = useTransform(scrollProgress, [0, 1], [0.6, 0.8]);
-  const boxShadowOpacity = useTransform(scrollProgress, [0, 1], [0.08, 0.25]);
+  const scrollProgress = useTransform(scrollY, [0, 50], [0, 1]);
+  const opacity = useTransform(scrollProgress, [0, 1], [0.6, 0.85]);
+  const boxShadowOpacity = useTransform(scrollProgress, [0, 1], [0.05, 0.2]);
   const borderOpacity = useTransform(scrollProgress, [0, 1], [0.05, 0.12]);
+
+  // 计算滚动进度
+  const docHeight = useMotionValue(0);
+  const windowHeight = useMotionValue(0);
+  const scrollYProgress = useMotionValue(0);
+
+  // 计算文档高度和窗口高度
+  useEffect(() => {
+    const updateDocHeight = () => {
+      docHeight.set(document.documentElement.scrollHeight - window.innerHeight);
+      windowHeight.set(window.innerHeight);
+    };
+
+    updateDocHeight();
+    window.addEventListener('resize', updateDocHeight);
+    return () => window.removeEventListener('resize', updateDocHeight);
+  }, [docHeight, windowHeight]);
 
   // 弹性动画效果
   const springBoxShadow = useSpring(boxShadowOpacity, { damping: 15, stiffness: 100 });
   const springOpacity = useSpring(opacity, { damping: 15, stiffness: 100 });
+  const springScrollProgress = useSpring(scrollYProgress, { damping: 20, stiffness: 100 });
 
   // 处理抽屉开关
   const handleDrawerToggle = () => {
@@ -71,19 +98,35 @@ const MobileNavbar: React.FC<MobileNavbarProps> = ({
     setMobileOpen(false);
   }, [location.pathname]);
 
-  // 监听滚动位置
+  // 处理滚动事件
   useEffect(() => {
+    let lastScrollTop = 0;
     const handleScroll = () => {
       const currentScrollPos = window.scrollY;
+      const scrollingDown = currentScrollPos > lastScrollTop;
+
+      // 如果向下滚动并且菜单已打开，则自动关闭菜单
+      if (scrollingDown && mobileOpen) {
+        setMobileOpen(false);
+      }
+
+      // 更新最后一次滚动位置
+      lastScrollTop = currentScrollPos <= 0 ? 0 : currentScrollPos;
       setScrollPos(currentScrollPos);
       scrollY.set(currentScrollPos);
+
+      // 计算滚动进度百分比
+      if (docHeight.get() > 0) {
+        scrollYProgress.set(currentScrollPos / docHeight.get());
+      }
     };
 
+    handleScroll(); // 初始化
     window.addEventListener('scroll', handleScroll);
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };
-  }, [scrollY]);
+  }, [scrollY, scrollYProgress, docHeight, mobileOpen]);
 
   // 回到顶部功能
   const scrollToTop = () => {
@@ -103,6 +146,31 @@ const MobileNavbar: React.FC<MobileNavbarProps> = ({
 
   return (
     <>
+      {/* 自定义滚动进度条 */}
+      <motion.div
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: '3px',
+          transformOrigin: '0%',
+          scaleX: springScrollProgress,
+          zIndex: 1200,
+          background: `linear-gradient(to right,
+            ${isDark ? '#4338CA' : '#4338CA'},
+            ${isDark ? '#10B981' : '#10B981'},
+            ${isDark ? '#F59E0B' : '#F59E0B'},
+            ${isDark ? '#8B5CF6' : '#8B5CF6'},
+            ${isDark ? '#EC4899' : '#EC4899'},
+            ${isDark ? '#06B6D4' : '#06B6D4'}
+          )`,
+          boxShadow: isDark
+            ? '0 0 8px rgba(79, 70, 229, 0.5)'
+            : '0 0 8px rgba(79, 70, 229, 0.3)',
+        }}
+      />
+
       {/* 移动导航栏 - 悬浮在顶部 */}
       <Box
         sx={{
