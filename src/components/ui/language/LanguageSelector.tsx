@@ -46,7 +46,7 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({
 
   // 尺寸映射
   const sizeMap = {
-    small: 32,
+    small: 40,
     medium: 38,
     large: 44
   };

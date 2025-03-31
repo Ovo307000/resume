@@ -45,8 +45,8 @@ const AnimatedIconButton: React.FC<AnimatedIconButtonProps> = ({
   // 尺寸映射
   const sizeMap = {
     small: {
-      buttonSize: 36,
-      iconSize: 18,
+      buttonSize: 40,
+      iconSize: 20,
       padding: 1,
     },
     medium: {

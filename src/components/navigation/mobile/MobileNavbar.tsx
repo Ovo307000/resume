@@ -4,8 +4,7 @@ import {
   Box,
   Toolbar,
   Zoom,
-  useTheme as useMuiTheme,
-  IconButton
+  useTheme as useMuiTheme
 } from '@mui/material';
 import { useLocation } from 'react-router-dom';
 import { useTheme } from '../../../contexts/ThemeContext';
@@ -252,6 +251,11 @@ const MobileNavbar: React.FC<MobileNavbarProps> = ({
                     border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)'}`,
                     boxShadow: isDark ? '0 4px 10px rgba(0, 0, 0, 0.25)' : '0 4px 10px rgba(0, 0, 0, 0.08)',
                     transition: 'all 0.3s ease',
+                    width: '40px',
+                    height: '40px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
                     '&:hover': {
                       transform: 'translateY(-2px)',
                       boxShadow: isDark ? '0 6px 12px rgba(0, 0, 0, 0.3)' : '0 6px 12px rgba(0, 0, 0, 0.1)',
@@ -259,14 +263,14 @@ const MobileNavbar: React.FC<MobileNavbarProps> = ({
                   }}
                 >
                   <AnimatedIconButton
-                    icon={isDark ? <FiSun size={18} /> : <FiMoon size={18} />}
+                    icon={isDark ? <FiSun size={20} /> : <FiMoon size={20} />}
                     size="small"
                     variant="glass"
                     color="primary"
                     tooltipText={isDark ? t('common.lightMode') : t('common.darkMode')}
                     onClick={toggleTheme}
                     ariaLabel="切换主题"
-                    sx={{ background: 'transparent', boxShadow: 'none', border: 'none' }}
+                    sx={{ background: 'transparent', boxShadow: 'none', border: 'none', width: '40px', height: '40px' }}
                   />
                 </Box>
 
@@ -281,6 +285,11 @@ const MobileNavbar: React.FC<MobileNavbarProps> = ({
                       boxShadow: isDark ? '0 4px 10px rgba(0, 0, 0, 0.25)' : '0 4px 10px rgba(0, 0, 0, 0.08)',
                       transition: 'all 0.3s ease',
                       overflow: 'hidden',
+                      width: '40px',
+                      height: '40px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
                       '&:hover': {
                         transform: 'translateY(-2px)',
                         boxShadow: isDark ? '0 6px 12px rgba(0, 0, 0, 0.3)' : '0 6px 12px rgba(0, 0, 0, 0.1)',
@@ -289,7 +298,7 @@ const MobileNavbar: React.FC<MobileNavbarProps> = ({
                   >
                     <LanguageSelector
                       size="small"
-                      sx={{ background: 'transparent', boxShadow: 'none', border: 'none' }}
+                      sx={{ background: 'transparent', boxShadow: 'none', border: 'none', width: '40px', height: '40px' }}
                     />
                   </Box>
                 )}
@@ -303,23 +312,27 @@ const MobileNavbar: React.FC<MobileNavbarProps> = ({
                     border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)'}`,
                     boxShadow: isDark ? '0 4px 10px rgba(0, 0, 0, 0.25)' : '0 4px 10px rgba(0, 0, 0, 0.08)',
                     transition: 'all 0.3s ease',
+                    width: '40px',
+                    height: '40px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
                     '&:hover': {
                       transform: 'translateY(-2px)',
                       boxShadow: isDark ? '0 6px 12px rgba(0, 0, 0, 0.3)' : '0 6px 12px rgba(0, 0, 0, 0.1)',
                     }
                   }}
                 >
-                  <IconButton
-                    aria-label={t('navigation.menuToggle', '菜单')}
+                  <AnimatedIconButton
+                    icon={<FiMenu size={20} />}
+                    size="small"
+                    variant="glass"
+                    color="primary"
+                    tooltipText={t('navigation.menuToggle', '菜单')}
                     onClick={handleDrawerToggle}
-                    color="inherit"
-                    sx={{
-                      p: 1,
-                      color: isDark ? '#fff' : '#000',
-                    }}
-                  >
-                    <FiMenu size={20} />
-                  </IconButton>
+                    ariaLabel={t('navigation.menuToggle', '菜单')}
+                    sx={{ background: 'transparent', boxShadow: 'none', border: 'none', width: '40px', height: '40px' }}
+                  />
                 </Box>
               </Box>
             </Toolbar>
