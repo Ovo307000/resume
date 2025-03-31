@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   Container,
@@ -11,7 +11,7 @@ import {
   Tooltip
 } from '@mui/material';
 import { Link, useLocation } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   FiGithub,
   FiMail,
@@ -138,6 +138,9 @@ const Footer = ({ data = {} }: FooterProps) => {
       color: '#07C160'
     }
   ].filter(link => link.value);
+
+  // Add state for hover effect on copyright link
+  const [isCopyrightHovered, setIsCopyrightHovered] = useState(false);
 
   // 动画变体
   const containerVariants = {
@@ -367,38 +370,75 @@ const Footer = ({ data = {} }: FooterProps) => {
                 sx={{ fontSize: '0.8rem' }}
               >
                 © {currentYear} Portfolio.{' '}
-                <MuiLink
-                  href="https://github.com/ovo307000"
-                  target="_blank"
-                  rel="noopener"
-                  sx={{
-                    color: 'inherit',
-                    textDecoration: 'none',
-                    position: 'relative',
-                    transition: 'color 0.2s ease-in-out',
-                    '&::after': {
-                      content: '""',
-                      position: 'absolute',
-                      width: '100%',
-                      transform: 'scaleX(0)',
-                      height: '1px',
-                      bottom: '-2px',
-                      left: 0,
-                      backgroundColor: theme === 'dark' ? '#8B5CF6' : '#6366F1',
-                      transformOrigin: 'bottom right',
-                      transition: 'transform 0.25s ease-out',
-                    },
-                    '&:hover': {
-                      color: theme === 'dark' ? '#A5B4FC' : '#4F46E5',
-                    },
-                    '&:hover::after': {
-                      transform: 'scaleX(1)',
-                      transformOrigin: 'bottom left',
-                    }
-                  }}
+                {/* Wrap Link and Icon in a Box for hover detection */}
+                <Box
+                  component="span"
+                  sx={{ position: 'relative', display: 'inline-block' }}
+                  onMouseEnter={() => setIsCopyrightHovered(true)}
+                  onMouseLeave={() => setIsCopyrightHovered(false)}
                 >
-                  ovo307000
-                </MuiLink>
+                  <MuiLink
+                    href="https://github.com/ovo307000"
+                    target="_blank"
+                    rel="noopener"
+                    sx={{
+                      color: 'inherit',
+                      textDecoration: 'none',
+                      position: 'relative',
+                      transition: 'color 0.2s ease-in-out',
+                      '&::after': {
+                        content: '""',
+                        position: 'absolute',
+                        width: '100%',
+                        transform: 'scaleX(0)',
+                        height: '1px',
+                        bottom: '-2px',
+                        left: 0,
+                        backgroundColor: theme === 'dark' ? '#8B5CF6' : '#6366F1',
+                        transformOrigin: 'bottom right',
+                        transition: 'transform 0.25s ease-out',
+                      },
+                      '&:hover': {
+                        color: theme === 'dark' ? '#A5B4FC' : '#4F46E5',
+                      },
+                      '&:hover::after': {
+                        transform: 'scaleX(1)',
+                        transformOrigin: 'bottom left',
+                      }
+                    }}
+                  >
+                    ovo307000
+                  </MuiLink>
+
+                  {/* Animated External Link Icon */}
+                  <Box
+                    sx={{
+                      position: 'absolute',
+                      right: -18, // Adjust position as needed
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      pointerEvents: 'none',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      pl: '2px' // Small padding
+                    }}
+                  >
+                    <AnimatePresence>
+                      {isCopyrightHovered && (
+                        <motion.span
+                          initial={{ opacity: 0, scale: 0, x: -8 }}
+                          animate={{ opacity: 1, scale: 1, x: 0 }}
+                          exit={{ opacity: 0, scale: 0, x: -8 }}
+                          transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                          style={{ display: 'inline-flex' }}
+                        >
+                          <FiExternalLink size={12} style={{ color: theme === 'dark' ? '#A5B4FC' : '#4F46E5' }} />
+                        </motion.span>
+                      )}
+                    </AnimatePresence>
+                  </Box>
+                </Box>
               </Typography>
             </Box>
 
