@@ -11,10 +11,13 @@ import {
   useTheme as useMuiTheme,
   useMediaQuery,
   Chip,
-  Button
+  Button,
+  IconButton,
+  Tooltip,
+  Stack
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { FiCode, FiLayers, FiBriefcase, FiServer, FiFilter, FiArrowLeft, FiArrowRight } from 'react-icons/fi';
+import { FiCode, FiLayers, FiBriefcase, FiServer, FiFilter, FiArrowLeft, FiArrowRight, FiGrid, FiList } from 'react-icons/fi';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useLanguage } from '../../hooks/useLanguage';
 import GlassyBlobBackground from '../../components/ui/backgrounds/GlassyBlobBackground';
@@ -40,6 +43,7 @@ const ProjectsPage: React.FC = () => {
   const [filteredProjects, setFilteredProjects] = useState(projectsData);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [uniqueCategories, setUniqueCategories] = useState<string[]>([]);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
   // 滑动功能相关
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
@@ -413,22 +417,43 @@ const ProjectsPage: React.FC = () => {
     );
   };
 
+  // 处理视图模式切换
+  const handleViewModeChange = (mode: 'grid' | 'list') => {
+    setViewMode(mode);
+  };
+
   return (
     <PageTransition>
       <Box sx={{ minHeight: '100vh', py: 5 }}>
         <Container maxWidth="lg" sx={{ position: 'relative' }}>
           {/* 页面标题 */}
           <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
+            variants={containerVariants || {
+              hidden: { opacity: 0 },
+              visible: {
+                opacity: 1,
+                transition: {
+                  staggerChildren: 0.2,
+                  delayChildren: 0.2
+                }
+              }
+            }}
+            initial="hidden"
+            animate="visible"
           >
-            <EnhancedPageTitle
-              title={t('projects.title', '项目展示')}
-              subtitle={t('projects.subtitle', '我参与开发的应用与项目作品')}
-              textAlign="center"
-              withAnimation={true}
-            />
+            <motion.div
+              variants={itemVariants || {
+                hidden: { opacity: 0, y: 20 },
+                visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
+              }}
+            >
+              <EnhancedPageTitle
+                title={t('projects.title', '项目展示')}
+                subtitle={t('projects.subtitle', '我参与开发的应用与项目作品')}
+                textAlign="center"
+                withAnimation={true}
+              />
+            </motion.div>
           </motion.div>
 
           {/* 项目筛选 - 移动端和桌面端优化 */}
@@ -511,8 +536,16 @@ const ProjectsPage: React.FC = () => {
                     }
                   }}
                 >
-                  {/* 筛选标题 */}
-                  <Box sx={{ mb: { xs: 2, sm: 3 }, textAlign: 'center' }}>
+                  {/* 筛选标题和视图模式切换按钮 */}
+                  <Box sx={{
+                    mb: { xs: 2, sm: 3 },
+                    textAlign: 'center',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    px: 2
+                  }}>
+                    <Box sx={{ flex: 1 }}></Box>
                     <motion.div
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
@@ -534,6 +567,40 @@ const ProjectsPage: React.FC = () => {
                         {t('projects.filterHeading', '浏览项目分类')}
                       </Typography>
                     </motion.div>
+
+                    {/* 视图模式切换按钮 */}
+                    <Stack direction="row" spacing={1} sx={{ flex: 1, justifyContent: 'flex-end' }}>
+                      <Tooltip title={language === 'zh' ? '网格视图' : 'Grid View'}>
+                        <IconButton
+                          onClick={() => handleViewModeChange('grid')}
+                          color={viewMode === 'grid' ? 'primary' : 'default'}
+                          size="small"
+                          sx={{
+                            border: viewMode === 'grid'
+                              ? `1px solid ${muiTheme.palette.primary.main}`
+                              : `1px solid ${alpha(theme === 'dark' ? '#fff' : '#000', 0.1)}`,
+                            borderRadius: '8px',
+                          }}
+                        >
+                          <FiGrid />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title={language === 'zh' ? '列表视图' : 'List View'}>
+                        <IconButton
+                          onClick={() => handleViewModeChange('list')}
+                          color={viewMode === 'list' ? 'primary' : 'default'}
+                          size="small"
+                          sx={{
+                            border: viewMode === 'list'
+                              ? `1px solid ${muiTheme.palette.primary.main}`
+                              : `1px solid ${alpha(theme === 'dark' ? '#fff' : '#000', 0.1)}`,
+                            borderRadius: '8px',
+                          }}
+                        >
+                          <FiList />
+                        </IconButton>
+                      </Tooltip>
+                    </Stack>
                   </Box>
 
                   {/* 分类按钮组 */}
@@ -682,7 +749,7 @@ const ProjectsPage: React.FC = () => {
                         </Box>
                       </motion.div>
                     ))}
-              </Box>
+                  </Box>
 
                   {/* 装饰元素 */}
                   <Box
@@ -859,9 +926,16 @@ const ProjectsPage: React.FC = () => {
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.3 }}
               >
-                <Grid container spacing={{ xs: 2, sm: 3, md: 4 }}>
+                <Grid container spacing={{ xs: 2, sm: 3, md: 4 }} columns={12}>
                   {filteredProjects.map((project, index) => (
-                    <Grid item xs={12} sm={6} md={6} lg={4} key={`project-${project.name}-${index}`}>
+                    <Grid
+                      item
+                      xs={12}
+                      sm={viewMode === 'list' ? 12 : 6}
+                      md={viewMode === 'list' ? 12 : 6}
+                      lg={viewMode === 'list' ? 12 : 4}
+                      key={`project-${project.name}-${index}`}
+                    >
                       <EnhancedProjectCard
                         name={project.name}
                         nameZh={project.nameZh || project.name}
@@ -875,6 +949,7 @@ const ProjectsPage: React.FC = () => {
                         category={project.category}
                         index={index}
                         slideDirection={slidingDirection}
+                        viewMode={viewMode}
                       />
                     </Grid>
                   ))}

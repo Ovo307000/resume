@@ -51,6 +51,8 @@ interface ProjectCardProps {
   githubUrl?: string;
   category?: string;
   index?: number;
+  slideDirection?: 'left' | 'right' | null;
+  viewMode?: 'grid' | 'list';
 }
 
 /**
@@ -69,17 +71,23 @@ const EnhancedProjectCard: React.FC<ProjectCardProps> = ({
   githubUrl,
   category = '',
   index = 0,
+  slideDirection,
+  viewMode = 'grid',
 }) => {
   const { theme } = useTheme();
   const muiTheme = useMuiTheme();
   const { language } = useLanguage();
   const isMobile = useMediaQuery(muiTheme.breakpoints.down('sm'));
 
+  // 检查是否为列表视图
+  const isList = viewMode === 'list';
+
   // 状态
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isImagePreviewOpen, setIsImagePreviewOpen] = useState(false);
   const [isImageEnlarged, setIsImageEnlarged] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [showAllTags, setShowAllTags] = useState(false);
 
   const isDark = theme === 'dark';
 
@@ -214,6 +222,8 @@ const EnhancedProjectCard: React.FC<ProjectCardProps> = ({
             WebkitBackdropFilter: 'blur(12px)',
             border: `1px solid ${alpha(isDark ? muiTheme.palette.common.white : muiTheme.palette.common.black, 0.1)}`,
             transition: 'background-color 0.3s ease, border-color 0.3s ease',
+            display: isList ? 'flex' : 'block',
+            flexDirection: isList ? 'row' : 'column',
             '&::before, &::after': {
               content: '""',
               position: 'absolute',
@@ -227,15 +237,28 @@ const EnhancedProjectCard: React.FC<ProjectCardProps> = ({
             },
             '&::before': {
               top: 0,
-              background: `linear-gradient(to bottom, ${isDark ? alpha(muiTheme.palette.grey[900], 0.8) : alpha(muiTheme.palette.common.white, 0.9)} 0%, transparent 100%)`,
+              background: `linear-gradient(to bottom, ${
+                isDark ? 'rgba(18, 18, 18, 0.7)' : 'rgba(255, 255, 255, 0.7)'
+              }, transparent)`,
             },
             '&::after': {
               bottom: 0,
-              background: `linear-gradient(to top, ${isDark ? alpha(muiTheme.palette.grey[900], 0.8) : alpha(muiTheme.palette.common.white, 0.9)} 0%, transparent 100%)`,
+              background: `linear-gradient(to top, ${
+                isDark ? 'rgba(18, 18, 18, 0.7)' : 'rgba(255, 255, 255, 0.7)'
+              }, transparent)`,
             },
           }}
         >
-          <Box sx={{ position: 'relative', height: isMobile ? 160 : 220, overflow: 'hidden' }}>
+          <Box
+            sx={{
+              position: 'relative',
+              width: isList ? { xs: '100%', sm: '250px' } : '100%',
+              minWidth: isList ? { xs: '100%', sm: '250px' } : 'auto',
+              height: isList ? { xs: '200px', sm: '100%' } : '180px',
+              backgroundColor: isDark ? '#0a0a0a' : '#f0f0f0',
+              overflow: 'hidden'
+            }}
+          >
             <motion.div
                style={{ height: '100%' }}
                whileHover={{ scale: 1.08 }}
@@ -281,82 +304,42 @@ const EnhancedProjectCard: React.FC<ProjectCardProps> = ({
                 </motion.div>
               )}
             </AnimatePresence>
-
-            <Box
-              sx={{
-                position: 'absolute',
-                bottom: 0,
-                left: 0,
-                right: 0,
-                p: '12px',
-                zIndex: 3,
-                display: 'flex',
-                flexWrap: 'wrap',
-                gap: 1,
-                background: isHovered ? 'transparent' : `linear-gradient(to top, ${isDark ? alpha(muiTheme.palette.grey[900], 0.7) : alpha(muiTheme.palette.common.white, 0.8)} 10%, transparent 90%)`,
-                transition: 'background 0.3s ease',
-              }}
-            >
-              {technologies.slice(0, isMobile ? 2 : 3).map((tech) => (
-                <TechnologyTag key={tech} tag={tech} size="small" />
-              ))}
-              {technologies.length > (isMobile ? 2 : 3) && (
-                 <Chip
-                  label={`+${technologies.length - (isMobile ? 2 : 3)}`}
-                size="small"
-                  icon={<FiTag size={12} style={{ marginRight: 4 }}/>}
-                  sx={{
-                    fontSize: '0.7rem',
-                    height: 24,
-                    bgcolor: alpha(isDark ? muiTheme.palette.common.white : muiTheme.palette.common.black, 0.1),
-                    color: 'text.secondary',
-                    border: `1px solid ${alpha(isDark ? muiTheme.palette.common.white : muiTheme.palette.common.black, 0.15)}`,
-                    backdropFilter: 'blur(3px)',
-                  }}
-                />
-              )}
-            </Box>
           </Box>
 
-          <CardContent sx={{ p: 2.5, pt: 2, zIndex: 1 }}>
-            <Typography
-              variant="h6"
-              component="h3"
-              gutterBottom
-              sx={{
-                fontWeight: 700,
-                fontSize: '1.2rem',
-                mb: 1,
-                color: 'text.primary',
-                display: '-webkit-box',
-                WebkitLineClamp: 1,
-                WebkitBoxOrient: 'vertical',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-              }}
-            >
-              {language === 'en' ? name : nameZh}
-            </Typography>
+          <Box
+            sx={{
+              p: 2.5,
+              position: 'relative',
+              zIndex: 1,
+              display: 'flex',
+              flexDirection: 'column',
+              flex: 1,
+              overflow: 'hidden',
+            }}
+          >
+            <Box sx={{ mb: 1.5, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 1 }}>
+              <Typography
+                variant="h6"
+                component="h3"
+                sx={{
+                  fontWeight: 600,
+                  fontSize: { xs: '1.1rem', sm: '1.2rem' },
+                  lineHeight: 1.3,
+                  mb: 0.5,
+                  color: isDark ? '#fff' : muiTheme.palette.text.primary,
+                  letterSpacing: '0.3px',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  display: '-webkit-box',
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: 'vertical',
+                  pl: 0.5
+                }}
+              >
+                {language === 'zh' ? nameZh : name}
+              </Typography>
 
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              sx={{
-                fontSize: '0.88rem',
-                lineHeight: 1.6,
-                mb: 2.5,
-                display: '-webkit-box',
-                WebkitLineClamp: 2,
-                WebkitBoxOrient: 'vertical',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                minHeight: 'calc(1.6 * 0.88rem * 2)',
-              }}
-            >
-              {language === 'en' ? description : descriptionZh}
-            </Typography>
-
-            <Stack direction="row" spacing={1} justifyContent="flex-end" alignItems="center">
+              <Stack direction="row" spacing={1} justifyContent="flex-end" alignItems="center">
                 {githubUrl && (
                   <AnimatedIconButton
                   title="GitHub Repository"
@@ -375,18 +358,112 @@ const EnhancedProjectCard: React.FC<ProjectCardProps> = ({
                   <FiExternalLink size={18} />
                 </AnimatedIconButton>
                 )}
-              {hasDetails && (
-                 <AnimatedIconButton
-                  title="View Details"
-                  onClick={handleCardClick}
+                {hasDetails && (
+                   <AnimatedIconButton
+                    title="View Details"
+                    onClick={handleCardClick}
+                    size="small"
+                    sx={{ ml: 'auto' }}
+                  >
+                    <FiInfo size={18} />
+                  </AnimatedIconButton>
+                )}
+              </Stack>
+            </Box>
+
+            <Typography
+              variant="body2"
+              sx={{
+                color: isDark ? alpha('#fff', 0.8) : alpha('#000', 0.7),
+                fontSize: '0.9rem',
+                lineHeight: 1.6,
+                mb: 2,
+                flex: 1,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                display: '-webkit-box',
+                WebkitLineClamp: isList ? 3 : 2,
+                WebkitBoxOrient: 'vertical',
+                pl: 0.5
+              }}
+            >
+              {language === 'zh' ? descriptionZh : description}
+            </Typography>
+
+            <Box
+              sx={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: 1,
+                mt: 'auto',
+                pl: 0.5
+              }}
+            >
+              {(showAllTags ? technologies : technologies.slice(0, isList ? 6 : 3)).map((tech, idx) => (
+                <TechnologyTag key={tech} tech={tech} index={idx} />
+              ))}
+              {!showAllTags && technologies.length > (isList ? 6 : 3) && (
+                <Chip
+                  label={`+${technologies.length - (isList ? 6 : 3)}`}
                   size="small"
-                  sx={{ ml: 'auto' }}
-                >
-                  <FiInfo size={18} />
-                </AnimatedIconButton>
+                  variant="outlined"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowAllTags(true);
+                  }}
+                  sx={{
+                    height: '22px',
+                    fontSize: '0.7rem',
+                    fontWeight: 500,
+                    backgroundColor: isDark
+                      ? alpha(muiTheme.palette.primary.main, 0.15)
+                      : alpha(muiTheme.palette.primary.main, 0.1),
+                    borderColor: isDark
+                      ? alpha(muiTheme.palette.primary.main, 0.3)
+                      : alpha(muiTheme.palette.primary.main, 0.2),
+                    color: isDark ? muiTheme.palette.primary.light : muiTheme.palette.primary.main,
+                    pl: 0.5,
+                    cursor: 'pointer',
+                    '&:hover': {
+                      backgroundColor: isDark
+                        ? alpha(muiTheme.palette.primary.main, 0.2)
+                        : alpha(muiTheme.palette.primary.main, 0.15),
+                    }
+                  }}
+                />
               )}
-            </Stack>
-          </CardContent>
+              {showAllTags && technologies.length > (isList ? 6 : 3) && (
+                <Chip
+                  label="收起"
+                  size="small"
+                  variant="outlined"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowAllTags(false);
+                  }}
+                  sx={{
+                    height: '22px',
+                    fontSize: '0.7rem',
+                    fontWeight: 500,
+                    backgroundColor: isDark
+                      ? alpha(muiTheme.palette.grey[700], 0.3)
+                      : alpha(muiTheme.palette.grey[300], 0.5),
+                    borderColor: isDark
+                      ? alpha(muiTheme.palette.grey[600], 0.4)
+                      : alpha(muiTheme.palette.grey[400], 0.5),
+                    color: isDark ? muiTheme.palette.grey[300] : muiTheme.palette.grey[700],
+                    pl: 0.5,
+                    cursor: 'pointer',
+                    '&:hover': {
+                      backgroundColor: isDark
+                        ? alpha(muiTheme.palette.grey[700], 0.4)
+                        : alpha(muiTheme.palette.grey[300], 0.7),
+                    }
+                  }}
+                />
+              )}
+            </Box>
+          </Box>
         </Box>
       </motion.div>
 
