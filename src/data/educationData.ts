@@ -59,9 +59,9 @@ const educationData: EducationDataItem[] = [
     ],
     skills: [
       { en: "Java", zh: "Java" },
-      { en: "Spring Framework", zh: "Spring框架" },
-      { en: "Database Design", zh: "数据库设计" },
-      { en: "REST API Development", zh: "REST API开发" }
+      { en: "Spring", zh: "Spring" },
+      { en: "MySQL", zh: "MySQL" },
+      { en: "REST API", zh: "REST API" }
     ],
     currentFocus: [
       { en: "Distributed Systems", zh: "分布式系统" },
@@ -118,7 +118,7 @@ const educationData: EducationDataItem[] = [
       { en: "C", zh: "C" },
       { en: "Python", zh: "Python" },
       { en: "TypeScript", zh: "TypeScript" },
-      { en: "Database Management", zh: "数据库管理" }
+      { en: "MySQL", zh: "MySQL" }
     ],
     currentFocus: [],
     goals: [],
