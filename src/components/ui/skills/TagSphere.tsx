@@ -24,6 +24,11 @@ interface TagSphereProps {
   colorScheme?: 'rainbow' | 'blue' | 'purple' | 'green' | 'warmth' | 'mixed';
 }
 
+// 确保颜色有 # 前缀的工具函数
+const ensureColorPrefix = (color: string) => {
+  return color.startsWith('#') ? color : '#' + color;
+};
+
 // 单个标签组件 - 性能优化版
 const TagText = ({ tag, position, scale, color, index }: {
   tag: Tag;
@@ -67,12 +72,18 @@ const TagText = ({ tag, position, scale, color, index }: {
   };
 
   // 计算最终颜色和轮廓
-  const finalColor = isHovered ? new THREE.Color(color).lerp(new THREE.Color("#ffffff"), 0.3).getHexString() : color;
+  const colorWithPrefix = ensureColorPrefix(color);
+  const finalColor = isHovered
+    ? new THREE.Color(colorWithPrefix).lerp(new THREE.Color("#ffffff"), 0.3).getHexString()
+    : color;
   const finalOutlineColor = isHovered ? (isDark ? '#ffffff' : '#000000') : (isDark ? '#000000' : '#ffffff');
   const finalOutlineOpacity = isHovered ? 0.8 : 0.4;
   const finalOutlineWidth = isHovered ? 0.03 : 0.025;
 
   const textScale = isHovered ? scale * 1.15 : scale;
+
+  // 确保显示时颜色前面有 #
+  const displayColor = ensureColorPrefix(finalColor);
 
   return (
     <Text
@@ -80,7 +91,7 @@ const TagText = ({ tag, position, scale, color, index }: {
       // 使用原始position，内部动画修改实际位置
       position={position}
       scale={[textScale, textScale, textScale]}
-      color={finalColor} // 应用悬停颜色变化
+      color={displayColor} // 确保颜色有 # 前缀
       fontSize={0.8} // 可以适当调整基础字号
       maxWidth={2}
       lineHeight={1}
@@ -97,7 +108,7 @@ const TagText = ({ tag, position, scale, color, index }: {
       onClick={handleClick}
     >
       {tag.name}
-      <meshBasicMaterial color={finalColor} side={THREE.DoubleSide} toneMapped={false} />
+      <meshBasicMaterial color={displayColor} side={THREE.DoubleSide} toneMapped={false} />
     </Text>
   );
 };
@@ -169,8 +180,8 @@ const TagCloud = ({ tags, radius = 12, colorScheme, enableSizing }: {
       ]
     };
 
-    // 增强颜色饱和度
-    return colorSchemes[colorScheme] || colorSchemes.mixed;
+    // 确保所有颜色都有 # 前缀
+    return colorSchemes[colorScheme as keyof typeof colorSchemes] || colorSchemes.mixed;
   }, [colorScheme]);
 
   // 生成标签位置 - 优化点: 使用斐波那契球面分布优化标签位置，减少重叠
@@ -218,7 +229,8 @@ const TagCloud = ({ tags, radius = 12, colorScheme, enableSizing }: {
 
       // 设置标签颜色 - 确保颜色足够鲜明
       const baseColor = getColors[i % getColors.length];
-      const color = isDark ? baseColor : baseColor; // 不同主题使用更明显的颜色
+      // 使用原始颜色，因为在使用时会通过 ensureColorPrefix 函数确保有 # 前缀
+      const color = baseColor;
 
       return {
         tag,
@@ -317,27 +329,32 @@ const TagSphere: React.FC<TagSphereProps> = ({
           padding: 3 // 内边距
         }}
       >
-        {limitedTags.map((tag, index) => (
-          <Box
-            key={`2d-tag-${index}`}
-            sx={{
-              padding: '6px 12px',
-              borderRadius: '50px',
-              backgroundColor: isDark ? alpha(tag.color || '#7c4dff', 0.2) : alpha(tag.color || '#4c8cff', 0.1),
-              color: tag.color || (isDark ? '#ffffff' : '#333333'),
-              fontWeight: 'bold',
-              fontSize: tag.value ? `${0.8 + (tag.value / 10) * 0.4}rem` : '1rem',
-              boxShadow: `0 4px 8px ${alpha('#000000', 0.1)}`,
-              transition: 'all 0.3s ease',
-              '&:hover': {
-                transform: 'translateY(-5px)',
-                boxShadow: `0 6px 12px ${alpha('#000000', 0.2)}`,
-              }
-            }}
-          >
-            {tag.name}
-          </Box>
-        ))}
+        {limitedTags.map((tag, index) => {
+          // 确保颜色有 # 前缀
+          const tagColor = tag.color ? ensureColorPrefix(tag.color) : (isDark ? '#7c4dff' : '#4c8cff');
+
+          return (
+            <Box
+              key={`2d-tag-${index}`}
+              sx={{
+                padding: '6px 12px',
+                borderRadius: '50px',
+                backgroundColor: alpha(tagColor, isDark ? 0.2 : 0.1),
+                color: tagColor,
+                fontWeight: 'bold',
+                fontSize: tag.value ? `${0.8 + (tag.value / 10) * 0.4}rem` : '1rem',
+                boxShadow: `0 4px 8px ${alpha('#000000', 0.1)}`,
+                transition: 'all 0.3s ease',
+                '&:hover': {
+                  transform: 'translateY(-5px)',
+                  boxShadow: `0 6px 12px ${alpha('#000000', 0.2)}`,
+                }
+              }}
+            >
+              {tag.name}
+            </Box>
+          );
+        })}
       </Box>
     );
   }
