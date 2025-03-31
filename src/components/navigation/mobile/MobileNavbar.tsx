@@ -9,6 +9,7 @@ import {
 } from '@mui/material';
 import { useLocation } from 'react-router-dom';
 import { useTheme } from '../../../contexts/ThemeContext';
+import { NavRoute } from '../common/types';
 import {
   FiMenu,
   FiArrowUp,
@@ -20,21 +21,7 @@ import LogoAvatar from '../../ui/LogoAvatar';
 import AnimatedIconButton from '../../ui/common/AnimatedIconButton';
 import { useTranslation } from 'react-i18next';
 import LanguageSelector from '../../ui/language/LanguageSelector';
-import {
-  FiHome,
-  FiUser,
-  FiFolder,
-  FiBookOpen,
-  FiPhone,
-  FiCode
-} from 'react-icons/fi';
 import { motion, useMotionValue, useTransform, useSpring } from 'framer-motion';
-
-interface NavRoute {
-  path: string;
-  label: string;
-  icon?: React.ReactNode;
-}
 
 interface MobileNavbarProps {
   routes: NavRoute[];
@@ -105,38 +92,6 @@ const MobileNavbar: React.FC<MobileNavbarProps> = ({
       behavior: 'smooth',
     });
   };
-
-  // 定义带图标的路由
-  const routesWithIcons = routes.map(route => {
-    let icon;
-    switch (route.path) {
-      case '/':
-        icon = <FiHome size={20} />;
-        break;
-      case '/about':
-        icon = <FiUser size={20} />;
-        break;
-      case '/projects':
-        icon = <FiFolder size={20} />;
-        break;
-      case '/education':
-        icon = <FiBookOpen size={20} />;
-        break;
-      case '/contact':
-        icon = <FiPhone size={20} />;
-        break;
-      case '/experience':
-      case '/skills':
-        icon = <FiCode size={20} />;
-        break;
-      default:
-        icon = null;
-    }
-    return {
-      ...route,
-      icon
-    };
-  });
 
   // 判断路由是否为当前活动路由
   const isActive = propIsActive || ((path: string) => {
@@ -325,9 +280,9 @@ const MobileNavbar: React.FC<MobileNavbarProps> = ({
 
       {/* 移动菜单抽屉 */}
       <EnhancedMobileNavMenu
+        routes={routes}
         open={mobileOpen}
         onClose={handleDrawerToggle}
-        routes={routesWithIcons}
         isActive={isActive}
       />
     </>

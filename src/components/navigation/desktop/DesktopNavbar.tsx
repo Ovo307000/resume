@@ -7,15 +7,11 @@ import {
 } from '@mui/material';
 import { useMotionValue, useTransform, useSpring } from 'framer-motion';
 import { useTheme } from '../../../contexts/ThemeContext';
+import { NavRoute } from '../common/types';
 import LogoAvatar from '../../ui/LogoAvatar';
 import NavButton from '../../ui/NavButton';
 import { FiSun, FiMoon } from 'react-icons/fi';
 import LanguageSelector from '../../ui/language/LanguageSelector';
-
-interface NavRoute {
-  path: string;
-  label: string;
-}
 
 interface NavbarProps {
   routes: NavRoute[];
@@ -116,11 +112,12 @@ const DesktopNavbar: React.FC<NavbarProps> = ({ routes, isActive, isCompact = fa
                   key={route.path}
                   to={route.path}
                   label={route.label}
+                  icon={route.icon}
+                  color={route.color}
                   variant="link"
                   size={isCompact ? "small" : "medium"}
                   isActive={isActive(route.path)}
                   sx={{ mx: 0.7 }}
-                  colorMode="gradient"
                 />
               ))}
             </Box>
@@ -133,7 +130,6 @@ const DesktopNavbar: React.FC<NavbarProps> = ({ routes, isActive, isCompact = fa
                 size="small"
                 tooltipText={theme === 'dark' ? "切换到亮色模式" : "切换到暗色模式"}
                 onClick={toggleTheme}
-                colorMode="accent"
               />
               <LanguageSelector size="small" />
             </Box>

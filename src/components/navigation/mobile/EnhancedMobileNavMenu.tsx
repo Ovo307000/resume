@@ -15,6 +15,7 @@ import { useTheme } from '../../../contexts/ThemeContext';
 import LanguageSelector from '../../ui/language/LanguageSelector';
 import { useTranslation } from 'react-i18next';
 import { getNavTitles } from '../common/routes';
+import { NavRoute } from '../common/types';
 import AnimatedIconButton from '../../ui/common/AnimatedIconButton';
 import {
   getDividerStyle,
@@ -25,14 +26,6 @@ import {
   shimmerKeyframes
 } from '../common/NavStyles';
 import { alpha } from '@mui/material/styles';
-
-// 导航路由接口定义
-interface NavRoute {
-  path: string;
-  label: string;
-  icon?: React.ReactNode;
-  color?: string;
-}
 
 interface EnhancedMobileNavMenuProps {
   routes: NavRoute[];
@@ -211,9 +204,10 @@ const EnhancedMobileNavMenu: React.FC<EnhancedMobileNavMenuProps> = ({
                             : 'transparent',
                           color: active
                             ? routeColor
-                            : isDark ? '#fff' : '#000',
+                            : isDark ? '#E0E0E0' : '#333',
                           '&:hover': {
                             backgroundColor: alpha(routeColor, isDark ? 0.1 : 0.05),
+                            color: routeColor,
                             transform: 'translateX(5px)',
                           },
                           transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -267,44 +261,20 @@ const EnhancedMobileNavMenu: React.FC<EnhancedMobileNavMenuProps> = ({
                         )}
 
                         {route.icon && (
-                          <ListItemIcon
-                            sx={{
-                              color: active ? routeColor : isDark ? '#fff' : '#000',
-                              minWidth: '40px',
-                              transition: 'color 0.3s ease',
-                              zIndex: 2
-                            }}
-                          >
-                            {route.icon}
+                          <ListItemIcon sx={{ minWidth: 'auto', mr: 1.5, color: 'inherit' }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', fontSize: '1.2rem' }}>
+                              {route.icon}
+                            </Box>
                           </ListItemIcon>
                         )}
                         <ListItemText
                           primary={route.label}
                           primaryTypographyProps={{
-                            fontWeight: active ? 600 : 400,
-                            fontSize: '1rem'
+                            fontWeight: active ? 600 : 500,
+                            variant: 'body1'
                           }}
-                          sx={{ zIndex: 2 }}
                         />
-                        <Box
-                          component={motion.div}
-                          animate={{
-                            opacity: active ? 1 : 0.4,
-                            x: active ? 0 : -5
-                          }}
-                          transition={{
-                            duration: 0.3,
-                            ease: 'easeInOut'
-                          }}
-                          sx={{
-                            marginLeft: 'auto',
-                            fontSize: '1.2rem',
-                            color: active ? routeColor : 'text.secondary',
-                            zIndex: 2
-                          }}
-                        >
-                          <FiChevronRight />
-                        </Box>
+                        <FiChevronRight size={16} style={{ marginLeft: 'auto', opacity: 0.6 }} />
 
                         {/* 背景闪光效果 */}
                         {active && (
