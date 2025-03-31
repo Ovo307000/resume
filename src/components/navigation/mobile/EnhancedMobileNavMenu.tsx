@@ -9,7 +9,7 @@ import {
   Typography
 } from '@mui/material';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiX, FiChevronRight, FiSun, FiMoon } from 'react-icons/fi';
+import { FiX, FiChevronRight, FiSun, FiMoon, FiMenu } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
 import { useTheme } from '../../../contexts/ThemeContext';
 import LanguageSelector from '../../ui/language/LanguageSelector';
@@ -154,16 +154,19 @@ const EnhancedMobileNavMenu: React.FC<EnhancedMobileNavMenuProps> = ({
                 position: 'relative'
               }}
             >
-              <Typography
-                variant="h6"
-                component="div"
-                sx={{
-                  fontWeight: 600,
-                  color: isDark ? 'white' : 'text.primary'
-                }}
-              >
-                {navTitles.menu}
-              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                <FiMenu size={20} color={isDark ? "#A5B4FC" : "#4F46E5"} />
+                <Typography
+                  variant="h6"
+                  component="div"
+                  sx={{
+                    fontWeight: 600,
+                    color: isDark ? 'white' : 'text.primary'
+                  }}
+                >
+                  {navTitles.menu}
+                </Typography>
+              </Box>
 
               {/* 关闭按钮 - 使用新的AnimatedIconButton */}
               <Box
@@ -261,6 +264,7 @@ const EnhancedMobileNavMenu: React.FC<EnhancedMobileNavMenuProps> = ({
                           backgroundColor: active
                             ? alpha(routeColor, isDark ? 0.15 : 0.1)
                             : 'transparent',
+                          // 默认文字颜色为灰白色，选中时显示对应颜色
                           color: active
                             ? routeColor
                             : isDark ? '#E0E0E0' : '#333',
@@ -320,7 +324,14 @@ const EnhancedMobileNavMenu: React.FC<EnhancedMobileNavMenuProps> = ({
                         )}
 
                         {route.icon && (
-                          <ListItemIcon sx={{ minWidth: 'auto', mr: 1.5, color: 'inherit' }}>
+                          <ListItemIcon
+                            sx={{
+                              minWidth: 'auto',
+                              mr: 1.5,
+                              // 图标颜色继承父元素颜色
+                              color: 'inherit'
+                            }}
+                          >
                             <Box sx={{ display: 'flex', alignItems: 'center', fontSize: '1.2rem' }}>
                               {route.icon}
                             </Box>

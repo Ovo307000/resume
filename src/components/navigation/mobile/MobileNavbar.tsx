@@ -15,6 +15,10 @@ import {
   FiMoon,
   FiSun
 } from 'react-icons/fi';
+import { AiFillHome } from 'react-icons/ai';
+import { BsFillPersonFill, BsBookmarkStarFill } from 'react-icons/bs';
+import { GiSkills } from 'react-icons/gi';
+import { MdWork, MdSchool, MdEmail } from 'react-icons/md';
 import EnhancedMobileNavMenu from './EnhancedMobileNavMenu';
 import LogoAvatar from '../../ui/LogoAvatar';
 import AnimatedIconButton from '../../ui/common/AnimatedIconButton';
@@ -47,6 +51,35 @@ const MobileNavbar: React.FC<MobileNavbarProps> = ({
   const { theme, toggleTheme } = useTheme();
   const { t } = useTranslation();
   const isDark = theme === 'dark';
+
+  // 路由图标映射 - 不设置颜色，让颜色由选中状态控制
+  const routeIcons = {
+    '/': <AiFillHome size={24} />,
+    '/about': <BsFillPersonFill size={24} />,
+    '/skills': <GiSkills size={24} />,
+    '/projects': <MdWork size={24} />,
+    '/education': <MdSchool size={24} />,
+    '/contact': <MdEmail size={24} />,
+    '/blog': <BsBookmarkStarFill size={24} />
+  };
+
+  // 路由颜色映射
+  const routeColors = {
+    '/': "#4361ee",
+    '/about': "#3a0ca3",
+    '/skills': "#7209b7",
+    '/projects': "#f72585",
+    '/education': "#4cc9f0",
+    '/contact': "#4caf50",
+    '/blog': "#fb8500"
+  };
+
+  // 为路由添加图标和颜色
+  const routesWithIcons = routes.map(route => ({
+    ...route,
+    icon: routeIcons[route.path as keyof typeof routeIcons] || route.icon,
+    color: routeColors[route.path as keyof typeof routeColors] || route.color
+  }));
 
   // 导航栏是否处于紧凑模式（滚动一定距离后）
   const isCompact = scrollPos > 50;
@@ -370,7 +403,7 @@ const MobileNavbar: React.FC<MobileNavbarProps> = ({
 
       {/* 移动菜单抽屉 */}
       <EnhancedMobileNavMenu
-        routes={routes}
+        routes={routesWithIcons}
         open={mobileOpen}
         onClose={handleDrawerToggle}
         isActive={isActive}

@@ -26,7 +26,17 @@ interface TagSphereProps {
 
 // 确保颜色有 # 前缀的工具函数
 const ensureColorPrefix = (color: string) => {
-  return color.startsWith('#') ? color : '#' + color;
+  // 处理 undefined 或 null 的情况
+  if (!color) return '#ffffff';
+
+  // 确保颜色有 # 前缀
+  const colorWithPrefix = color.startsWith('#') ? color : '#' + color;
+
+  // 验证颜色格式是否有效 (简单检查十六进制格式)
+  const isValidHex = /^#([0-9A-F]{3}){1,2}$/i.test(colorWithPrefix);
+
+  // 如果无效，返回默认颜色
+  return isValidHex ? colorWithPrefix : '#2196f3';
 };
 
 // 单个标签组件 - 性能优化版
@@ -73,17 +83,31 @@ const TagText = ({ tag, position, scale, color, index }: {
 
   // 计算最终颜色和轮廓
   const colorWithPrefix = ensureColorPrefix(color);
-  const finalColor = isHovered
-    ? new THREE.Color(colorWithPrefix).lerp(new THREE.Color("#ffffff"), 0.3).getHexString()
-    : color;
+
+  // 处理悬停效果的颜色变化
+  let finalColor;
+  try {
+    if (isHovered) {
+      // 创建颜色对象并进行混合
+      const baseColor = new THREE.Color(colorWithPrefix);
+      const whiteColor = new THREE.Color("#ffffff");
+      baseColor.lerp(whiteColor, 0.3);
+      // 获取十六进制字符串并添加#前缀
+      finalColor = '#' + baseColor.getHexString();
+    } else {
+      finalColor = colorWithPrefix;
+    }
+  } catch {
+    // 如果颜色处理出错，使用安全的默认值
+    console.warn('Invalid color detected:', colorWithPrefix);
+    finalColor = isHovered ? '#7ec8ff' : '#2196f3';
+  }
+
   const finalOutlineColor = isHovered ? (isDark ? '#ffffff' : '#000000') : (isDark ? '#000000' : '#ffffff');
   const finalOutlineOpacity = isHovered ? 0.8 : 0.4;
   const finalOutlineWidth = isHovered ? 0.03 : 0.025;
 
   const textScale = isHovered ? scale * 1.15 : scale;
-
-  // 确保显示时颜色前面有 #
-  const displayColor = ensureColorPrefix(finalColor);
 
   return (
     <Text
@@ -91,7 +115,7 @@ const TagText = ({ tag, position, scale, color, index }: {
       // 使用原始position，内部动画修改实际位置
       position={position}
       scale={[textScale, textScale, textScale]}
-      color={displayColor} // 确保颜色有 # 前缀
+      color={finalColor} // 已确保有#前缀
       fontSize={0.8} // 可以适当调整基础字号
       maxWidth={2}
       lineHeight={1}
@@ -108,7 +132,7 @@ const TagText = ({ tag, position, scale, color, index }: {
       onClick={handleClick}
     >
       {tag.name}
-      <meshBasicMaterial color={displayColor} side={THREE.DoubleSide} toneMapped={false} />
+      <meshBasicMaterial color={finalColor} side={THREE.DoubleSide} toneMapped={false} />
     </Text>
   );
 };
@@ -229,8 +253,9 @@ const TagCloud = ({ tags, radius = 12, colorScheme, enableSizing }: {
 
       // 设置标签颜色 - 确保颜色足够鲜明
       const baseColor = getColors[i % getColors.length];
-      // 使用原始颜色，因为在使用时会通过 ensureColorPrefix 函数确保有 # 前缀
-      const color = baseColor;
+
+      // 确保颜色有#前缀 - 这一步很重要，因为 THREE.js 对颜色格式要求严格
+      const color = ensureColorPrefix(baseColor);
 
       return {
         tag,
