@@ -91,6 +91,7 @@ const getColorForTechnology = (techName: string, defaultColor: string): string =
     'spring mvc': '#6DB33F',
     'springmvc': '#6DB33F',
     'spring jpa': '#6DB33F',
+    'spring cloud': '#6DB33F',
     'tailwind css': '#38B2AC',
     'tailwindcss': '#38B2AC',
     'tailwind': '#38B2AC',
@@ -99,6 +100,12 @@ const getColorForTechnology = (techName: string, defaultColor: string): string =
     'postgresql': '#336791',
     'mongodb': '#4DB33D',
     'redis': '#DC382D',
+    'rabbitmq': '#FF6600',
+    'elasticsearch': '#005571',
+    'junit': '#25A162',
+    'data structures': '#2C3E50',
+    'algorithms': '#3498DB',
+    'thymeleaf': '#005F0F',
     'sqlite': '#0f80cc',
     'oracle': '#F80000',
     'docker': '#2496ED',
@@ -169,11 +176,19 @@ const getUrlForTechnology = (techName: string): string | undefined => {
     'spring jpa': 'https://spring.io/projects/spring-data-jpa', // 添加 Spring JPA
     'bootstrap': 'https://getbootstrap.com/', // 添加 Bootstrap
     'sqlite': 'https://www.sqlite.org/index.html', // 添加 SQLite
-    'flask': 'https://flask.palletsprojects.com/' // 添加 Flask
+    'flask': 'https://flask.palletsprojects.com/', // 添加 Flask
+    'spring cloud': 'https://spring.io/projects/spring-cloud', // 添加 Spring Cloud
+    'rabbitmq': 'https://www.rabbitmq.com/', // 添加 RabbitMQ
+    'elasticsearch': 'https://www.elastic.co/', // 添加 Elasticsearch
+    'junit': 'https://junit.org/', // 添加 JUnit
+    'data structures': 'https://en.wikipedia.org/wiki/Data_structure', // 添加数据结构
+    'algorithms': 'https://en.wikipedia.org/wiki/Algorithm', // 添加算法
+    'thymeleaf': 'https://www.thymeleaf.org/' // 添加 Thymeleaf
   };
+
   const lowerCaseName = techName.toLowerCase();
-  // 如果找到特定URL则返回，否则返回Google搜索链接
-  return techUrls[lowerCaseName] || `https://www.google.com/search?q=${encodeURIComponent(techName + ' technology')}`;
+  // 只返回我们已知的URL，不再使用Google搜索作为默认值
+  return techUrls[lowerCaseName];
 };
 
 // 使用函数声明而不是箭头函数，有时这可以解决导出问题
@@ -217,6 +232,7 @@ export function TechnologyTag({ name, tech, icon, url: propUrl, size = 'small', 
     if (finalUrl) {
       window.open(finalUrl, '_blank', 'noopener,noreferrer');
     }
+    // 如果没有URL，什么也不做
   };
 
   return (

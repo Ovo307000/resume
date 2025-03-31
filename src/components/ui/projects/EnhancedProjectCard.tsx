@@ -430,6 +430,7 @@ const EnhancedProjectCard: React.FC<ProjectCardProps> = ({
                         : alpha(muiTheme.palette.primary.main, 0.15),
                     }
                   }}
+                  icon={<FiTag size={12} />}
                 />
               )}
               {showAllTags && technologies.length > (isList ? 6 : 3) && (

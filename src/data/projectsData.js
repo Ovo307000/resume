@@ -1,3 +1,24 @@
+/**
+ * @typedef {Object} LocalizedText
+ * @property {string} en - English text
+ * @property {string} zh - Chinese text
+ */
+
+/**
+ * @typedef {Object} Project
+ * @property {string} name - Project name in English
+ * @property {string} [nameZh] - Project name in Chinese
+ * @property {string} [url] - URL to the live project
+ * @property {string} description - Project description in English
+ * @property {string} [descriptionZh] - Project description in Chinese
+ * @property {string|LocalizedText} [longDescription] - Detailed project description
+ * @property {string[]} [technologies] - Technologies used in the project
+ * @property {string} imageUrl - URL to the project image
+ * @property {string} [category] - Project category (web, mobile, other)
+ * @property {string} [githubUrl] - URL to the GitHub repository
+ */
+
+/** @type {Project[]} */
 const projectsData = [
   {
     name: "Lease System",

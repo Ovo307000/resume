@@ -1,12 +1,10 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Typography,
   Box,
   Container,
   Grid,
-  Tabs,
-  Tab,
   alpha,
   useTheme as useMuiTheme,
   useMediaQuery,
@@ -17,7 +15,7 @@ import {
   Stack
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { FiCode, FiLayers, FiBriefcase, FiServer, FiFilter, FiArrowLeft, FiArrowRight, FiGrid, FiList } from 'react-icons/fi';
+import { FiCode, FiLayers, FiBriefcase, FiServer, FiArrowLeft, FiArrowRight, FiGrid, FiList } from 'react-icons/fi';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useLanguage } from '../../hooks/useLanguage';
 import GlassyBlobBackground from '../../components/ui/backgrounds/GlassyBlobBackground';
@@ -422,30 +420,35 @@ const ProjectsPage: React.FC = () => {
     setViewMode(mode);
   };
 
+  // 添加动画变体常量
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.2,
+        delayChildren: 0.2
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
+  };
+
   return (
     <PageTransition>
       <Box sx={{ minHeight: '100vh', py: 5 }}>
         <Container maxWidth="lg" sx={{ position: 'relative' }}>
           {/* 页面标题 */}
           <motion.div
-            variants={containerVariants || {
-              hidden: { opacity: 0 },
-              visible: {
-                opacity: 1,
-                transition: {
-                  staggerChildren: 0.2,
-                  delayChildren: 0.2
-                }
-              }
-            }}
+            variants={containerVariants}
             initial="hidden"
             animate="visible"
           >
             <motion.div
-              variants={itemVariants || {
-                hidden: { opacity: 0, y: 20 },
-                visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
-              }}
+              variants={itemVariants}
             >
               <EnhancedPageTitle
                 title={t('projects.title', '项目展示')}
