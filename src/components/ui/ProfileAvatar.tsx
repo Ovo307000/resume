@@ -5,7 +5,7 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { useTranslation } from 'react-i18next';
 
 interface ProfileAvatarProps {
-  size?: 'small' | 'medium' | 'large' | 'xlarge';
+  size?: 'small' | 'medium' | 'large' | 'xlarge' | 'custom';
   imageSrc: string;
   alt?: string;
   animate?: boolean;
@@ -41,9 +41,12 @@ const ProfileAvatar: React.FC<ProfileAvatarProps> = ({
       case 'medium':
         return { width: 50, height: 50 };
       case 'large':
-        return { width: { xs: 160, md: 220 } };
+        return { width: { xs: 140, md: 180 }, height: { xs: 140, md: 180 } };
       case 'xlarge':
-        return { width: { xs: 200, md: 360 } };
+        return { width: { xs: 180, md: 240 }, height: { xs: 180, md: 240 } };
+      case 'custom':
+        // 自定义尺寸不在这里设定，通过 sx 属性传入
+        return {};
       default:
         return { width: 50, height: 50 };
     }
@@ -84,18 +87,17 @@ const ProfileAvatar: React.FC<ProfileAvatarProps> = ({
 
   // 创建头像图片元素
   const avatarImage = (
-    <Box
-      component="img"
+    <img
       src={imageSrc}
       alt={altText}
-      sx={{
+      style={{
         borderRadius: '50%',
         objectFit: 'cover',
         height: 'auto',
         aspectRatio: '1/1',
-        ...getSizeValue(),
-        ...borderStyle,
-        ...sx
+        ...(typeof getSizeValue() === 'object' ? getSizeValue() : {}),
+        ...(typeof borderStyle === 'object' ? borderStyle : {}),
+        ...(typeof sx === 'object' ? sx : {})
       }}
     />
   );
@@ -121,17 +123,16 @@ const ProfileAvatar: React.FC<ProfileAvatarProps> = ({
   // 如果有链接，包装在链接中
   if (linkTo) {
     return (
-      <Box
-        component="a"
+      <a
         href={linkTo}
-        sx={{
+        style={{
           display: 'inline-block',
           textDecoration: 'none',
           cursor: 'pointer'
         }}
       >
         {animatedAvatar}
-      </Box>
+      </a>
     );
   }
 

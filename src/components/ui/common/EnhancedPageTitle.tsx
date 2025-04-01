@@ -53,8 +53,8 @@ const EnhancedPageTitle: React.FC<EnhancedPageTitleProps> = ({
   };
 
   const MotionBox = withAnimation ? motion.div : Box;
-  const MotionTypography = withAnimation ? motion.create(Typography) : Typography;
-  const MotionDivider = withAnimation ? motion.create(Divider) : Divider;
+  const MotionTypography = withAnimation ? motion(Typography) : Typography;
+  const MotionDivider = withAnimation ? motion(Divider) : Divider;
 
   // 更现代的标题渐变
   const titleGradient = isDark
@@ -68,7 +68,6 @@ const EnhancedPageTitle: React.FC<EnhancedPageTitleProps> = ({
 
   return (
     <MotionBox
-      component={withAnimation ? motion.div : Box}
       variants={containerVariants}
       initial={withAnimation ? "hidden" : undefined}
       animate={withAnimation ? "visible" : undefined}
@@ -97,7 +96,6 @@ const EnhancedPageTitle: React.FC<EnhancedPageTitleProps> = ({
       />
 
       <MotionTypography
-        component={withAnimation ? motion.h1 : 'h1'}
         variants={itemVariants}
         variant="h2"
         sx={{
@@ -118,7 +116,6 @@ const EnhancedPageTitle: React.FC<EnhancedPageTitleProps> = ({
 
       {subtitle && (
         <MotionTypography
-          component={withAnimation ? motion.p : 'p'}
           variants={itemVariants}
           variant="h6"
           sx={{
@@ -134,7 +131,6 @@ const EnhancedPageTitle: React.FC<EnhancedPageTitleProps> = ({
       )}
 
       <MotionDivider
-        component={withAnimation ? motion.hr : Divider}
         variants={itemVariants}
         sx={{
           width: '80px',
@@ -152,7 +148,6 @@ const EnhancedPageTitle: React.FC<EnhancedPageTitleProps> = ({
 
       {actionLink && actionText && (
         <MotionTypography
-          component={withAnimation ? motion.p : 'p'}
           variants={itemVariants}
           variant="body1"
           sx={{

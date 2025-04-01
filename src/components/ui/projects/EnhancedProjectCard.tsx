@@ -264,15 +264,14 @@ const EnhancedProjectCard: React.FC<ProjectCardProps> = ({
                whileHover={{ scale: 1.08 }}
                transition={{ type: 'spring', stiffness: 300, damping: 20 }}
             >
-              <CardMedia
-                component="img"
-                image={imageUrl}
+              <img
+                src={imageUrl}
                 alt={language === 'en' ? name : nameZh}
-                sx={{
+                style={{
                   width: '100%',
                   height: '100%',
                   objectFit: 'cover',
-                  transition: 'transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)',
+                  transition: 'transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)'
                 }}
               />
             </motion.div>
@@ -295,7 +294,7 @@ const EnhancedProjectCard: React.FC<ProjectCardProps> = ({
                 >
                   <AnimatedIconButton
                     title="Preview Image"
-                    onClick={handleImagePreview}
+                    onClick={() => handleImagePreview(new MouseEvent('click') as React.MouseEvent)}
                     size="small"
                     sx={{ backgroundColor: alpha(muiTheme.palette.common.black, 0.5), color: 'white', '&:hover': {backgroundColor: alpha(muiTheme.palette.common.black, 0.7)} }}
                   >
@@ -343,18 +342,18 @@ const EnhancedProjectCard: React.FC<ProjectCardProps> = ({
                 {githubUrl && (
                   <AnimatedIconButton
                   title="GitHub Repository"
-                    onClick={(e) => handleLinkClick(e, githubUrl)}
+                    onClick={() => handleLinkClick(new MouseEvent('click') as React.MouseEvent, githubUrl)}
                     size="small"
-                >
+                  >
                   <FiGithub size={18} />
                 </AnimatedIconButton>
                 )}
                 {url && (
                   <AnimatedIconButton
                   title="Live Demo / Website"
-                    onClick={(e) => handleLinkClick(e, url)}
+                    onClick={() => handleLinkClick(new MouseEvent('click') as React.MouseEvent, url)}
                     size="small"
-                >
+                  >
                   <FiExternalLink size={18} />
                 </AnimatedIconButton>
                 )}

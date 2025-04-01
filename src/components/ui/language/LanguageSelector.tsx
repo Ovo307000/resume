@@ -138,11 +138,10 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({
           whileHover="hover"
           whileTap="tap"
           variants={containerVariants}
-          style={{
+          animate={{
             borderRadius: '12px',
             background: getBackground(),
             backdropFilter: 'blur(8px)',
-            // 增强边框可见性
             border: isDark
               ? '1px solid rgba(255, 255, 255, 0.15)'
               : '1px solid rgba(0, 0, 0, 0.1)',
@@ -156,12 +155,24 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({
             alignItems: 'center',
             cursor: 'pointer',
             transition: 'all 0.3s ease',
-            '&:hover': {
-              transform: 'translateY(-2px)',
-              boxShadow: isDark
-                ? '0 6px 12px rgba(0, 0, 0, 0.3)'
-                : '0 6px 12px rgba(0, 0, 0, 0.15)',
-            },
+          }}
+          style={{
+            borderRadius: '12px',
+            background: getBackground(),
+            backdropFilter: 'blur(8px)',
+            border: isDark
+              ? '1px solid rgba(255, 255, 255, 0.15)'
+              : '1px solid rgba(0, 0, 0, 0.1)',
+            boxShadow: isDark
+              ? '0 4px 10px rgba(0, 0, 0, 0.25)'
+              : '0 4px 10px rgba(0, 0, 0, 0.12)',
+            width: buttonSize,
+            height: buttonSize,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            cursor: 'pointer',
+            transition: 'all 0.3s ease',
             ...sx  // 应用自定义样式
           }}
           onClick={handleClick}

@@ -134,13 +134,13 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
         >
           {/* 项目图片 */}
           <Box sx={{ position: 'relative', overflow: 'hidden' }}>
-            <CardMedia
-              component="img"
+            <img
               height={180}
-              image={imageUrl}
+              src={imageUrl}
               alt={language === 'en' ? name : nameZh}
               className="project-image"
-              sx={{
+              style={{
+                width: '100%',
                 transition: 'transform 0.3s ease-in-out',
                 objectFit: 'cover'
               }}
@@ -315,15 +315,14 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
 
         <DialogContent sx={{ p: 3 }}>
           {/* 项目图片 */}
-          <Box
-            component="img"
+          <img
             src={imageUrl}
             alt={language === 'en' ? name : nameZh}
-            sx={{
+            style={{
               width: '100%',
               height: 'auto',
-              borderRadius: 1,
-              mb: 3
+              borderRadius: '4px',
+              marginBottom: '12px'
             }}
           />
 

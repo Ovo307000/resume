@@ -24,6 +24,7 @@ const LogoAvatar: React.FC<LogoAvatarProps> = ({
   sx = {},
 }) => {
   const { theme } = useTheme();
+  const isDark = theme === 'dark';
 
   // 计算头像尺寸
   const getSizeValue = () => {
@@ -61,32 +62,56 @@ const LogoAvatar: React.FC<LogoAvatarProps> = ({
 
   // Logo头像内容
   const logoContent = (
-    <Box
-      component={Link}
+    <Link
       to="/"
-      sx={{
+      style={{
         display: 'flex',
         alignItems: 'center',
         textDecoration: 'none',
         color: 'inherit',
-        ...sx
+        ...(typeof sx === 'object' ? sx : {})
       }}
     >
       <Box
-        component="img"
-        src={imageSrc}
-        alt={alt}
         sx={{
+          position: 'relative',
           ...getSizeValue(),
           borderRadius: '50%',
-          objectFit: 'cover',
-          border: `2px solid ${theme === 'dark'
-            ? 'rgba(255, 255, 255, 0.1)'
-            : 'rgba(0, 0, 0, 0.05)'}`,
-          transition: 'all 0.3s ease'
+          padding: '2px',
+          overflow: 'hidden',
+          "&::before": {
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            borderRadius: '50%',
+            background: 'linear-gradient(90deg, #6366F1, #3B82F6, #EC4899)',
+            backgroundSize: '200% 200%',
+            animation: 'rgbGlow 3s ease infinite',
+            zIndex: -1,
+            opacity: 0.7,
+          },
+          "&:hover::before": {
+            opacity: 1,
+          }
         }}
-      />
-    </Box>
+      >
+        <img
+          src={imageSrc}
+          alt={alt}
+          style={{
+            width: '100%',
+            height: '100%',
+            borderRadius: '50%',
+            objectFit: 'cover',
+            background: isDark ? '#121212' : '#ffffff',
+            transition: 'all 0.3s ease'
+          }}
+        />
+      </Box>
+    </Link>
   );
 
   // 如果不需要动画，直接返回Logo内容

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Container, Typography, Grid } from '@mui/material';
+import { Box, Container, Typography, Grid, Card } from '@mui/material';
 import { motion } from 'framer-motion';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useTranslation } from 'react-i18next';
@@ -438,12 +438,63 @@ const HomePage: React.FC<HomePageProps> = ({ data }) => {
           <Grid item xs={12} md={5} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
             {/* 移动端显示的头像（xs可见，md隐藏） */}
             <Box sx={{ display: { xs: 'block', md: 'none' }, width: '100%', textAlign: 'center' }}>
-              <ProfileAvatar
-                imageSrc="/profile_avatar.png"
-                size="large"
-                animate={true}
-                alt={data.name}
-              />
+              <motion.div
+                whileHover={{
+                  scale: 1.05,
+                  transition: { duration: 0.3 }
+                }}
+                style={{
+                  position: 'relative',
+                  display: 'inline-block',
+                  overflow: 'visible'
+                }}
+              >
+                <Card
+                  elevation={0}
+                  sx={{
+                    width: 200,
+                    height: 200,
+                    mx: 'auto',
+                    borderRadius: '50%',
+                    position: 'relative',
+                    overflow: 'hidden',
+                    backgroundColor: 'transparent',
+                    background: 'transparent',
+                    backgroundClip: 'padding-box',
+                    padding: '4px',
+                    '&::before': {
+                      content: '""',
+                      position: 'absolute',
+                      top: 0,
+                      right: 0,
+                      bottom: 0,
+                      left: 0,
+                      zIndex: -1,
+                      borderRadius: '50%',
+                      background: 'linear-gradient(90deg, #6366F1, #3B82F6, #EC4899)',
+                      backgroundSize: '200% 200%',
+                      animation: 'rgbGlow 3s ease infinite',
+                    },
+                    '&:hover': {
+                      boxShadow: `0 0 30px ${theme === 'dark'
+                        ? 'rgba(123, 100, 255, 0.7)'
+                        : 'rgba(123, 100, 255, 0.5)'}`,
+                    }
+                  }}
+                >
+                  <ProfileAvatar
+                    imageSrc="/profile_avatar.png"
+                    size="custom"
+                    animate={true}
+                    alt={data.name}
+                    sx={{
+                      width: '100%',
+                      height: '100%',
+                      borderRadius: '50%'
+                    }}
+                  />
+                </Card>
+              </motion.div>
             </Box>
 
             {/* 桌面端显示的头像（xs隐藏，md可见） */}
@@ -452,14 +503,61 @@ const HomePage: React.FC<HomePageProps> = ({ data }) => {
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.6, delay: 0.3 }}
+                whileHover={{
+                  scale: 1.05,
+                  transition: { duration: 0.3 }
+                }}
+                style={{
+                  position: 'relative',
+                  display: 'inline-block',
+                  overflow: 'visible'
+                }}
               >
-                <ProfileAvatar
-                  imageSrc="/profile_avatar.png"
-                  size="xlarge"
-                  animate={true}
-                  alt={data.name}
-                  sx={{ mx: 'auto' }}
-                />
+                <Card
+                  elevation={0}
+                  sx={{
+                    width: { md: 280, lg: 320 },
+                    height: { md: 280, lg: 320 },
+                    mx: 'auto',
+                    borderRadius: '50%',
+                    position: 'relative',
+                    overflow: 'hidden',
+                    backgroundColor: 'transparent',
+                    background: 'transparent',
+                    backgroundClip: 'padding-box',
+                    padding: '4px',
+                    '&::before': {
+                      content: '""',
+                      position: 'absolute',
+                      top: 0,
+                      right: 0,
+                      bottom: 0,
+                      left: 0,
+                      zIndex: -1,
+                      borderRadius: '50%',
+                      background: 'linear-gradient(90deg, #6366F1, #3B82F6, #EC4899)',
+                      backgroundSize: '200% 200%',
+                      animation: 'rgbGlow 3s ease infinite',
+                    },
+                    '&:hover': {
+                      boxShadow: `0 0 30px ${theme === 'dark'
+                        ? 'rgba(123, 100, 255, 0.7)'
+                        : 'rgba(123, 100, 255, 0.5)'}`,
+                    }
+                  }}
+                >
+                  <ProfileAvatar
+                    imageSrc="/profile_avatar.png"
+                    size="custom"
+                    animate={true}
+                    alt={data.name}
+                    sx={{
+                      width: '100%',
+                      height: '100%',
+                      borderRadius: '50%'
+                    }}
+                  />
+                </Card>
               </motion.div>
             </Box>
           </Grid>
