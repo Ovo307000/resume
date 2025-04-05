@@ -57,11 +57,16 @@ export interface Education {
   logoUrl: string;
 }
 
+// 组件属性接口
+interface EducationPageProps {
+  data?: any; // 接收传入的数据，使用any类型暂时绕过类型检查
+}
+
 /**
  * 全新设计：教育页面
  * 采用卡片布局、左右滑动导航和动态效果
  */
-const EducationPage: React.FC = () => {
+const EducationPage: React.FC<EducationPageProps> = ({ data }) => {
   const { t, i18n } = useTranslation();
   const { theme } = useTheme();
   const isDark = theme === 'dark';

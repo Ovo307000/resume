@@ -25,9 +25,11 @@ jobs:
 
       - name: Build 🏗️
         run: npm run build
+        env:
+          NODE_ENV: production
 
       - name: Deploy to GitHub Pages 🚀
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: dist  # 构建输出目录
-          branch: dev  # 部署分支
+          branch: gh-pages  # 部署分支
