@@ -4,6 +4,7 @@ import { CssBaseline } from '@mui/material';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { LanguageProvider } from './contexts/LanguageContext';
 import CopyNotificationProvider from './contexts/CopyNotificationContext';
+import DarkReaderProvider from './contexts/DarkReaderContext';
 import Layout from './components/layout/Layout';
 import { Routes, Route } from 'react-router-dom';
 import HomePage from './pages/home/HomePage';
@@ -24,20 +25,22 @@ function App() {
     <ThemeProvider>
       <LanguageProvider>
         <CopyNotificationProvider>
-          <HashRouter>
-            <CssBaseline />
-            <GlobalStyles />
-            <Layout>
-              <Routes>
-                <Route path="/" element={<HomePage data={resumeData.basics} />} />
-                <Route path="/about" element={<AboutPage data={resumeData.basics} />} />
-                <Route path="/skills" element={<SkillsPage data={resumeData.skills} />} />
-                <Route path="/projects" element={<ProjectsPage />} />
-                <Route path="/education" element={<EducationPage data={resumeData.education} />} />
-                <Route path="/contact" element={<ContactPage />} />
-              </Routes>
-            </Layout>
-          </HashRouter>
+          <DarkReaderProvider>
+            <HashRouter>
+              <CssBaseline />
+              <GlobalStyles />
+              <Layout>
+                <Routes>
+                  <Route path="/" element={<HomePage data={resumeData.basics} />} />
+                  <Route path="/about" element={<AboutPage data={resumeData.basics} />} />
+                  <Route path="/skills" element={<SkillsPage data={resumeData.skills} />} />
+                  <Route path="/projects" element={<ProjectsPage />} />
+                  <Route path="/education" element={<EducationPage data={resumeData.education} />} />
+                  <Route path="/contact" element={<ContactPage />} />
+                </Routes>
+              </Layout>
+            </HashRouter>
+          </DarkReaderProvider>
         </CopyNotificationProvider>
       </LanguageProvider>
     </ThemeProvider>
