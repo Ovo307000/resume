@@ -1,11 +1,11 @@
 <p align="center">
-  <img src="public/logo.png" alt="赵东安简历" width="200" height="200" style="border-radius: 50%;">
+  <img src="public/logo.png" alt="个人简历" width="200" height="200" style="border-radius: 50%;">
 </p>
 
-<h1 align="center">赵东安 - 个人简历网站</h1>
+<h1 align="center">个人简历网站</h1>
 
 <p align="center">
-  <a href="https://ovo307000.github.io/resume" target="_blank">预览网站</a> •
+  <a href="#在线预览">在线预览</a> •
   <a href="#技术栈">技术栈</a> •
   <a href="#项目特性">项目特性</a> •
   <a href="#快速开始">快速开始</a> •
@@ -13,7 +13,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/React-19-blue?logo=react" alt="React 19" />
+  <img src="https://img.shields.io/badge/React-18-blue?logo=react" alt="React 18" />
   <img src="https://img.shields.io/badge/TypeScript-5.7-blue?logo=typescript" alt="TypeScript 5.7" />
   <img src="https://img.shields.io/badge/MUI-6.4-blue?logo=mui" alt="MUI 6.4" />
   <img src="https://img.shields.io/badge/Vite-6.2-blue?logo=vite" alt="Vite 6.2" />
@@ -60,22 +60,40 @@
 ## 🛠️ 技术栈
 
 ### 核心框架
-- [React 19](https://react.dev/) - 最新版 React 框架
+- [React 18](https://react.dev/) - 流行的 UI 框架
 - [TypeScript](https://www.typescriptlang.org/) - 类型安全的 JavaScript 超集
-- [Material UI](https://mui.com/material-ui/) - 流行的 React UI 组件库
+- [Material UI 6](https://mui.com/material-ui/) - 流行的 React UI 组件库
 
 ### 样式与动画
-- [Tailwind CSS](https://tailwindcss.com/) - 实用优先的 CSS 框架
+- [Tailwind CSS 4](https://tailwindcss.com/) - 实用优先的 CSS 框架
 - [Framer Motion](https://www.framer.com/motion/) - 强大的 React 动画库
+- [Emotion](https://emotion.sh/) - CSS-in-JS 库
+
+### 3D 与特效
+- [Three.js](https://threejs.org/) - JavaScript 3D 库
+- [React Three Fiber](https://docs.pmnd.rs/react-three-fiber/) - Three.js 的 React 渲染器
+- [Canvas Confetti](https://www.kirilv.com/canvas-confetti/) - 五彩纸屑效果
 
 ### 工具与功能
 - [React Icons](https://react-icons.github.io/react-icons/) - 流行图标库集合
 - [i18next](https://www.i18next.com/) - 强大的国际化框架
-- [React Router](https://reactrouter.com/) - React 应用路由管理
+- [React Router 7](https://reactrouter.com/) - React 应用路由管理
+- [React Draggable](https://github.com/react-grid-layout/react-draggable) - 拖拽功能
+- [DND Kit](https://dndkit.com/) - 拖放功能库
 
 ### 构建与部署
 - [Vite](https://vitejs.dev/) - 现代前端构建工具
 - [GitHub Pages](https://pages.github.com/) - 静态网站托管服务
+- [gh-pages](https://github.com/tschaub/gh-pages) - GitHub Pages 部署工具
+
+## 在线预览
+
+访问 [预览网站](https://ovo307000.github.io/resume)
+
+> **注意**: 如果遇到 404 错误，可能是由以下原因导致：
+> 1. GitHub Pages 部署尚未完成 - 首次部署可能需要几分钟时间
+> 2. 分支配置问题 - 确保 GitHub 仓库设置中已将 `gh-pages` 分支设为部署来源
+> 3. 路径配置问题 - 检查 `vite.config.ts` 中的 `base` 路径是否设为 `/resume/`
 
 ## 🚀 快速开始
 
@@ -227,6 +245,27 @@ src/
 npm run deploy
 ```
 
+这将自动执行 `npm run build` 然后将 `dist` 目录推送到 `gh-pages` 分支。
+
 ### 自动部署
 
 本项目已配置 GitHub Actions 自动部署工作流，当推送代码到主分支时会自动部署。
+
+### 解决常见的 GitHub Pages 部署问题
+
+1. **404 错误**：
+   - 确保仓库设置中启用了 GitHub Pages，并选择了 `gh-pages` 分支
+   - 检查 `package.json` 中的 `homepage` 字段是否正确设置为 `https://你的用户名.github.io/resume`
+   - 确认 `vite.config.ts` 中的 `base` 配置为 `/resume/`
+
+2. **资源路径问题**：
+   - 所有资源引用应使用相对路径
+   - 如果使用 HashRouter 来避免刷新 404 错误
+
+3. **部署后网站空白**：
+   - 检查浏览器控制台是否有路径相关错误
+   - 确认项目使用了正确的 React Router 配置
+
+4. **分支问题**：
+   - 确保你的主要代码在正确的分支（如默认的 `main` 或 `dev`）
+   - GitHub Actions 工作流应监听此分支变更并部署到 `gh-pages` 分支
