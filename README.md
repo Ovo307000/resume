@@ -146,3 +146,55 @@ src/
 ## 📄 许可
 
 本项目采用 MIT 许可证。详见 [LICENSE](LICENSE) 文件。
+
+## 部署到GitHub Pages
+
+本项目已配置好部署到GitHub Pages的相关设置，可以通过以下步骤进行部署：
+
+### 手动部署
+
+1. 将项目克隆到本地：
+   ```bash
+   git clone https://github.com/你的用户名/resume.git
+   cd resume
+   ```
+
+2. 修改`package.json`中的`homepage`字段：
+   ```json
+   "homepage": "https://你的用户名.github.io/resume"
+   ```
+
+3. 安装依赖：
+   ```bash
+   npm install
+   ```
+
+4. 构建并部署：
+   ```bash
+   npm run deploy
+   ```
+
+### 使用GitHub Actions自动部署
+
+本项目已配置了GitHub Actions自动部署工作流，当你推送代码到主分支时，会自动部署到GitHub Pages。
+
+1. 创建GitHub仓库：在GitHub上创建一个名为`resume`的仓库。
+
+2. 将本地项目推送到GitHub：
+   ```bash
+   git init
+   git add .
+   git commit -m "初始提交"
+   git branch -M main
+   git remote add origin https://github.com/你的用户名/resume.git
+   git push -u origin main
+   ```
+
+3. 在GitHub仓库中启用GitHub Pages：
+   - 进入仓库设置 (Settings)
+   - 找到Pages选项
+   - 将Source选择为"gh-pages"分支
+
+4. 等待GitHub Actions工作流完成部署。
+
+5. 访问 https://你的用户名.github.io/resume 查看部署的网站。
