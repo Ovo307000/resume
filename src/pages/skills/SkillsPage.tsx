@@ -9,7 +9,7 @@ import {
   useTheme as useMuiTheme
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { FiServer, FiDatabase, FiSettings, FiMonitor } from 'react-icons/fi';
+import { FiServer, FiDatabase, FiSettings, FiMonitor, FiCode, FiZap } from 'react-icons/fi';
 import { useTheme } from '../../contexts/ThemeContext';
 import GlassyBlobBackground from '../../components/ui/backgrounds/GlassyBlobBackground';
 import SkillDetail from '../../components/ui/SkillDetail';
@@ -243,9 +243,21 @@ const SkillsPage: React.FC<SkillsPageProps> = ({ data }) => {
                   : 'linear-gradient(90deg, #f57f17 0%, #ef6c00 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
-                letterSpacing: '0.5px'
+                letterSpacing: '0.5px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1
               }}
             >
+              <Box
+                sx={{
+                  display: 'flex',
+                  color: theme === 'dark' ? '#ffeb3b' : '#f57f17',
+                  filter: theme === 'dark' ? 'drop-shadow(0 0 2px rgba(255, 235, 59, 0.5))' : 'none'
+                }}
+              >
+                <FiCode size={24} />
+              </Box>
               {t('skills.techCloudTitle', '技术标签云')}
             </Typography>
             {renderTechPool()}
@@ -264,9 +276,21 @@ const SkillsPage: React.FC<SkillsPageProps> = ({ data }) => {
                   : 'linear-gradient(90deg, #5e35b1 0%, #1976d2 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
-                letterSpacing: '0.5px'
+                letterSpacing: '0.5px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1
               }}
             >
+              <Box
+                sx={{
+                  display: 'flex',
+                  color: theme === 'dark' ? '#9c7aff' : '#5e35b1',
+                  filter: theme === 'dark' ? 'drop-shadow(0 0 2px rgba(156, 122, 255, 0.5))' : 'none'
+                }}
+              >
+                <FiZap size={24} />
+              </Box>
               {t('skills.overviewTitle', '技能概述')}
             </Typography>
             <motion.div
