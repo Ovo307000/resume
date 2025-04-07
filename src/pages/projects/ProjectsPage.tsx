@@ -25,6 +25,7 @@ import PageTransition
 import { useTheme }                                                          from "../../contexts/ThemeContext";
 import projectsData                                                          from "../../data/projectsData";
 import { useLanguage }                                                       from "../../hooks/useLanguage";
+import EnhancedPageTitle                                                     from "../../components/ui/common/EnhancedPageTitle";
 
 // 定义分类标签的类型
 type CategoryType = "all" | "web" | "mobile" | "other";
@@ -125,61 +126,39 @@ const ProjectsPage: React.FC = () =>
         }
     };
 
+    // 添加itemVariants用于标题和内容动画
+    const itemVariants = {
+        hidden: { opacity: 0, y: 20 },
+        visible: {
+            opacity: 1,
+            y: 0,
+            transition: {
+                type: "spring",
+                stiffness: 100,
+                damping: 12
+            }
+        }
+    };
+
     return <PageTransition>
             <Box
                 sx = { {
                     minHeight: "100vh", padding: { xs: 2, sm: 3, md: 4 }, overflow: "hidden", position: "relative"
                 } }
             >
-                {/* 简化后的标题区域 */ }
+                {/* 标题区域 */ }
                 <Container
                     maxWidth = "xl"
                     sx = { { mb: 4 } }
                 >
-                    <Box
-                        sx = { {
-                            mb        : 2,
-                            display   : "flex",
-                            alignItems: "baseline",
-                            flexWrap  : "wrap",
-                            gap       : { xs: 1, md: 2 }
-                        } }
-                    >
-                        <Typography
-                            variant = "h1"
-                            component = { motion.h1 }
-                            initial = { { opacity: 0, y: - 20 } }
-                            animate = { { opacity: 1, y: 0 } }
-                            sx = { {
-                                fontSize            : { xs: "2.5rem", sm: "3rem", md: "3.5rem" },
-                                fontWeight          : 800,
-                                background          : isDark ?
-                                                      "linear-gradient(90deg, #fff 0%, #bbb 100%)" :
-                                                      "linear-gradient(90deg, #111 0%, #555 100%)",
-                                WebkitBackgroundClip: "text",
-                                WebkitTextFillColor : "transparent",
-                                letterSpacing       : "-0.02em"
-                            } }
-                        >
-                            { language === "en" ? "Projects" : "项目" }
-                        </Typography>
-                        <Typography
-                            variant = "subtitle1"
-                            component = { motion.p }
-                            initial = { { opacity: 0, y: - 10 } }
-                            animate = { { opacity: 1, y: 0, transition: { delay: 0.2 } } }
-                            sx = { {
-                                fontSize  : { xs: "1rem", md: "1.1rem" },
-                                color     : "text.secondary",
-                                lineHeight: 1.6,
-                                fontWeight: 400
-                            } }
-                        >
-                            { language === "en" ?
-                              "A showcase of my recent work and collaborative projects" :
-                              "展示我近期的工作和合作项目" }
-                        </Typography>
-                    </Box>
+                    <motion.div variants={itemVariants}>
+                        <EnhancedPageTitle
+                            title={language === "en" ? "Projects" : "项目"}
+                            subtitle={language === "en" ? "A showcase of my recent work and collaborative projects" : "展示我近期的工作和合作项目"}
+                            textAlign="center"
+                            withAnimation={true}
+                        />
+                    </motion.div>
 
                     {/* 优化后的控制面板 */ }
                     <Paper
