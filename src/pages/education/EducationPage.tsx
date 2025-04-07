@@ -628,6 +628,7 @@ const EducationPage: React.FC = () => {
           subtitle={t('education.subtitle', '我的学术背景以及学习经历')}
           textAlign="center"
           withAnimation={true}
+          icon={<SchoolIcon sx={{ fontSize: 36 }} />}
         />
 
         {/* 主要内容区域 */}

@@ -15,6 +15,7 @@ interface EnhancedPageTitleProps {
   sx?: SxProps<Theme>;
   titleSx?: SxProps<Theme>;
   subtitleSx?: SxProps<Theme>;
+  icon?: React.ReactNode;
 }
 
 /**
@@ -30,7 +31,8 @@ const EnhancedPageTitle: React.FC<EnhancedPageTitleProps> = ({
   withAnimation = true,
   sx = {},
   titleSx = {},
-  subtitleSx = {}
+  subtitleSx = {},
+  icon
 }) => {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
@@ -71,7 +73,7 @@ const EnhancedPageTitle: React.FC<EnhancedPageTitleProps> = ({
       variants={containerVariants}
       initial={withAnimation ? "hidden" : undefined}
       animate={withAnimation ? "visible" : undefined}
-      sx={{ textAlign, mb: { xs: 4, md: 6 }, ...sx }}
+      sx={{ textAlign, mb: { xs: 6, md: 8 }, ...sx }}
     >
       {/* 装饰元素 */}
       <Box
@@ -108,9 +110,27 @@ const EnhancedPageTitle: React.FC<EnhancedPageTitleProps> = ({
           WebkitBackgroundClip: 'text',
           WebkitTextFillColor: 'transparent',
           textShadow: isDark ? '0 2px 15px rgba(165, 180, 252, 0.2)' : '0 2px 10px rgba(79, 70, 229, 0.1)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: textAlign === 'center' ? 'center' : (textAlign === 'right' ? 'flex-end' : 'flex-start'),
+          gap: 2,
           ...titleSx,
         }}
       >
+        {icon && (
+          <Box
+            sx={{
+              display: 'flex',
+              color: isDark ? '#a5b4fc' : '#4f46e5',
+              filter: isDark ? 'drop-shadow(0 0 3px rgba(165, 180, 252, 0.5))' : 'none',
+              transform: 'scale(1.4)', // 增大图标尺寸
+              ml: textAlign === 'center' ? 0 : 1,
+              mr: textAlign === 'center' ? 0 : 2
+            }}
+          >
+            {icon}
+          </Box>
+        )}
         {title}
       </MotionTypography>
 
@@ -123,6 +143,8 @@ const EnhancedPageTitle: React.FC<EnhancedPageTitleProps> = ({
             color: isDark ? 'grey.400' : 'grey.600',
             mb: 2,
             letterSpacing: '0.2px',
+            textAlign: textAlign, // 确保子标题与主标题具有相同的对齐方式
+            width: '100%', // 确保宽度为100%以便正确居中
             ...subtitleSx,
           }}
         >
@@ -143,6 +165,7 @@ const EnhancedPageTitle: React.FC<EnhancedPageTitleProps> = ({
           borderRadius: '2px',
           border: 'none',
           boxShadow: isDark ? '0 0 10px rgba(165, 180, 252, 0.3)' : '0 0 8px rgba(79, 70, 229, 0.2)',
+          mb: 3,
         }}
       />
 

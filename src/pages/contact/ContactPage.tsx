@@ -7,6 +7,7 @@ import ContactPage from '../../components/ui/contact/ContactPage';
 import resumeData from '../../data/resumeData.json';
 import EnhancedPageTitle from '../../components/ui/common/EnhancedPageTitle';
 import { useTranslation } from 'react-i18next';
+import { FiMail } from 'react-icons/fi';
 
 // 个人数据
 const userData = {
@@ -41,6 +42,7 @@ const ContactPageContainer: React.FC = () => {
         subtitle={t('contact.subtitle', '随时保持联系，了解更多合作机会')}
         textAlign="center"
         withAnimation={true}
+        icon={<FiMail size={36} />}
       />
 
       {/* 联系卡片 */}

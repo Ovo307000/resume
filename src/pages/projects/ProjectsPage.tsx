@@ -15,7 +15,7 @@ import {
 import { AnimatePresence, LayoutGroup, motion }                              from "framer-motion";
 import React, { useMemo, useState }                                          from "react";
 import { useTranslation }                                                    from "react-i18next";
-import { FiChevronDown, FiChevronUp, FiFilter, FiGrid, FiList, FiRefreshCw } from "react-icons/fi";
+import { FiChevronDown, FiChevronUp, FiFilter, FiGrid, FiList, FiRefreshCw, FiBriefcase } from "react-icons/fi";
 import NewProjectCard
                                                                              from "../../components/ui/projects/NewProjectCard";
 import NewProjectDetail
@@ -157,6 +157,7 @@ const ProjectsPage: React.FC = () =>
                             subtitle={language === "en" ? "A showcase of my recent work and collaborative projects" : "展示我近期的工作和合作项目"}
                             textAlign="center"
                             withAnimation={true}
+                            icon={<FiBriefcase size={36} />}
                         />
                     </motion.div>
 

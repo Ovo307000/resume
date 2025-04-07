@@ -227,6 +227,7 @@ const SkillsPage: React.FC<SkillsPageProps> = ({ data }) => {
               subtitle={t('skills.subtitle', '我的技术与专长领域')}
               textAlign="center"
               withAnimation={true}
+              icon={<FiZap size={36} />}
             />
           </motion.div>
 
@@ -237,7 +238,7 @@ const SkillsPage: React.FC<SkillsPageProps> = ({ data }) => {
                 mb: 3,
                 mt: 6,
                 fontWeight: 600,
-                textAlign: { xs: 'center', md: 'left' },
+                textAlign: { xs: 'center', md: 'center' },
                 background: theme === 'dark'
                   ? 'linear-gradient(90deg, #ffeb3b 0%, #ff9800 100%)'
                   : 'linear-gradient(90deg, #f57f17 0%, #ef6c00 100%)',
@@ -246,17 +247,19 @@ const SkillsPage: React.FC<SkillsPageProps> = ({ data }) => {
                 letterSpacing: '0.5px',
                 display: 'flex',
                 alignItems: 'center',
-                gap: 1
+                justifyContent: 'center',
+                gap: 1.5
               }}
             >
               <Box
                 sx={{
                   display: 'flex',
                   color: theme === 'dark' ? '#ffeb3b' : '#f57f17',
-                  filter: theme === 'dark' ? 'drop-shadow(0 0 2px rgba(255, 235, 59, 0.5))' : 'none'
+                  filter: theme === 'dark' ? 'drop-shadow(0 0 2px rgba(255, 235, 59, 0.5))' : 'none',
+                  transform: 'scale(1.3)'
                 }}
               >
-                <FiCode size={24} />
+                <FiCode size={26} />
               </Box>
               {t('skills.techCloudTitle', '技术标签云')}
             </Typography>
@@ -270,7 +273,7 @@ const SkillsPage: React.FC<SkillsPageProps> = ({ data }) => {
                 mb: 3,
                 mt: 6,
                 fontWeight: 600,
-                textAlign: { xs: 'center', md: 'left' },
+                textAlign: { xs: 'center', md: 'center' },
                 background: theme === 'dark'
                   ? 'linear-gradient(90deg, #9c7aff 0%, #6a98ff 100%)'
                   : 'linear-gradient(90deg, #5e35b1 0%, #1976d2 100%)',
@@ -279,17 +282,19 @@ const SkillsPage: React.FC<SkillsPageProps> = ({ data }) => {
                 letterSpacing: '0.5px',
                 display: 'flex',
                 alignItems: 'center',
-                gap: 1
+                justifyContent: 'center',
+                gap: 1.5
               }}
             >
               <Box
                 sx={{
                   display: 'flex',
                   color: theme === 'dark' ? '#9c7aff' : '#5e35b1',
-                  filter: theme === 'dark' ? 'drop-shadow(0 0 2px rgba(156, 122, 255, 0.5))' : 'none'
+                  filter: theme === 'dark' ? 'drop-shadow(0 0 2px rgba(156, 122, 255, 0.5))' : 'none',
+                  transform: 'scale(1.3)'
                 }}
               >
-                <FiZap size={24} />
+                <FiZap size={26} />
               </Box>
               {t('skills.overviewTitle', '技能概述')}
             </Typography>

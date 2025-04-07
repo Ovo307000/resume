@@ -15,6 +15,7 @@ import {
   FiServer,
   FiTarget,
   FiTrendingUp,
+  FiUser,
   FiWifi,
   FiZap
 } from 'react-icons/fi';
@@ -378,6 +379,7 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
               subtitle={t('about.subtitle', '我的旅程和驱动力')}
               textAlign="center"
               withAnimation={true}
+              icon={<FiUser size={28} />}
             />
           </motion.div>
 
