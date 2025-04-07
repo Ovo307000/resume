@@ -470,28 +470,9 @@ const AboutPage: React.FC<AboutPageProps> = ({ data }) => {
 
           {/* 技能 */}
           <motion.div variants={itemVariants}>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{
-                type: "spring",
-                stiffness: 300,
-                damping: 20,
-                delay: 0.2
-              }}
-            >
-              <Box sx={{ mb: 4, mt: 5 }}>
-                <EnhancedPageTitle
-                  title={t('about.title.skills', '技术栈')}
-                  subtitle={t('about.skills.description', '我掌握的技术与工具')}
-                  textAlign="center"
-                  withAnimation={true}
-                  icon={<FiZap size={28} />}
-                />
-              </Box>
-            </motion.div>
-
             <GlassyContainer
+              title={t('about.title.skills', '技术栈')}
+              titleIcon={<FiZap size={24} />}
               colorSet="cool"
             >
               {/* 后端技术 */}
