@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import {
   Box,
@@ -12,7 +12,11 @@ import {
   useMediaQuery,
   Paper,
   Stack,
-  Chip
+  Chip,
+  Modal,
+  Card,
+  CardMedia,
+  CardActions
 } from '@mui/material';
 import {
   FiX,
@@ -20,10 +24,12 @@ import {
   FiExternalLink,
   FiArrowLeft,
   FiMaximize2,
-  FiMinimize2,
   FiDownload,
   FiTag,
-  FiPaperclip
+  FiPaperclip,
+  FiZoomIn,
+  FiZoomOut,
+  FiExternalLink as FiOpenInNew
 } from 'react-icons/fi';
 import { useTheme } from '../../../contexts/ThemeContext';
 import { useLanguage } from '../../../hooks/useLanguage';
@@ -69,8 +75,11 @@ const NewProjectDetail: React.FC<NewProjectDetailProps> = ({
   const isTablet = useMediaQuery(muiTheme.breakpoints.down('md'));
 
   // 状态
-  const [isImageExpanded, setIsImageExpanded] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+  const [zoomLevel, setZoomLevel] = useState(1);
+  const [dragPosition, setDragPosition] = useState({ x: 0, y: 0 });
+  const imageContainerRef = useRef<HTMLDivElement>(null);
 
   // 获取本地化内容
   const localizedName = language === 'en' ? project.name : (project.nameZh || project.name);
@@ -93,17 +102,31 @@ const NewProjectDetail: React.FC<NewProjectDetailProps> = ({
     return '';
   };
 
+  // 在详情页打开时禁用背景滚动
+  useEffect(() => {
+    const originalStyle = window.getComputedStyle(document.body).overflow;
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      document.body.style.overflow = originalStyle;
+    };
+  }, []);
+
   // 处理 ESC 键关闭
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        onClose();
+        if (isImageModalOpen) {
+          setIsImageModalOpen(false);
+        } else {
+          onClose();
+        }
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onClose]);
+  }, [onClose, isImageModalOpen]);
 
   // 处理图片加载完成
   useEffect(() => {
@@ -112,9 +135,42 @@ const NewProjectDetail: React.FC<NewProjectDetailProps> = ({
     img.onload = () => setImageLoaded(true);
   }, [project.imageUrl]);
 
-  // 切换图片展开状态
-  const toggleImageExpand = () => {
-    setIsImageExpanded(!isImageExpanded);
+  // 打开图片模态框时重置缩放和位置
+  useEffect(() => {
+    if (isImageModalOpen) {
+      setZoomLevel(1);
+      setDragPosition({ x: 0, y: 0 });
+    }
+  }, [isImageModalOpen]);
+
+  // 处理图片模态框打开/关闭
+  const handleOpenImageModal = () => {
+    setIsImageModalOpen(true);
+  };
+
+  const handleCloseImageModal = () => {
+    setIsImageModalOpen(false);
+  };
+
+  // 处理图片缩放
+  const handleZoomIn = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (zoomLevel < 3) {
+      setZoomLevel(prev => prev + 0.5);
+    }
+  };
+
+  const handleZoomOut = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (zoomLevel > 1) {
+      setZoomLevel(prev => prev - 0.5);
+    }
+  };
+
+  // 处理在新窗口打开图片
+  const handleOpenImageInNewTab = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    window.open(project.imageUrl, '_blank', 'noopener,noreferrer');
   };
 
   // 处理外部链接点击
@@ -125,7 +181,9 @@ const NewProjectDetail: React.FC<NewProjectDetailProps> = ({
   };
 
   // 处理图片下载
-  const handleImageDownload = () => {
+  const handleImageDownload = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+
     const link = document.createElement('a');
     link.href = project.imageUrl;
     link.download = `${project.name}-project.${project.imageUrl.split('.').pop()}`;
@@ -192,9 +250,6 @@ const NewProjectDetail: React.FC<NewProjectDetailProps> = ({
 
   const longDescription = getLocalizedLongDescription();
 
-  // 最大宽度设置
-  const maxWidth = isImageExpanded ? '1000px' : '900px';
-
   return (
     <motion.div
       variants={containerVariants}
@@ -203,12 +258,203 @@ const NewProjectDetail: React.FC<NewProjectDetailProps> = ({
       exit="exit"
       style={{
         width: '100%',
-        maxWidth,
+        maxWidth: '900px',
         maxHeight: '90vh',
         display: 'flex',
         flexDirection: 'column'
       }}
     >
+      {/* 图片查看模态框 */}
+      <Modal
+        open={isImageModalOpen}
+        onClose={handleCloseImageModal}
+        aria-labelledby="image-modal-title"
+        closeAfterTransition
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: { xs: 1, sm: 2 }
+        }}
+      >
+        <Card
+          component={motion.div}
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.9 }}
+          onClick={handleCloseImageModal}
+          sx={{
+            maxWidth: '95vw',
+            maxHeight: '90vh',
+            width: { xs: '95vw', sm: 'auto' },
+            height: { xs: 'auto', sm: 'auto' },
+            overflow: 'hidden',
+            backdropFilter: 'blur(10px)',
+            WebkitBackdropFilter: 'blur(10px)',
+            bgcolor: isDark
+              ? alpha(muiTheme.palette.background.paper, 0.4)
+              : alpha(muiTheme.palette.background.paper, 0.7),
+            boxShadow: isDark
+              ? `0 20px 80px -10px ${alpha('#000', 0.7)}`
+              : `0 20px 80px -10px ${alpha('#000', 0.3)}`,
+            position: 'relative',
+            display: 'flex',
+            flexDirection: 'column',
+            cursor: 'default'
+          }}
+        >
+          <Box
+            ref={imageContainerRef}
+            onClick={(e) => e.stopPropagation()}
+            sx={{
+              overflow: 'hidden',
+              position: 'relative',
+              height: { xs: 'calc(80vh - 60px)', sm: 'auto' },
+              maxHeight: '80vh',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          >
+            {/* 图片操作提示 */}
+            <Box
+              sx={{
+                position: 'absolute',
+                top: 10,
+                left: 0,
+                right: 0,
+                zIndex: 5,
+                display: 'flex',
+                justifyContent: 'center',
+                pointerEvents: 'none'
+              }}
+            >
+              <Typography
+                variant="caption"
+                sx={{
+                  bgcolor: isDark
+                    ? alpha(muiTheme.palette.background.paper, 0.5)
+                    : alpha(muiTheme.palette.background.paper, 0.7),
+                  backdropFilter: 'blur(5px)',
+                  WebkitBackdropFilter: 'blur(5px)',
+                  color: 'text.secondary',
+                  py: 0.5,
+                  px: 2,
+                  borderRadius: '100px',
+                  fontSize: '0.7rem',
+                  opacity: 0.8
+                }}
+              >
+                {language === 'en'
+                  ? 'Double-click to zoom • Drag to move when zoomed'
+                  : '双击放大 • 放大后可拖动查看'}
+              </Typography>
+            </Box>
+
+            <motion.div
+              drag
+              dragConstraints={imageContainerRef}
+              dragElastic={0.1}
+              whileTap={{ cursor: 'grabbing' }}
+              dragMomentum={false}
+              style={{
+                scale: zoomLevel,
+                x: dragPosition.x,
+                y: dragPosition.y,
+                cursor: zoomLevel > 1 ? 'grab' : 'default'
+              }}
+              onDrag={(e, info) => {
+                if (zoomLevel > 1) {
+                  setDragPosition({
+                    x: info.offset.x + dragPosition.x,
+                    y: info.offset.y + dragPosition.y
+                  });
+                }
+              }}
+              onDoubleClick={(e) => {
+                e.stopPropagation();
+                // 双击时在原始大小和放大之间切换
+                if (zoomLevel === 1) {
+                  setZoomLevel(2);
+                  // 计算双击点相对于容器的位置，以实现精确缩放
+                  if (imageContainerRef.current) {
+                    const rect = imageContainerRef.current.getBoundingClientRect();
+                    const offsetX = e.clientX - rect.left - rect.width / 2;
+                    const offsetY = e.clientY - rect.top - rect.height / 2;
+                    setDragPosition({ x: -offsetX, y: -offsetY });
+                  }
+                } else {
+                  setZoomLevel(1);
+                  setDragPosition({ x: 0, y: 0 });
+                }
+              }}
+            >
+              <CardMedia
+                component="img"
+                image={project.imageUrl}
+                alt={localizedName}
+                sx={{
+                  maxHeight: '80vh',
+                  maxWidth: '95vw',
+                  objectFit: 'contain',
+                  pointerEvents: 'none'
+                }}
+              />
+            </motion.div>
+          </Box>
+
+          {/* 图片操作按钮栏 */}
+          <CardActions
+            sx={{
+              p: 1.5,
+              justifyContent: 'space-between',
+              bgcolor: isDark
+                ? alpha(muiTheme.palette.background.paper, 0.6)
+                : alpha(muiTheme.palette.background.paper, 0.9)
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              <Tooltip title={language === 'en' ? 'Zoom In' : '放大'}>
+                <IconButton
+                  size="small"
+                  onClick={handleZoomIn}
+                  disabled={zoomLevel >= 3}
+                >
+                  <FiZoomIn size={16} />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title={language === 'en' ? 'Zoom Out' : '缩小'}>
+                <IconButton
+                  size="small"
+                  onClick={handleZoomOut}
+                  disabled={zoomLevel <= 1}
+                >
+                  <FiZoomOut size={16} />
+                </IconButton>
+              </Tooltip>
+            </Box>
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              <Tooltip title={language === 'en' ? 'Download Image' : '下载图片'}>
+                <IconButton size="small" onClick={handleImageDownload}>
+                  <FiDownload size={16} />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title={language === 'en' ? 'Open in New Tab' : '在新标签页中打开'}>
+                <IconButton size="small" onClick={handleOpenImageInNewTab}>
+                  <FiOpenInNew size={16} />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title={language === 'en' ? 'Close' : '关闭'}>
+                <IconButton size="small" onClick={handleCloseImageModal}>
+                  <FiX size={16} />
+                </IconButton>
+              </Tooltip>
+            </Box>
+          </CardActions>
+        </Card>
+      </Modal>
+
       <Paper
         elevation={0}
         sx={{
@@ -226,16 +472,20 @@ const NewProjectDetail: React.FC<NewProjectDetailProps> = ({
           display: 'flex',
           flexDirection: 'column',
           maxHeight: '90vh',
-          overflow: 'auto'
+          overflow: 'auto',
+          position: 'relative'
         }}
       >
-        {/* 返回按钮 */}
+        {/* 返回按钮 - 修改为粘滞定位 */}
         <Box
           sx={{
-            position: 'absolute',
+            position: 'sticky',
             top: 16,
             left: 16,
-            zIndex: 10,
+            zIndex: 100,
+            width: 'fit-content',
+            ml: 2,
+            mt: 2
           }}
         >
           <motion.div
@@ -243,39 +493,43 @@ const NewProjectDetail: React.FC<NewProjectDetailProps> = ({
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            <IconButton
-              onClick={onClose}
-              aria-label="back"
-              size="small"
-              sx={{
-                backgroundColor: isDark
-                  ? alpha(muiTheme.palette.background.paper, 0.5)
-                  : alpha(muiTheme.palette.background.paper, 0.8),
-                backdropFilter: 'blur(10px)',
-                WebkitBackdropFilter: 'blur(10px)',
-                color: 'text.primary',
-                border: `1px solid ${alpha(isDark ? '#fff' : '#000', 0.1)}`,
-                '&:hover': {
+            <Tooltip title={language === 'en' ? 'Back' : '返回'}>
+              <IconButton
+                onClick={onClose}
+                aria-label="back"
+                size="small"
+                sx={{
                   backgroundColor: isDark
-                    ? alpha(muiTheme.palette.background.paper, 0.7)
-                    : alpha(muiTheme.palette.background.paper, 1),
-                }
-              }}
-            >
-              <FiArrowLeft size={18} />
-            </IconButton>
+                    ? alpha(muiTheme.palette.background.paper, 0.5)
+                    : alpha(muiTheme.palette.background.paper, 0.8),
+                  backdropFilter: 'blur(10px)',
+                  WebkitBackdropFilter: 'blur(10px)',
+                  color: 'text.primary',
+                  border: `1px solid ${alpha(isDark ? '#fff' : '#000', 0.1)}`,
+                  '&:hover': {
+                    backgroundColor: isDark
+                      ? alpha(muiTheme.palette.background.paper, 0.7)
+                      : alpha(muiTheme.palette.background.paper, 1),
+                  }
+                }}
+              >
+                <FiArrowLeft size={18} />
+              </IconButton>
+            </Tooltip>
           </motion.div>
         </Box>
 
         {/* 图片区域 */}
-        <Box sx={{ position: 'relative' }}>
+        <Box sx={{ position: 'relative', mt: 3 }}>
           <Box
             sx={{
-              height: isImageExpanded ? '50vh' : '40vh',
+              height: '40vh',
               position: 'relative',
               overflow: 'hidden',
-              transition: 'height 0.3s ease-in-out',
+              transition: 'all 0.3s ease-in-out',
+              cursor: 'pointer',
             }}
+            onClick={handleOpenImageModal}
           >
             <Box
               component={motion.div}
@@ -287,8 +541,12 @@ const NewProjectDetail: React.FC<NewProjectDetailProps> = ({
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
                 filter: isDark ? 'brightness(0.85)' : 'none',
-                transition: 'filter 0.3s ease-in-out',
+                transition: 'all 0.3s ease-in-out',
                 position: 'relative',
+                '&:hover': {
+                  transform: 'scale(1.02)',
+                  filter: isDark ? 'brightness(0.95)' : 'brightness(1.05)',
+                },
                 '&::after': {
                   content: '""',
                   position: 'absolute',
@@ -314,10 +572,10 @@ const NewProjectDetail: React.FC<NewProjectDetailProps> = ({
               zIndex: 2,
             }}
           >
-            <Tooltip title={isImageExpanded ? (language === 'en' ? 'Collapse' : '收起') : (language === 'en' ? 'Expand' : '展开')}>
+            <Tooltip title={language === 'en' ? 'View Full Image' : '查看完整图片'}>
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                 <IconButton
-                  onClick={toggleImageExpand}
+                  onClick={handleOpenImageModal}
                   size="small"
                   sx={{
                     backgroundColor: isDark
@@ -329,7 +587,7 @@ const NewProjectDetail: React.FC<NewProjectDetailProps> = ({
                     border: `1px solid ${alpha(isDark ? '#fff' : '#000', 0.1)}`,
                   }}
                 >
-                  {isImageExpanded ? <FiMinimize2 size={18} /> : <FiMaximize2 size={18} />}
+                  <FiMaximize2 size={18} />
                 </IconButton>
               </motion.div>
             </Tooltip>
@@ -337,7 +595,10 @@ const NewProjectDetail: React.FC<NewProjectDetailProps> = ({
             <Tooltip title={language === 'en' ? 'Download Image' : '下载图片'}>
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                 <IconButton
-                  onClick={handleImageDownload}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleImageDownload();
+                  }}
                   size="small"
                   sx={{
                     backgroundColor: isDark
@@ -415,7 +676,7 @@ const NewProjectDetail: React.FC<NewProjectDetailProps> = ({
                 {localizedName}
               </Typography>
 
-              {/* 只保留GitHub链接 */}
+              {/* GitHub链接 */}
               {project.githubUrl && (
                 <motion.div whileHover={{ y: -3 }} transition={{ type: "spring", stiffness: 500, damping: 10 }}>
                   <Button

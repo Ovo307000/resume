@@ -78,11 +78,7 @@ const ProjectsPage: React.FC = () =>
     const handleProjectSelect = ( projectId: string ) => {
         setSelectedProjectId ( projectId );
 
-        // 添加滚动到顶部功能
-        window.scrollTo({
-            top: 0,
-            behavior: 'smooth'
-        });
+        // 不再需要滚动到顶部，因为我们已经通过样式调整保证内容显示在导航栏下方
     };
 
     // 处理关闭详情
@@ -410,15 +406,22 @@ const ProjectsPage: React.FC = () =>
                                 backgroundColor: isDark ? "rgba(0, 0, 0, 0.7)" : "rgba(255, 255, 255, 0.7)",
                                 overflow       : "auto",
                                 display        : "flex",
-                                alignItems     : "center",
+                                alignItems     : "flex-start",
                                 justifyContent : "center",
-                                padding        : { xs: 2, sm: 4 }
+                                paddingTop     : "80px",
+                                paddingBottom  : "40px",
+                                paddingLeft    : { xs: 2, sm: 4 },
+                                paddingRight   : { xs: 2, sm: 4 }
                             } }
                         >
                             <Box
                                 onClick = { e => e.stopPropagation () }
                                 sx = { {
-                                    width: "100%", maxWidth: isImageExpanded ? "1000px" : "900px", maxHeight: "90vh"
+                                    width: "100%",
+                                    maxWidth: isImageExpanded ? "1000px" : "900px",
+                                    maxHeight: "calc(100vh - 120px)",
+                                    marginTop: "20px",
+                                    position: "relative"
                                 } }
                             >
                                 <NewProjectDetail
