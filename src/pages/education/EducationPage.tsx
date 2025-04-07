@@ -81,6 +81,12 @@ const EducationPage: React.FC = () => {
       prev === 0 ? educationItems.length - 1 : prev - 1
     );
 
+    // 滚动到教育内容的顶部
+    document.getElementById('education-content')?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start'
+    });
+
     setTimeout(() => {
       setIsTransitioning(false);
       setDirection(0);
@@ -95,6 +101,12 @@ const EducationPage: React.FC = () => {
     setCurrentIndex(prev =>
       prev === educationItems.length - 1 ? 0 : prev + 1
     );
+
+    // 滚动到教育内容的顶部
+    document.getElementById('education-content')?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start'
+    });
 
     setTimeout(() => {
       setIsTransitioning(false);
@@ -636,7 +648,7 @@ const EducationPage: React.FC = () => {
           <Grid item xs={12}>
             {renderNavigation()}
 
-            <div {...swipeHandlers}>
+            <div {...swipeHandlers} id="education-content">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={currentIndex}

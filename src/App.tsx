@@ -13,6 +13,7 @@ import SkillsPage from './pages/skills/SkillsPage';
 import ProjectsPage from './pages/projects/ProjectsPage';
 import EducationPage from './pages/education/EducationPage';
 import ContactPage from './pages/contact/ContactPage';
+import ScrollToTopOnNavigation from './components/ui/common/ScrollToTopOnNavigation';
 import resumeData from './data/resumeData.json';
 import GlobalStyles from './styles/GlobalStyles';
 
@@ -27,6 +28,7 @@ function App() {
         <CopyNotificationProvider>
           <DarkReaderProvider>
             <HashRouter>
+              <ScrollToTopOnNavigation />
               <CssBaseline />
               <GlobalStyles />
               <Layout>

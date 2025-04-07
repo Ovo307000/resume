@@ -75,7 +75,15 @@ const ProjectsPage: React.FC = () =>
     const selectedProject = useMemo ( () => projectsWithId.find ( project => project.id === selectedProjectId ), [ projectsWithId, selectedProjectId ] );
 
     // 处理项目选择 - 不再滚动到顶部
-    const handleProjectSelect = ( projectId: string ) => setSelectedProjectId ( projectId );
+    const handleProjectSelect = ( projectId: string ) => {
+        setSelectedProjectId ( projectId );
+
+        // 添加滚动到顶部功能
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    };
 
     // 处理关闭详情
     const handleCloseDetail = () => setSelectedProjectId ( null );
