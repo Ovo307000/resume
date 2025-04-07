@@ -238,7 +238,7 @@ const SkillsPage: React.FC<SkillsPageProps> = ({ data }) => {
                 mb: 3,
                 mt: 6,
                 fontWeight: 600,
-                textAlign: { xs: 'center', md: 'center' },
+                textAlign: 'left',
                 background: theme === 'dark'
                   ? 'linear-gradient(90deg, #ffeb3b 0%, #ff9800 100%)'
                   : 'linear-gradient(90deg, #f57f17 0%, #ef6c00 100%)',
@@ -247,7 +247,7 @@ const SkillsPage: React.FC<SkillsPageProps> = ({ data }) => {
                 letterSpacing: '0.5px',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center',
+                justifyContent: 'flex-start',
                 gap: 1.5
               }}
             >
@@ -273,7 +273,7 @@ const SkillsPage: React.FC<SkillsPageProps> = ({ data }) => {
                 mb: 3,
                 mt: 6,
                 fontWeight: 600,
-                textAlign: { xs: 'center', md: 'center' },
+                textAlign: 'left',
                 background: theme === 'dark'
                   ? 'linear-gradient(90deg, #9c7aff 0%, #6a98ff 100%)'
                   : 'linear-gradient(90deg, #5e35b1 0%, #1976d2 100%)',
@@ -282,7 +282,7 @@ const SkillsPage: React.FC<SkillsPageProps> = ({ data }) => {
                 letterSpacing: '0.5px',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center',
+                justifyContent: 'flex-start',
                 gap: 1.5
               }}
             >
