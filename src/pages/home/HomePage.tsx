@@ -3,7 +3,7 @@ import { Box, Container, Typography, Grid, Card } from '@mui/material';
 import { motion } from 'framer-motion';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useTranslation } from 'react-i18next';
-import { FiArrowRight, FiGithub, FiMail, FiPhone, FiDownload, FiCopy } from 'react-icons/fi';
+import { FiArrowRight, FiGithub, FiMail, FiPhone, FiCopy } from 'react-icons/fi';
 import { SiWechat } from 'react-icons/si';
 import GlassPanel from '../../components/ui/glass/GlassPanel';
 import { FaJava, FaDocker } from 'react-icons/fa';
@@ -11,10 +11,11 @@ import { SiSpring, SiMysql } from 'react-icons/si';
 import ProfileAvatar from '../../components/ui/ProfileAvatar';
 import TypedText from '../../components/ui/common/TypedText';
 import CustomTooltip from '../../components/ui/common/CustomTooltip';
-import { Link } from 'react-router-dom';
 import confetti from 'canvas-confetti';
 // 导入全局复制通知Hook
 import { useCopyNotification } from '../../contexts/CopyNotificationContext';
+// 导入新的玻璃按钮组件
+import GlassButton from '../../components/ui/common/GlassButton';
 
 interface HomePageProps {
   data: {
@@ -57,8 +58,8 @@ const HomePage: React.FC<HomePageProps> = ({ data }) => {
   // 角色列表
   const roles = [
     data.label,
-    t('home.role_2', 'Java 工程师'),
-    t('home.role_3', '后端开发者')
+    t('home.role_2', 'Java 开发工程师'),
+    t('home.role_3', '全栈开发者')
   ];
 
   // 每3秒切换一次角色
@@ -267,95 +268,35 @@ const HomePage: React.FC<HomePageProps> = ({ data }) => {
               </motion.div>
 
               <motion.div variants={itemVariants}>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 4, gap: 2 }}>
-                  <Link to="/about" style={{ textDecoration: 'none' }}>
-                    <Box
-                      sx={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        px: 3,
-                        py: 1.2,
-                        borderRadius: '50px',
-                        fontWeight: 600,
-                        textDecoration: 'none',
-                        color: '#fff',
-                        background: theme === 'dark'
-                          ? 'linear-gradient(90deg, #7928CA 0%, #FF0080 100%)'
-                          : 'linear-gradient(90deg, #0070F3 0%, #00DFD8 100%)',
-                        transition: 'all 0.3s ease',
-                        '&:hover': {
-                          transform: 'translateY(-3px)',
-                          boxShadow: '0 7px 14px rgba(0,0,0,0.12)'
-                        }
-                      }}
-                    >
-                      {t('common.viewDetails', '查看详细')}
-                      <FiArrowRight style={{ marginLeft: 8 }} />
-                    </Box>
-                  </Link>
-
-                  <Box
-                    component="a"
-                    href="/Resume.pdf"
-                    download="赵东安-Java后端开发工程师-简历.pdf"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={() => {
-                      setTimeout(() => confetti({
-                        particleCount: 100,
-                        spread: 70,
-                        origin: { y: 0.6 }
-                      }), 300);
-                    }}
-                    sx={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      px: 3,
-                      py: 1.2,
-                      borderRadius: '50px',
-                      fontWeight: 600,
-                      textDecoration: 'none',
-                      color: theme === 'dark' ? '#fff' : '#fff',
-                      background: theme === 'dark'
-                        ? 'linear-gradient(135deg, #333 0%, #666 100%)'
-                        : 'linear-gradient(135deg, #444 0%, #777 100%)',
-                      boxShadow: '0 4px 10px rgba(0,0,0,0.12)',
-                      position: 'relative',
-                      overflow: 'hidden',
-                      '&::before': {
-                        content: '""',
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 50%)',
-                        borderRadius: '50px',
-                      },
-                      '&:hover': {
-                        backgroundColor: theme === 'dark' ? '#555' : '#666',
-                        transform: 'translateY(-3px)',
-                        boxShadow: '0 7px 14px rgba(0,0,0,0.2)',
-                        '& .download-icon': {
-                          transform: 'translateY(2px)'
-                        }
-                      },
-                      transition: 'all 0.3s ease'
-                    }}
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 4, gap: 2, flexWrap: { xs: 'wrap', md: 'nowrap' } }}>
+                  {/* 了解更多按钮，使用GlassButton组件 */}
+                  <GlassButton
+                    to="/about"
+                    variant="gradient"
+                    size="medium"
+                    icon={<FiArrowRight />}
+                    iconPosition="end"
+                    rounded={true}
+                    hoverEffect={true}
                   >
-                    {t('common.downloadPdf', '下载简历')}
-                    <Box
-                      component="span"
-                      className="download-icon"
-                      sx={{
-                        display: 'inline-flex',
-                        marginLeft: 1,
-                        transition: 'transform 0.3s ease'
-                      }}
-                    >
-                      <FiDownload size={18} />
-                    </Box>
-                  </Box>
+                    {t('common.viewDetails', '了解更多')}
+                  </GlassButton>
+
+                  {/* 查看简历按钮，使用GlassButton组件 */}
+                  <GlassButton
+                    href="/files/Resume.pdf"
+                    variant="default"
+                    size="medium"
+                    icon={<FiArrowRight />}
+                    iconPosition="end"
+                    rounded={true}
+                    hoverEffect={true}
+                    withConfetti={true}
+                    confettiColors={['#6366F1', '#8B5CF6', '#EC4899', '#10B981']}
+                    rgbBorder={true}
+                  >
+                    {t('common.viewPdf', '查看简历')}
+                  </GlassButton>
                 </Box>
               </motion.div>
 
@@ -570,7 +511,7 @@ const HomePage: React.FC<HomePageProps> = ({ data }) => {
               icon: <FaJava size={36} />,
               value: '3+',
               label: t('home.stats.experience', '年开发经验'),
-              tooltip: '3年以上开发经验，精通Java后端开发，熟练掌握常用设计模式，专注构建高性能、高可用系统',
+              tooltip: '熟练掌握常用设计模式，拥有丰富的项目经验，致力于构建高性能、高可用的稳定系统',
               color: theme === 'dark' ? '#ff9d00' : '#ff6d00', // 橙色系
               gradient: theme === 'dark'
                 ? 'linear-gradient(135deg, rgba(255, 157, 0, 0.15), rgba(255, 109, 0, 0.05))'
